@@ -1,0 +1,110 @@
+version: '2'
+services:
+
+  ### DB START
+  # This is the database to which the all the other components in the stack will connect and interact with
+  # (but mostly it's PostgREST that is going to be responsible for the bulk of the db traffic)
+  # Having the database in a container is very convenient in development but in production you will
+  # use a separate database instance, like Amazon RDS, i.e. in production this section will be
+  # commented and in the .env file you will specify the ip of your separate database instance
+  db:
+    image: mdillon/postgis
+    ports:
+      - "5432:5432"
+    environment:
+      # env vars specific to postgres image used on first boot
+      - POSTGRES_USER=${SUPER_USER}
+      - POSTGRES_PASSWORD=${SUPER_USER_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      # env vars useful for our sql scripts
+      - SUPER_USER=${SUPER_USER}
+      - SUPER_USER_PASSWORD=${SUPER_USER_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_ANON_ROLE=${DB_ANON_ROLE}
+      - DEVELOPMENT=${DEVELOPMENT}
+      - JWT_SECRET=${JWT_SECRET}
+
+    volumes:
+      - "./db/src:/docker-entrypoint-initdb.d"
+  ### DB END
+
+  # PostgREST instance, is responsible for communicating with the database
+  # and providing a REST api, (almost) every request that is sent to the database goes through it
+  postgrest:
+    image: postgrest/postgrest
+    ports:
+      - "3000:3000"
+    links:
+      - db:db
+    environment:
+      - PGRST_DB_URI=postgres://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - PGRST_DB_SCHEMA=${DB_SCHEMA} 
+      - PGRST_DB_ANON_ROLE=${DB_ANON_ROLE}
+      - PGRST_DB_POOL=${DB_POOL} 
+      - PGRST_JWT_SECRET=${JWT_SECRET}  
+      - PGRST_MAX_ROWS=${MAX_ROWS} 
+      - PGRST_PRE_REQUEST=${PRE_REQUEST}
+      - PGRST_SERVER_PROXY_URI=${SERVER_PROXY_URI}
+    depends_on:
+      - db
+
+  # OpenResty (Nginx + Lua) instance that sits in front of PostgREST.
+  # All the requests coming into the system are first hitting this component.
+  # After some processing/checks and transformation, the request is forwarded
+  # to PostgREST down the stack.
+  openresty:
+    image: openresty/openresty:stretch
+    command: ["/usr/bin/openresty", "-g", "daemon off; error_log /dev/stderr info;"]
+    ports:
+      - "8080:80"
+    links:
+      - db:db
+      - postgrest:postgrest
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - DEVELOPMENT=${DEVELOPMENT}
+      - POSTGREST_HOST=${POSTGREST_HOST}
+      - POSTGREST_PORT=${POSTGREST_PORT}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_SCHEMA=${DB_SCHEMA}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+    volumes:
+      - "./openresty/nginx/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf"
+      - "./openresty/nginx/conf/includes:/usr/local/openresty/nginx/conf/includes"
+      - "./openresty/nginx/html:/usr/local/openresty/nginx/html"
+      - "./openresty/lualib/user_code:/usr/local/openresty/lualib/user_code"
+    depends_on:
+      - postgrest
+
+  # pg-amqp-bridge instance is responsible for forwarding NOTIFY events in PostgreSQL
+  # to RabbitMQ based on the BRIDGE_CHANNELS configuration
+  pg_amqp_bridge:
+    image: subzerocloud/pg-amqp-bridge
+    links:
+      - db
+      - rabbitmq
+    environment:
+      - RUST_LOG=info # output forwarded messages
+      - POSTGRESQL_URI=postgres://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - AMQP_URI=amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@rabbitmq//
+      - BRIDGE_CHANNELS=events:amq.topic
+    depends_on:
+      - db
+
+  # RabbitMQ instance can be used to consolidate events that originated in your database/application.
+  # You can connect here with different consumers and take actions based on those events (like sending signup emails)
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5671:5671"
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+
