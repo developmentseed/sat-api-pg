@@ -2,7 +2,7 @@ CREATE OR REPLACE VIEW collectionitems AS
   SELECT c.name as collection,
     c.properties as collectionproperties,
     i.id as id,
-    i.geometry as geometry,
+    data.ST_AsGeoJSON(i.geometry) :: json as geometry,
     i.properties as properties
   FROM data.items i
   RIGHT JOIN
