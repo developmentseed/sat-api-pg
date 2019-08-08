@@ -88,12 +88,13 @@ VALUES(
         }
     ]
   }');
-INSERT INTO data.items(id, collection_id, type, properties, geometry)
+INSERT INTO data.items(id, collection_id, type, properties, geometry, assets)
 VALUES(
   'LC80370382019170',
   1,
   'Feature',
   '{
+    "datetime": "2019-06-19T18:04:15.625209+00:00",
     "eo:platform": "landsat-8",
     "eo:instrument": "OLI_TIRS",
     "eo:off_nadir": 0,
@@ -137,6 +138,121 @@ VALUES(
             ]
         ]
     ]
-  }'), 4326)
+  }'), 4326),
+  '{
+      "index": {
+          "type": "text/html",
+          "title": "HTML index page",
+          "href": "https://landsat-pds.s3.amazonaws.com/c1/L8/037/038/LC08_L1TP_037038_20190619_20190619_01_RT/LC08_L1TP_037038_20190619_20190619_01_RT_MTL.txt"
+      },
+      "thumbnail": {
+          "title": "Thumbnail image",
+          "type": "image/jpeg",
+          "href": "https://landsat-pds.s3.amazonaws.com/c1/L8/037/038/LC08_L1TP_037038_20190619_20190619_01_RT/LC08_L1TP_037038_20190619_20190619_01_RT_thumb_large.jpg"
+      },
+      "B1": {
+          "type": "image/x.geotiff",
+          "eo:bands": [
+              0
+          ],
+          "title": "Band 1 (coastal)",
+          "href": "https://landsat-pds.s3.amazonaws.com/c1/L8/037/038/LC08_L1TP_037038_20190619_20190619_01_RT/LC08_L1TP_037038_20190619_20190619_01_RT_B1.TIF"
+      },
+      "B2": {
+          "type": "image/x.geotiff",
+          "eo:bands": [
+              1
+          ],
+          "title": "Band 2 (blue)",
+          "href": "https://landsat-pds.s3.amazonaws.com/c1/L8/037/038/LC08_L1TP_037038_20190619_20190619_01_RT/LC08_L1TP_037038_20190619_20190619_01_RT_B2.TIF"
+      },
+      "B3": {
+          "type": "image/x.geotiff",
+          "eo:bands": [
+              2
+          ],
+          "title": "Band 3 (green)",
+          "href": "https://landsat-pds.s3.amazonaws.com/c1/L8/037/038/LC08_L1TP_037038_20190619_20190619_01_RT/LC08_L1TP_037038_20190619_20190619_01_RT_B3.TIF"
+      },
+      "B4": {
+          "type": "image/x.geotiff",
+          "eo:bands": [
+              3
+          ],
+          "title": "Band 4 (red)",
+          "href": "https://landsat-pds.s3.amazonaws.com/c1/L8/037/038/LC08_L1TP_037038_20190619_20190619_01_RT/LC08_L1TP_037038_20190619_20190619_01_RT_B4.TIF"
+      },
+      "B5": {
+          "type": "image/x.geotiff",
+          "eo:bands": [
+              4
+          ],
+          "title": "Band 5 (nir)",
+          "href": "https://landsat-pds.s3.amazonaws.com/c1/L8/037/038/LC08_L1TP_037038_20190619_20190619_01_RT/LC08_L1TP_037038_20190619_20190619_01_RT_B5.TIF"
+      },
+      "B6": {
+          "type": "image/x.geotiff",
+          "eo:bands": [
+              5
+          ],
+          "title": "Band 6 (swir16)",
+          "href": "https://landsat-pds.s3.amazonaws.com/c1/L8/037/038/LC08_L1TP_037038_20190619_20190619_01_RT/LC08_L1TP_037038_20190619_20190619_01_RT_B6.TIF"
+      },
+      "B7": {
+          "type": "image/x.geotiff",
+          "eo:bands": [
+              6
+          ],
+          "title": "Band 7 (swir22)",
+          "href": "https://landsat-pds.s3.amazonaws.com/c1/L8/037/038/LC08_L1TP_037038_20190619_20190619_01_RT/LC08_L1TP_037038_20190619_20190619_01_RT_B7.TIF"
+      },
+      "B8": {
+          "type": "image/x.geotiff",
+          "eo:bands": [
+              7
+          ],
+          "title": "Band 8 (pan)",
+          "href": "https://landsat-pds.s3.amazonaws.com/c1/L8/037/038/LC08_L1TP_037038_20190619_20190619_01_RT/LC08_L1TP_037038_20190619_20190619_01_RT_B8.TIF"
+      },
+      "B9": {
+          "type": "image/x.geotiff",
+          "eo:bands": [
+              8
+          ],
+          "title": "Band 9 (cirrus)",
+          "href": "https://landsat-pds.s3.amazonaws.com/c1/L8/037/038/LC08_L1TP_037038_20190619_20190619_01_RT/LC08_L1TP_037038_20190619_20190619_01_RT_B9.TIF"
+      },
+      "B10": {
+          "type": "image/x.geotiff",
+          "eo:bands": [
+              9
+          ],
+          "title": "Band 10 (lwir)",
+          "href": "https://landsat-pds.s3.amazonaws.com/c1/L8/037/038/LC08_L1TP_037038_20190619_20190619_01_RT/LC08_L1TP_037038_20190619_20190619_01_RT_B10.TIF"
+      },
+      "B11": {
+          "type": "image/x.geotiff",
+          "eo:bands": [
+              10
+          ],
+          "title": "Band 11 (lwir)",
+          "href": "https://landsat-pds.s3.amazonaws.com/c1/L8/037/038/LC08_L1TP_037038_20190619_20190619_01_RT/LC08_L1TP_037038_20190619_20190619_01_RT_B11.TIF"
+      },
+      "ANG": {
+          "title": "Angle coefficients file",
+          "type": "text/plain",
+          "href": "https://landsat-pds.s3.amazonaws.com/c1/L8/037/038/LC08_L1TP_037038_20190619_20190619_01_RT/LC08_L1TP_037038_20190619_20190619_01_RT_ANG.txt"
+      },
+      "MTL": {
+          "title": "original metadata file",
+          "type": "text/plain",
+          "href": "https://landsat-pds.s3.amazonaws.com/c1/L8/037/038/LC08_L1TP_037038_20190619_20190619_01_RT/LC08_L1TP_037038_20190619_20190619_01_RT_MTL.txt"
+      },
+      "BQA": {
+          "title": "Band quality data",
+          "type": "image/x.geotiff",
+          "href": "https://landsat-pds.s3.amazonaws.com/c1/L8/037/038/LC08_L1TP_037038_20190619_20190619_01_RT/LC08_L1TP_037038_20190619_20190619_01_RT_BQA.TIF"
+      }
+  }'
 );
 

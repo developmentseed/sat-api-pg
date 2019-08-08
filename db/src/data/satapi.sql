@@ -13,15 +13,7 @@ CREATE TABLE items(
   type varchar(20),
   geometry geometry,
   properties jsonb,
+  assets jsonb,
   collection_id integer NOT NULL,
   CONSTRAINT fk_collection FOREIGN KEY (collection_id) REFERENCES collections(collection_id)
 );
-CREATE TABLE assets(
-  asset_id serial PRIMARY KEY,
-  href varchar(1024),
-  title varchar(1024),
-  type varchar(256),
-  item_id integer NOT NULL,
-  CONSTRAINT fk_item FOREIGN KEY (item_id) REFERENCES items(item_id)
-);
-
