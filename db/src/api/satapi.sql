@@ -18,6 +18,18 @@ AS $$
 DECLARE
 BEGIN
   RETURN QUERY
+  SELECT *
+  FROM collectionitems 
+  WHERE data.ST_INTERSECTS(collectionitems.geom, data.ST_MakeEnvelope(bbox[1], bbox[2], bbox[3], bbox[4], 4326));
+END
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION searchwithfieldsfilter(bbox numeric[], include text)
+RETURNS setof collectionitems
+AS $$
+DECLARE
+BEGIN
+  RETURN QUERY
   SELECT collection,
   collectionproperties,
   id,
@@ -27,7 +39,7 @@ BEGIN
   geometry,
   (select jsonb_object_agg(e.key, e.value)
               from   jsonb_each(properties) e
-              where  e.key NOT IN ('eo:row')) properties
+              where  e.key IN (include)) properties
   FROM collectionitems 
   WHERE data.ST_INTERSECTS(collectionitems.geom, data.ST_MakeEnvelope(bbox[1], bbox[2], bbox[3], bbox[4], 4326));
 END
