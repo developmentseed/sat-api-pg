@@ -1,0 +1,193 @@
+{
+	"info": {
+		"_postman_id": "41de7db8-4449-4b65-a484-1c5062d2ab66",
+		"name": "sat-api-next",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Simple cross collection.",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"bbox\": [-114.18578, 30.64594, -111.68488, 32.81955]\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/rest/rpc/search?select=*&or=(properties->>\"eo:gsd\".eq.15,collectionproperties->>\"eo:gsd\".eq.15)",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"rpc",
+						"search"
+					],
+					"query": [
+						{
+							"key": "select",
+							"value": "*"
+						},
+						{
+							"key": "or",
+							"value": "(properties->>\"eo:gsd\".eq.15,collectionproperties->>\"eo:gsd\".eq.15)"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logical and",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"bbox\": [-114.18578, 30.64594, -111.68488, 32.81955]\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/rest/rpc/search?select=collection,geometry,properties,type,assets&and=(or(properties->>\"eo:cloud_cover\".eq.0,collectionproperties->>\"eo:cloud_cover\".eq.0),or(properties->>\"eo:gsd\".eq.15,collectionproperties->>\"eo:gsd\".eq.15))",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"rpc",
+						"search"
+					],
+					"query": [
+						{
+							"key": "select",
+							"value": "collection,geometry,properties,type,assets"
+						},
+						{
+							"key": "and",
+							"value": "(or(properties->>\"eo:cloud_cover\".eq.0,collectionproperties->>\"eo:cloud_cover\".eq.0),or(properties->>\"eo:gsd\".eq.15,collectionproperties->>\"eo:gsd\".eq.15))"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fields filter include",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"bbox\": [-114.18578, 30.64594, -111.68488, 32.81955],\n\t\"include\": \"eo:row\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/rest/rpc/searchwithfieldsfilter?select=*&or=(properties->>\"eo:row\".eq.038,collectionproperties->>\"eo:gsd\".eq.038)",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"rpc",
+						"searchwithfieldsfilter"
+					],
+					"query": [
+						{
+							"key": "select",
+							"value": "*"
+						},
+						{
+							"key": "or",
+							"value": "(properties->>\"eo:row\".eq.038,collectionproperties->>\"eo:gsd\".eq.038)"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fields filter exclude",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"bbox\": [-114.18578, 30.64594, -111.68488, 32.81955],\n\t\"exclude\": \"eo:cloud_cover\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/rest/rpc/searchwithfieldsfilter?select=*&or=(properties->>\"eo:row\".eq.038,collectionproperties->>\"eo:gsd\".eq.038)",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"rpc",
+						"searchwithfieldsfilter"
+					],
+					"query": [
+						{
+							"key": "select",
+							"value": "*"
+						},
+						{
+							"key": "or",
+							"value": "(properties->>\"eo:row\".eq.038,collectionproperties->>\"eo:gsd\".eq.038)"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Full collectionitems",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/rest/collectionitems",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"collectionitems"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
