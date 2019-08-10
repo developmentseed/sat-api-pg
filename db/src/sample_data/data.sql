@@ -88,7 +88,7 @@ VALUES(
         }
     ]
   }');
-INSERT INTO data.items(id, collection_id, type, properties, geometry, assets)
+INSERT INTO data.items_string_geometry(id, collection_id, type, properties, geometry, assets)
 VALUES(
   'LC80370382019170',
   1,
@@ -111,7 +111,6 @@ VALUES(
       "landsat:revision": "00",
       "eo:epsg": 32612
   }',
-  data.ST_SetSRID(data.ST_GeomFromGeoJSON(
   '{
     "type": "Polygon",
     "coordinates": [
@@ -138,7 +137,7 @@ VALUES(
             ]
         ]
     ]
-  }'), 4326),
+  }',
   '{
       "index": {
           "type": "text/html",
