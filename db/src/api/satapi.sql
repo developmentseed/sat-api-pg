@@ -7,7 +7,8 @@ CREATE OR REPLACE VIEW collectionitems AS
     i.type,
     i.assets,
     data.ST_AsGeoJSON(i.geometry) :: json as geometry,
-    i.properties as properties
+    i.properties as properties,
+    i.datetime as datetime
   FROM data.items i
   RIGHT JOIN
     data.collections c ON i.collection = c.collection_id;
@@ -43,7 +44,8 @@ BEGIN
     geometry,
     (select jsonb_object_agg(e.key, e.value)
       from   jsonb_each(properties) e
-      where  e.key IN (include)) properties
+      where  e.key IN (include)) properties,
+    datetime
     FROM collectionitems
     WHERE data.ST_INTERSECTS(collectionitems.geom, data.ST_MakeEnvelope(bbox[1], bbox[2], bbox[3], bbox[4], 4326));
   ELSIF exclude IS NOT NULL THEN
@@ -58,7 +60,8 @@ BEGIN
     geometry,
     (select jsonb_object_agg(e.key, e.value)
       from   jsonb_each(properties) e
-      where  e.key NOT IN (exclude)) properties
+      where  e.key NOT IN (exclude)) properties,
+    datetime
     FROM collectionitems
     WHERE data.ST_INTERSECTS(collectionitems.geom, data.ST_MakeEnvelope(bbox[1], bbox[2], bbox[3], bbox[4], 4326));
   END IF;

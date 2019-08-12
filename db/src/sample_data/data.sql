@@ -97,7 +97,6 @@ VALUES(
       "eo:platform": "landsat-8",
       "eo:instrument": "OLI_TIRS",
       "eo:off_nadir": 0,
-      "datetime": "2019-06-19T18:04:15.625209+00:00",
       "eo:sun_azimuth": 107.44278551,
       "eo:sun_elevation": 68.69325853,
       "eo:cloud_cover": 0,

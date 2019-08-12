@@ -13,6 +13,7 @@ CREATE TABLE items(
   properties jsonb NOT NULL,
   assets jsonb,
   collection varchar(1024),
+  datetime timestamp with time zone,
   CONSTRAINT fk_collection FOREIGN KEY (collection) REFERENCES collections(collection_id)
 );
 
@@ -23,14 +24,16 @@ CREATE VIEW items_string_geometry AS
   data.ST_AsGeoJSON(geometry) :: json as geometry,
   properties,
   assets,
-  collection
+  collection,
+  datetime
   FROM data.items;
 
-CREATE OR REPLACE FUNCTION convert_geometry()
+CREATE OR REPLACE FUNCTION convert_values()
   RETURNS trigger AS
   $BODY$
   DECLARE
     converted_geometry data.geometry;
+    converted_datetime timestamp with time zone;
   BEGIN
     --  IF TG_OP = 'INSERT' AND (NEW.geometry ISNULL) THEN
       --  RAISE EXCEPTION 'geometry is required';
@@ -38,10 +41,17 @@ CREATE OR REPLACE FUNCTION convert_geometry()
     --  END IF;
   --  EXCEPTION WHEN SQLSTATE 'XX000' THEN
     --  RAISE WARNING 'geometry not updated: %', SQLERRM;
-  --  NEW.geometry := data.ST_GeomFromGeoJSON(NEW.geometry);
   converted_geometry = data.ST_SetSRID(data.ST_GeomFromGeoJSON(NEW.geometry), 4326);
-  INSERT INTO data.items(id, type, geometry, properties, assets, collection)
-  VALUES(new.id, new.type, converted_geometry, new.properties, new.assets, new.collection);
+  converted_datetime = (new.properties)->'datetime';
+  INSERT INTO data.items(id, type, geometry, properties, assets, collection, datetime)
+  VALUES(
+    new.id,
+    new.type,
+    converted_geometry,
+    new.properties,
+    new.assets,
+    new.collection,
+    converted_datetime);
   RETURN NEW;
   END;
   $BODY$
@@ -49,5 +59,5 @@ CREATE OR REPLACE FUNCTION convert_geometry()
 
 CREATE TRIGGER convert_geometry_tg INSTEAD OF INSERT
    ON data.items_string_geometry FOR EACH ROW
-   EXECUTE PROCEDURE data.convert_geometry();
+   EXECUTE PROCEDURE data.convert_values();
 
