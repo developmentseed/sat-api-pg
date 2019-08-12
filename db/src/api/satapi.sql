@@ -62,3 +62,7 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+
+CREATE OR REPLACE VIEW items AS
+  SELECT * FROM data.items_string_geometry;
+ALTER VIEW items owner to api;

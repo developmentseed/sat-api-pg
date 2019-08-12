@@ -10,10 +10,14 @@ select auth.set_auth_endpoints_privileges('api', :'anonymous', enum_range(null::
 -- remember to list all the values of user_role type here
 grant usage on schema api to anonymous, webuser;
 grant usage on schema data to anonymous, webuser;
+GRANT usage ON sequence data.items_item_id_seq TO anonymous, webuser;
 
 grant select, insert, update, delete on api.collectionitems to anonymous;
+grant select, insert, update, delete on api.items to anonymous;
+grant select, insert, update, delete on data.items to anonymous;
 
 grant select on data.collections to api;
-grant select on data.items to api;
+grant select, insert, update on data.items to api;
+grant select, insert, update on data.items_string_geometry to api;
 
 -- anonymous users can only request specific columns from this view
