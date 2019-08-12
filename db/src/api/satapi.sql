@@ -1,6 +1,7 @@
 CREATE OR REPLACE VIEW collectionitems AS
-  SELECT c.name as collection,
+  SELECT
     c.properties as collectionproperties,
+    i.collection as collection,
     i.id as id,
     i.geometry as geom,
     i.type,
@@ -9,7 +10,7 @@ CREATE OR REPLACE VIEW collectionitems AS
     i.properties as properties
   FROM data.items i
   RIGHT JOIN
-    data.collections c ON i.collection_id = c.collection_id;
+    data.collections c ON i.collection = c.collection_id;
 ALTER VIEW collectionitems owner to api;
 
 CREATE FUNCTION search(bbox numeric[])
@@ -32,8 +33,9 @@ DECLARE
 BEGIN
   IF include IS NOT NULL THEN
     RETURN QUERY
-    SELECT collection,
+    SELECT
     collectionproperties,
+    collection,
     id,
     geom,
     type,
@@ -46,8 +48,9 @@ BEGIN
     WHERE data.ST_INTERSECTS(collectionitems.geom, data.ST_MakeEnvelope(bbox[1], bbox[2], bbox[3], bbox[4], 4326));
   ELSIF exclude IS NOT NULL THEN
     RETURN QUERY
-    SELECT collection,
+    SELECT
     collectionproperties,
+    collection,
     id,
     geom,
     type,

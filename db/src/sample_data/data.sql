@@ -1,6 +1,5 @@
-INSERT INTO data.collections(name, id, description, properties)
+INSERT INTO data.collections(collection_id, description, properties)
 VALUES(
-  'Landsat8',
   'landsat-8-l1',
   'Landat 8 imagery radiometrically calibrated and orthorectified using gound points and Digital Elevation Model (DEM) data to correct relief displacement.',
   '{
@@ -88,10 +87,10 @@ VALUES(
         }
     ]
   }');
-INSERT INTO data.items_string_geometry(id, collection_id, type, properties, geometry, assets)
+INSERT INTO data.items_string_geometry(id, collection, type, properties, geometry, assets)
 VALUES(
   'LC80370382019170',
-  1,
+  'landsat-8-l1',
   'Feature',
   '{
       "datetime": "2019-06-19T18:04:15.625209+00:00",
