@@ -41,7 +41,7 @@ CREATE OR REPLACE FUNCTION convert_values()
     --  END IF;
   --  EXCEPTION WHEN SQLSTATE 'XX000' THEN
     --  RAISE WARNING 'geometry not updated: %', SQLERRM;
-  converted_geometry = data.ST_SetSRID(data.ST_GeomFromGeoJSON(NEW.geometry), 4326);
+  converted_geometry = data.st_setsrid(data.ST_GeomFromGeoJSON(NEW.geometry), 4326);
   converted_datetime = (new.properties)->'datetime';
   INSERT INTO data.items(id, type, geometry, properties, assets, collection, datetime)
   VALUES(

@@ -14,24 +14,41 @@ CREATE OR REPLACE VIEW collectionitems AS
     data.collections c ON i.collection = c.collection_id;
 ALTER VIEW collectionitems owner to api;
 
-CREATE FUNCTION search(bbox numeric[])
-RETURNS setof collectionitems
-AS $$
-DECLARE
-BEGIN
-  RETURN QUERY
-  SELECT *
-  FROM collectionitems
-  WHERE data.ST_INTERSECTS(collectionitems.geom, data.ST_MakeEnvelope(bbox[1], bbox[2], bbox[3], bbox[4], 4326));
-END
-$$ LANGUAGE plpgsql;
+--  CREATE FUNCTION search(bbox numeric[])
+--  RETURNS setof collectionitems
+--  AS $$
+--  DECLARE
+  --  intersects_geometry data.geometry;
+--  BEGIN
+  --  RETURN QUERY
+  --  SELECT *
+  --  FROM collectionitems
+  --  WHERE data.ST_INTERSECTS(collectionitems.geom, data.ST_MakeEnvelope(bbox[1], bbox[2], bbox[3], bbox[4], 4326));
+--  END
+--  $$ LANGUAGE plpgsql;
 
 CREATE FUNCTION searchwithfieldsfilter(
-  bbox numeric[], include TEXT = NULL, exclude TEXT = NULL)
+  bbox numeric[] = NULL,
+  intersects json = NULL,
+  include TEXT = NULL,
+  exclude TEXT = NULL
+)
 RETURNS setof collectionitems
 AS $$
 DECLARE
+  intersects_geometry data.geometry;
 BEGIN
+  IF bbox IS NOT NULL THEN
+    intersects_geometry = data.ST_MakeEnvelope(
+      bbox[1],
+      bbox[2],
+      bbox[3],
+      bbox[4],
+      4326
+    );
+  ELSIF intersects IS NOT NULL THEN
+    intersects_geometry = data.st_SetSRID(data.ST_GeomFromGeoJSON(intersects), 4326);
+  END IF;
   IF include IS NOT NULL THEN
     RETURN QUERY
     SELECT
@@ -63,7 +80,12 @@ BEGIN
       where  e.key NOT IN (exclude)) properties,
     datetime
     FROM collectionitems
-    WHERE data.ST_INTERSECTS(collectionitems.geom, data.ST_MakeEnvelope(bbox[1], bbox[2], bbox[3], bbox[4], 4326));
+    WHERE data.ST_INTERSECTS(collectionitems.geom, intersects_geometry);
+  ELSE
+    RETURN QUERY
+    SELECT *
+    FROM collectionitems
+    WHERE data.ST_INTERSECTS(collectionitems.geom, intersects_geometry);
   END IF;
 END
 $$ LANGUAGE plpgsql;
