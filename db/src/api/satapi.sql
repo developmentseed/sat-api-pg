@@ -14,20 +14,7 @@ CREATE OR REPLACE VIEW collectionitems AS
     data.collections c ON i.collection = c.collection_id;
 ALTER VIEW collectionitems owner to api;
 
---  CREATE FUNCTION search(bbox numeric[])
---  RETURNS setof collectionitems
---  AS $$
---  DECLARE
-  --  intersects_geometry data.geometry;
---  BEGIN
-  --  RETURN QUERY
-  --  SELECT *
-  --  FROM collectionitems
-  --  WHERE data.ST_INTERSECTS(collectionitems.geom, data.ST_MakeEnvelope(bbox[1], bbox[2], bbox[3], bbox[4], 4326));
---  END
---  $$ LANGUAGE plpgsql;
-
-CREATE FUNCTION searchwithfieldsfilter(
+CREATE FUNCTION search(
   bbox numeric[] = NULL,
   intersects json = NULL,
   include TEXT = NULL,
