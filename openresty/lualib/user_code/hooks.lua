@@ -1,8 +1,10 @@
+require "satapi"
 local function on_init()
     -- print "on_init called"
 end
 
 local function on_rest_request()
+  satapi.testing()
     -- print "on_rest_request called"
 end
 
