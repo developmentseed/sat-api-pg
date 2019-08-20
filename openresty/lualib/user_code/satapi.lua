@@ -10,17 +10,23 @@ end
 function buildQueryString() 
   ngx.req.read_body()
   local body = ngx.req.get_body_data()
-  local json = cjson.decode(body)
-  if json.query then
+  local bodyJson = cjson.decode(body)
+  local query = bodyJson.query
+  if query then
     local propertiesQuery = {}
-    for key, keyValue in pairs(json.query) do
+    local collectionPropertiesQuery = {}
+    for key, keyValue in pairs(query) do
       for operator, operatorValue in pairs(keyValue) do
-        local propertyFilter = "properties->>"
-          .. key .. "." .. operator .. "." .. keyValue[operator]
+        local filter = key .. "." .. operator .. "." .. keyValue[operator]
+        local propertyFilter = "properties->>" .. filter
+        local collectionPropertyFilter = "collectionproperties->>" .. filter
         table.insert(propertiesQuery, propertyFilter)
+        table.insert(collectionPropertiesQuery, collectionPropertyFilter)
       end
     end
-    local query = table.concat(propertiesQuery, ",")
-    print(query)
+    local queryString = table.concat(propertiesQuery, ",")
+    local collectionQueryString = table.concat(collectionPropertiesQuery, ",")
+    print(queryString)
+    print (collectionQueryString)
   end
 end
