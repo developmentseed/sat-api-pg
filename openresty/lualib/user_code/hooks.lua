@@ -4,7 +4,7 @@ local function on_init()
 end
 
 local function on_rest_request()
-  satapi.testing()
+  satapi.buildQueryString()
     -- print "on_rest_request called"
 end
 
