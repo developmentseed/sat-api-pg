@@ -7,26 +7,24 @@ function testing() -- create it as if it's a global function
   print (json.intersects.type)
 end
 
-function buildQueryString() 
+function buildQueryString()
   ngx.req.read_body()
   local body = ngx.req.get_body_data()
   local bodyJson = cjson.decode(body)
   local query = bodyJson.query
   if query then
-    local propertiesQuery = {}
-    local collectionPropertiesQuery = {}
+    local logicalAndTable = {}
     for key, keyValue in pairs(query) do
       for operator, operatorValue in pairs(keyValue) do
         local filter = key .. "." .. operator .. "." .. keyValue[operator]
         local propertyFilter = "properties->>" .. filter
         local collectionPropertyFilter = "collectionproperties->>" .. filter
-        table.insert(propertiesQuery, propertyFilter)
-        table.insert(collectionPropertiesQuery, collectionPropertyFilter)
+        local logicalOr =
+          "or(" .. propertyFilter .. "," .. collectionPropertyFilter.. ")"
+        table.insert(logicalAndTable, logicalOr)
       end
     end
-    local queryString = table.concat(propertiesQuery, ",")
-    local collectionQueryString = table.concat(collectionPropertiesQuery, ",")
-    print(queryString)
-    print (collectionQueryString)
+    local logicalAndString = "and=(" .. table.concat(logicalAndTable, ",") .. ")"
+    print(logicalAndString)
   end
 end
