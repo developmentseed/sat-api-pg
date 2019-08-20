@@ -4,8 +4,16 @@ local function on_init()
 end
 
 local function on_rest_request()
-  satapi.buildQueryString()
-    -- print "on_rest_request called"
+  local uriArgs = { select="collection,geometry,properties,type,assets" }
+  ngx.req.read_body()
+  local body = ngx.req.get_body_data()
+  local bodyJson = cjson.decode(body)
+  local query = bodyJson.query
+  if query then
+    local andString = satapi.buildQueryString(query)
+    uriArgs["and"] = andString
+  end
+ ngx.req.set_uri_args(uriArgs)
 end
 
 local function before_rest_response()
