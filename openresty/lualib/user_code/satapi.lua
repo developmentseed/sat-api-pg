@@ -1,13 +1,6 @@
 module("satapi", package.seeall)
 local defaultFields = { "id", "collection", "geometry", "properties" ,"type" , "assets" }
 
-function testing() -- create it as if it's a global function
-  ngx.req.read_body()
-  local body = ngx.req.get_body_data()
-  local json = cjson.decode(body)
-  print (json.intersects.type)
-end
-
 function buildQueryString(query)
   local logicalAndTable = {}
   for key, keyValue in pairs(query) do
@@ -48,26 +41,53 @@ function buildFieldsObject(fields)
   return selectFields, includeTable
 end
 
+function buildDatetime(datetime)
+  local dateString
+  local startdate, enddate = string.match(field, "(.*)/(.*)")
+  if startdate and enddate then
+    dateString = "datetime.gt." .. startdate "," "datetime.lt." .. enddate
+  else
+    dateString = "datetime.eq." .. datetime
+  end
+end
+
 function handleRequest()
   local defaultSelect = table.concat(defaultFields, ",")
   local uriArgs = { select=defaultSelect }
+  local andQuery
   ngx.req.read_body()
   local body = ngx.req.get_body_data()
-  if (body) then
-    local bodyJson = cjson.decode(body)
-    local query = bodyJson.query
-    if query then
-      local andString = buildQueryString(query)
-      uriArgs["and"] = andString
+  local uri = string.gsub(ngx.var.request_uri, "?.*", "")
+  if uri == "/rest/search" then
+    if (body) then
+      local bodyJson = cjson.decode(body)
+
+      local query = bodyJson.query
+      if query then
+        andQuery = buildQueryString(query)
+        uriArgs["and"] = andQuery
+      end
+
+      local fields = bodyJson.fields
+      if fields then
+        local selectFields, includeTable = buildFieldsObject(fields)
+        uriArgs["select"] = selectFields
+        bodyJson["include"] = includeTable
+        ngx.req.set_body_data(cjson.encode(bodyJson))
+      end
+
+      local datetime = bodyJson.datetime
+      if datetime then
+        local dateString = buildDatetime(datetime)
+        if andQuery then
+          local andDateQuery = string.sub(1,-3) .. "," .. dateString .. "))"
+          print(andDateQuery)
+        else
+          print(dateString)
+        end
+      end
+      ngx.req.set_uri_args(uriArgs)
+      ngx.req.set_uri("/rpc/search")
     end
-    local fields = bodyJson.fields
-    if fields then
-      local selectFields, includeTable = buildFieldsObject(fields)
-      uriArgs["select"] = selectFields
-      bodyJson["include"] = includeTable
-      ngx.req.set_body_data(cjson.encode(bodyJson))
-    end
-    ngx.req.set_uri_args(uriArgs)
-    ngx.req.set_uri("/rpc/search")
   end
 end
