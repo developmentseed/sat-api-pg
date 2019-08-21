@@ -43,12 +43,14 @@ end
 
 function buildDatetime(datetime)
   local dateString
-  local startdate, enddate = string.match(field, "(.*)/(.*)")
+  local startdate, enddate = string.match(datetime, "(.*)/(.*)")
+  print (startdate, enddate)
   if startdate and enddate then
-    dateString = "datetime.gt." .. startdate "," "datetime.lt." .. enddate
+    dateString = "datetime.gt." .. startdate .. "," .. "datetime.lt." .. enddate
   else
     dateString = "datetime.eq." .. datetime
   end
+  return dateString
 end
 
 function handleRequest()
@@ -80,10 +82,11 @@ function handleRequest()
       if datetime then
         local dateString = buildDatetime(datetime)
         if andQuery then
-          local andDateQuery = string.sub(1,-3) .. "," .. dateString .. "))"
-          print(andDateQuery)
+          local andDateQuery =
+            string.sub(andQuery, 1,-2) .. "," .. dateString .. ")"
+            uriArgs["and"] = andDateQuery
         else
-          print(dateString)
+          uriArgs["and"] = "(" .. dateString .. ")"
         end
       end
       ngx.req.set_uri_args(uriArgs)

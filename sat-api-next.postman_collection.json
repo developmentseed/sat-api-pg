@@ -103,7 +103,7 @@
 					"raw": "{\n\t\"bbox\": [-114.18578, 30.64594, -111.68488, 32.81955],\n\t\"include\": [\"eo:row\",\"eo:cloud_cover\"]\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8080/rest/rpc/search?select=*&or=(properties->>\"eo:row\".eq.038,collectionproperties->>\"eo:ow\".eq.038)",
+					"raw": "http://localhost:8080/rest/rpc/search?select=collection&or=(properties->>\"eo:row\".eq.038,collectionproperties->>\"eo:ow\".eq.038)",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -117,7 +117,7 @@
 					"query": [
 						{
 							"key": "select",
-							"value": "*"
+							"value": "collection"
 						},
 						{
 							"key": "or",
@@ -141,7 +141,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"bbox\": [-114.18578, 30.64594, -111.68488, 32.81955],\n\t\"include\": [\"eo:row\",\"eo:cloud_cover\"]\n}"
+					"raw": "{\n\t\"bbox\": [-114.18578, 30.64594, -111.68488, 32.81955],\n\t\"exclude\": [\"eo:cloud_cover\", \"eo:epsg\"]\n}"
 				},
 				"url": {
 					"raw": "http://localhost:8080/rest/rpc/search?select=*&or=(properties->>\"eo:row\".eq.038,collectionproperties->>\"eo:ow\".eq.038)",
@@ -322,7 +322,7 @@
 					"raw": "{\n\t\"bbox\": [-180, -90, 180, 90],\n\t\"query\": {\n    \t\"eo:cloud_cover\": {\n    \t\t\"gte\": 0,\n    \t\t\"lte\": 10\n    \t},\n    \t\"eo:row\":{\n    \t\t\"eq\": \"038\"\n    \t}\n\t}\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8080/rest/rpc/search?select=*",
+					"raw": "http://localhost:8080/rest/search?select=*",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -330,7 +330,6 @@
 					"port": "8080",
 					"path": [
 						"rest",
-						"rpc",
 						"search"
 					],
 					"query": [
@@ -386,10 +385,10 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"bbox\": [-114.18578, 30.64594, -111.68488, 32.81955],\n\t\"include\": \"eo:row\"\n}"
+					"raw": "{\n\t\"bbox\": [-114.18578, 30.64594, -111.68488, 32.81955],\n\t\"fields\":{\n\t\t\"include\": [\n\t\t\t\"properties.eo:row\",\n\t\t\t\"properties.eo:cloud_cover\"\n\t\t]\n\t}\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8080/rest/rpc/search?select=*&or=(properties->>\"eo:row\".eq.038,collectionproperties->>\"eo:ow\".eq.038)",
+					"raw": "http://localhost:8080/rest/search?select=*&or=(properties->>\"eo:row\".eq.038,collectionproperties->>\"eo:ow\".eq.038)",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -397,7 +396,6 @@
 					"port": "8080",
 					"path": [
 						"rest",
-						"rpc",
 						"search"
 					],
 					"query": [
@@ -408,6 +406,114 @@
 						{
 							"key": "or",
 							"value": "(properties->>\"eo:row\".eq.038,collectionproperties->>\"eo:ow\".eq.038)"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "OpenResty datetime with query",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"bbox\": [-180, -90, 180, 90],\n\t\"datetime\": \"2019-04-01T12:00/2019-08-21T14:02\",\n\t\"query\": {\n    \t\"eo:cloud_cover\": {\n    \t\t\"lte\": 10\n    \t},\n    \t\"eo:row\":{\n    \t\t\"eq\": \"038\"\n    \t}\n\t}\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/rest/search?select=*",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"search"
+					],
+					"query": [
+						{
+							"key": "select",
+							"value": "*"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "OpenResty datetime",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"bbox\": [-180, -90, 180, 90],\n\t\"datetime\": \"2019-04-01T12:00/2019-08-21T14:02\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/rest/search?select=*",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"search"
+					],
+					"query": [
+						{
+							"key": "select",
+							"value": "*"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "OpenResty datetime exact",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"bbox\": [-180, -90, 180, 90],\n\t\"datetime\": \"2019-07-24T03:13:30.564234+00:00\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/rest/search?select=*",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"search"
+					],
+					"query": [
+						{
+							"key": "select",
+							"value": "*"
 						}
 					]
 				}
