@@ -1,4 +1,5 @@
 module("satapi", package.seeall)
+local defaultFields = { "id", "collection", "geometry", "properties" ,"type" , "assets" }
 
 function testing() -- create it as if it's a global function
   ngx.req.read_body()
@@ -24,7 +25,7 @@ function buildQueryString(query)
 end
 
 function buildFieldsObject(fields)
-  local selectTable = {}
+  local selectTable = { "id", "type", "geometry", "properties" }
   local includeTable = {}
   local selectFields
   if fields.include then
@@ -37,32 +38,36 @@ function buildFieldsObject(fields)
       end
     end
   end
+  if (#selectTable) == 0 and (#includeTable) == 0 then
+    selectTable = defaultFields
+  end
+  if (#includeTable) == 0 then
+    table.insert(includeTable, "datetime")
+  end
   selectFields = table.concat(selectTable, ",")
   return selectFields, includeTable
 end
 
 function handleRequest()
-  local uriArgs = { select="collection,geometry,properties,type,assets" }
+  local defaultSelect = table.concat(defaultFields, ",")
+  local uriArgs = { select=defaultSelect }
   ngx.req.read_body()
   local body = ngx.req.get_body_data()
-  local bodyJson = cjson.decode(body)
-
-  local query = bodyJson.query
-  if query then
-    local andString = buildQueryString(query)
-    uriArgs["and"] = andString
-  end
-  local fields = bodyJson.fields
-  if fields then
-    local selectFields, includeTable = buildFieldsObject(fields)
-    if string.len(selectFields) > 0 then
-      uriArgs["select"] = selectFields
+  if (body) then
+    local bodyJson = cjson.decode(body)
+    local query = bodyJson.query
+    if query then
+      local andString = buildQueryString(query)
+      uriArgs["and"] = andString
     end
-    if (#includeFields) > 0 then
-      bodyJson["include"] = includeFields
+    local fields = bodyJson.fields
+    if fields then
+      local selectFields, includeTable = buildFieldsObject(fields)
+      uriArgs["select"] = selectFields
+      bodyJson["include"] = includeTable
       ngx.req.set_body_data(cjson.encode(bodyJson))
     end
+    ngx.req.set_uri_args(uriArgs)
+    ngx.req.set_uri("/rpc/search")
   end
- ngx.req.set_uri_args(uriArgs)
- ngx.req.set_uri("/rpc/search")
 end
