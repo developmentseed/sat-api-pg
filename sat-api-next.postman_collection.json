@@ -6,7 +6,7 @@
 	},
 	"item": [
 		{
-			"name": "Simple cross collection.",
+			"name": "PostgREST simple cross collection.",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -47,7 +47,7 @@
 			"response": []
 		},
 		{
-			"name": "Logical and",
+			"name": "PostgREST Logical and",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -88,7 +88,7 @@
 			"response": []
 		},
 		{
-			"name": "Fields filter include",
+			"name": "PostgREST Fields filter include",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -100,7 +100,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"bbox\": [-114.18578, 30.64594, -111.68488, 32.81955],\n\t\"include\": \"eo:row\"\n}"
+					"raw": "{\n\t\"bbox\": [-114.18578, 30.64594, -111.68488, 32.81955],\n\t\"include\": [\"eo:row\",\"eo:cloud_cover\"]\n}"
 				},
 				"url": {
 					"raw": "http://localhost:8080/rest/rpc/search?select=*&or=(properties->>\"eo:row\".eq.038,collectionproperties->>\"eo:ow\".eq.038)",
@@ -129,7 +129,7 @@
 			"response": []
 		},
 		{
-			"name": "Fields filter exclude",
+			"name": "PostgREST Fields filter exclude",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -141,10 +141,10 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"bbox\": [-114.18578, 30.64594, -111.68488, 32.81955],\n\t\"exclude\": \"eo:cloud_cover\"\n}"
+					"raw": "{\n\t\"bbox\": [-114.18578, 30.64594, -111.68488, 32.81955],\n\t\"include\": [\"eo:row\",\"eo:cloud_cover\"]\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8080/rest/rpc/search?select=*&or=(properties->>\"eo:row\".eq.038,collectionproperties->>\"eo:row\".eq.038)",
+					"raw": "http://localhost:8080/rest/rpc/search?select=*&or=(properties->>\"eo:row\".eq.038,collectionproperties->>\"eo:ow\".eq.038)",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -162,7 +162,7 @@
 						},
 						{
 							"key": "or",
-							"value": "(properties->>\"eo:row\".eq.038,collectionproperties->>\"eo:row\".eq.038)"
+							"value": "(properties->>\"eo:row\".eq.038,collectionproperties->>\"eo:ow\".eq.038)"
 						}
 					]
 				}
@@ -170,7 +170,7 @@
 			"response": []
 		},
 		{
-			"name": "Full collectionitems",
+			"name": "PostgREST Full collectionitems",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -190,7 +190,7 @@
 			"response": []
 		},
 		{
-			"name": "Insert item",
+			"name": "PostgREST Insert item",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -226,7 +226,7 @@
 			"response": []
 		},
 		{
-			"name": "Datetime range",
+			"name": "PostgREST Datetime range",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -270,7 +270,7 @@
 			"response": []
 		},
 		{
-			"name": "Fields filter intersect",
+			"name": "PostgREST Intersects",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -300,6 +300,114 @@
 						{
 							"key": "select",
 							"value": "*"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "OpenResty Query Transform",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"bbox\": [-180, -90, 180, 90],\n\t\"query\": {\n    \t\"eo:cloud_cover\": {\n    \t\t\"gte\": 0,\n    \t\t\"lte\": 10\n    \t},\n    \t\"eo:row\":{\n    \t\t\"eq\": \"038\"\n    \t}\n\t}\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/rest/rpc/search?select=*",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"rpc",
+						"search"
+					],
+					"query": [
+						{
+							"key": "select",
+							"value": "*"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "OpenResty Url path rewrite",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"bbox\": [-180, -90, 180, 90],\n\t\"query\": {\n    \t\"eo:cloud_cover\": {\n    \t\t\"gte\": 0,\n    \t\t\"lte\": 10\n    \t},\n    \t\"eo:row\":{\n    \t\t\"eq\": \"038\"\n    \t}\n\t}\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/rest/search",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "OpenResty Fields filter include",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"bbox\": [-114.18578, 30.64594, -111.68488, 32.81955],\n\t\"include\": \"eo:row\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/rest/rpc/search?select=*&or=(properties->>\"eo:row\".eq.038,collectionproperties->>\"eo:ow\".eq.038)",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"rpc",
+						"search"
+					],
+					"query": [
+						{
+							"key": "select",
+							"value": "*"
+						},
+						{
+							"key": "or",
+							"value": "(properties->>\"eo:row\".eq.038,collectionproperties->>\"eo:ow\".eq.038)"
 						}
 					]
 				}
