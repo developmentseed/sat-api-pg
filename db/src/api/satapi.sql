@@ -17,8 +17,8 @@ ALTER VIEW collectionitems owner to api;
 CREATE FUNCTION search(
   bbox numeric[] = NULL,
   intersects json = NULL,
-  include TEXT = NULL,
-  exclude TEXT = NULL
+  include TEXT[] = NULL,
+  exclude TEXT[] = NULL
 )
 RETURNS setof collectionitems
 AS $$
@@ -47,11 +47,11 @@ BEGIN
     assets,
     geometry,
     (select jsonb_object_agg(e.key, e.value)
-      from   jsonb_each(properties) e
-      where  e.key IN (include)) properties,
+      from jsonb_each(properties) e
+      where e.key = ANY (include)) properties,
     datetime
     FROM collectionitems
-    WHERE data.ST_INTERSECTS(collectionitems.geom, data.ST_MakeEnvelope(bbox[1], bbox[2], bbox[3], bbox[4], 4326));
+    WHERE data.ST_INTERSECTS(collectionitems.geom, intersects_geometry);
   ELSIF exclude IS NOT NULL THEN
     RETURN QUERY
     SELECT
@@ -63,8 +63,8 @@ BEGIN
     assets,
     geometry,
     (select jsonb_object_agg(e.key, e.value)
-      from   jsonb_each(properties) e
-      where  e.key NOT IN (exclude)) properties,
+      from jsonb_each(properties) e
+      where e.key != ALL (exclude)) properties,
     datetime
     FROM collectionitems
     WHERE data.ST_INTERSECTS(collectionitems.geom, intersects_geometry);
@@ -73,6 +73,51 @@ BEGIN
     SELECT *
     FROM collectionitems
     WHERE data.ST_INTERSECTS(collectionitems.geom, intersects_geometry);
+  END IF;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION searchFields(
+  include TEXT = NULL,
+  exclude TEXT = NULL
+)
+RETURNS setof collectionitems
+AS $$
+BEGIN
+  IF include IS NOT NULL THEN
+    RETURN QUERY
+    SELECT
+    collectionproperties,
+    collection,
+    id,
+    geom,
+    type,
+    assets,
+    geometry,
+    (select jsonb_object_agg(e.key, e.value)
+      from jsonb_each(properties) e
+      where e.key = ANY (include)) properties,
+    datetime
+    FROM collectionitems;
+  ELSIF exclude IS NOT NULL THEN
+    RETURN QUERY
+    SELECT
+    collectionproperties,
+    collection,
+    id,
+    geom,
+    type,
+    assets,
+    geometry,
+    (select jsonb_object_agg(e.key, e.value)
+      from jsonb_each(properties) e
+      where e.key != ALL (exclude)) properties,
+    datetime
+    FROM collectionitems;
+  ELSE
+    RETURN QUERY
+    SELECT *
+    FROM collectionitems;
   END IF;
 END
 $$ LANGUAGE plpgsql;
