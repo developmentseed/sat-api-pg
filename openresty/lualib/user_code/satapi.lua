@@ -90,7 +90,16 @@ function handleRequest()
         end
       end
       ngx.req.set_uri_args(uriArgs)
-      ngx.req.set_uri("/rpc/search")
+
+      local bbox = bodyJson.bbox
+      local intersects = bodyJson.intersects
+      if bbox or intersects then
+        ngx.req.set_uri("/rpc/search")
+      else
+        if fields then
+          ngx.req.set_uri("/rpc/searchfields")
+        end
+      end
     end
   end
 end

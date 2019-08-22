@@ -8,7 +8,15 @@ local function on_rest_request()
 end
 
 local function before_rest_response()
-    -- print "before_rest_response called"
+  utils.set_body_postprocess_mode(utils.postprocess_modes.ALL)
+  utils.set_body_postprocess_fn(function(body)
+    local features = cjson.decode(body)
+    local itemCollection = {
+      type="FeatureCollection",
+      features=features
+    }
+    return cjson.encode(itemCollection)
+  end)
 end
 
 return {
