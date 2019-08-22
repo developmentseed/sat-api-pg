@@ -8,15 +8,20 @@ local function on_rest_request()
 end
 
 local function before_rest_response()
-  utils.set_body_postprocess_mode(utils.postprocess_modes.ALL)
-  utils.set_body_postprocess_fn(function(body)
-    local features = cjson.decode(body)
-    local itemCollection = {
-      type="FeatureCollection",
-      features=features
-    }
-    return cjson.encode(itemCollection)
-  end)
+  local uri = string.gsub(ngx.var.request_uri, "?.*", "")
+  local method = ngx.req.get_method()
+  if uri == "/rest/items" and method == "POST" then
+  else
+    utils.set_body_postprocess_mode(utils.postprocess_modes.ALL)
+    utils.set_body_postprocess_fn(function(body)
+      local features = cjson.decode(body)
+      local itemCollection = {
+        type="FeatureCollection",
+        features=features
+      }
+      return cjson.encode(itemCollection)
+    end)
+  end
 end
 
 return {
