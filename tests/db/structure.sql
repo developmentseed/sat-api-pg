@@ -2,7 +2,7 @@ begin;
 select * from no_plan();
 
 select * from check_test(
-    views_are('api', array['todos'], 'tables present' ),
+    views_are('api', array['collectionitems', 'items'], 'tables present' ),
     true,
     'all views are present in api schema',
     'tables present',
@@ -10,7 +10,7 @@ select * from check_test(
 );
 
 select * from check_test(
-    functions_are('api', array['login', 'signup', 'refresh_token', 'me'], 'functions present' ),
+    functions_are('api', array['login', 'signup', 'refresh_token', 'me', 'search', 'searchnogeom'], 'functions present' ),
     true,
     'all functions are present in api schema',
     'functions present',
