@@ -77,7 +77,7 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION searchfields(
+CREATE FUNCTION searchnogeom(
   include TEXT[] = NULL,
   exclude TEXT[] = NULL
 )
@@ -98,7 +98,7 @@ BEGIN
       from jsonb_each(properties) e
       where e.key = ANY (include)) properties,
     datetime
-    FROM collectionitems
+    FROM collectionitems;
   ELSIF exclude IS NOT NULL THEN
     RETURN QUERY
     SELECT
