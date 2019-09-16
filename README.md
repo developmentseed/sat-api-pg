@@ -90,7 +90,7 @@ yar test_rest               # Run integration tests
 * [Amazon Fargate+RDS](http://docs.subzero.cloud/production-infrastructure/aws-fargate-rds/)
 
 ## Contributing
-This project was initiated by [@sharkinsspatial](https://github.com/sharkinsspatial) as part of [Development Seed's](https://developmentseed.org/) wider work in building the stac-spec
+This project was initiated as part of [Development Seed's](https://developmentseed.org/) wider work in building the stac-spec
 and open sourced to to the community to help drive contributions and new functionality.  New contributions are welcomed and you can contact
 [@sharkinsspatial](https://github.com/sharkinsspatial) or info@developmentseed.org for additional support or assistance with customization.
 Anyone and everyone is welcome to contribute.
