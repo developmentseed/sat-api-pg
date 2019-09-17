@@ -1,15 +1,18 @@
 # sat-api-pg
 
-A Postgres backed STAC API.
+## A Postgres backed STAC API.
 
-Built with the help of the excellent
+Built on the foundation of the excellent 
+
 [PostgREST](https://postgrest.com) - Postgres REST API backends.
+
 [PostgREST Starter Kit](https://github.com/subzerocloud/postgrest-starter-kit) - Starter Kit and tooling for authoring REST API backends with PostgREST.
 
 ## Purpose
 
-Provide a Postgres backed reference implementation of the STAC API specification.
+Provide a Postgres backed reference implementation of the [STAC API specification.](https://github.com/radiantearth/stac-spec/tree/dev/api-spec)
 
+## Project Layout 
 
 ```bash
 .
@@ -43,6 +46,8 @@ Provide a Postgres backed reference implementation of the STAC API specification
 * [Docker](https://www.docker.com)
 * [Node.js](https://nodejs.org/en/)
 
+In the root folder of application, install the necessary js libs.
+
 ```bash
 $ yarn
 ```
@@ -60,7 +65,7 @@ The API server will become available at the following endpoint:
 Try a simple request
 
 ```bash
-curl http://localhost:8080/rest/todos?select=id,todo
+curl http://localhost:8080/rest/itemcollections?select=*
 ```
 
 
