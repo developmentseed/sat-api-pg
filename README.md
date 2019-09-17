@@ -55,7 +55,7 @@ $ yarn
 
 The root folder of the application contains `.sample_env` with development environment settings.  Rename this file by running
 ```bash
-$ mv .sample_env .env
+$ cp .sample_env .env
 ```
 
 In the root folder of application, run the docker-compose command
@@ -69,7 +69,7 @@ The API server will become available at the following endpoint:
 
 Try a simple request
 ```bash
-$ curl http://localhost:8080/rest/itemcollections?select=*
+$ curl http://localhost:8080/rest/collectionitems?select=*
 ```
 
 
