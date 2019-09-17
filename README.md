@@ -2,7 +2,7 @@
 
 ## A Postgres backed STAC API.
 
-Built on the foundation of the excellent 
+Built on the foundation of the excellent
 
 [PostgREST](https://postgrest.com) - Postgres REST API backends.
 
@@ -10,7 +10,9 @@ Built on the foundation of the excellent
 
 ## Purpose
 
-Provide a Postgres backed reference implementation of the [STAC API specification.](https://github.com/radiantearth/stac-spec/tree/dev/api-spec)
+To provide the community a Postgres backed reference implementation of the [STAC API specification.](https://github.com/radiantearth/stac-spec/tree/dev/api-spec)
+Postgres's flexibility and ecosystem of geospatial functionality provide a great
+foundation for building spatial APIs and we hope the community can expand on this work to drive STAC development forward.
 
 ## Project Layout 
 
@@ -47,13 +49,11 @@ Provide a Postgres backed reference implementation of the [STAC API specificatio
 * [Node.js](https://nodejs.org/en/)
 
 In the root folder of application, install the necessary js libs.
-
 ```bash
 $ yarn
 ```
 
 In the root folder of application, run the docker-compose command
-
 ```bash
 $ docker-compose up -d
 ```
@@ -63,15 +63,17 @@ The API server will become available at the following endpoint:
 - REST [http://localhost:8080/rest/](http://localhost:8080/rest/)
 
 Try a simple request
-
 ```bash
-curl http://localhost:8080/rest/itemcollections?select=*
+$ curl http://localhost:8080/rest/itemcollections?select=*
 ```
 
 
 ## Development workflow and debugging
 
-Execute `subzero dashboard` in the root of your project.<br />
+In the root of your project run.
+```bash
+$ yarn subzero dashboard
+```
 After this step you can view the logs of all the stack components (SQL queries will also be logged) and
 if you edit a sql/conf/lua file in your project, the changes will immediately be applied.
 
@@ -89,10 +91,6 @@ yarn test                   # Run all tests (db, rest)
 yarn test_db                # Run pgTAP tests
 yar test_rest               # Run integration tests
 ```
-
-## Deployment
-* [Amazon ECS+RDS](http://docs.subzero.cloud/production-infrastructure/aws-ecs-rds/)
-* [Amazon Fargate+RDS](http://docs.subzero.cloud/production-infrastructure/aws-fargate-rds/)
 
 ## Contributing
 This project was initiated as part of [Development Seed's](https://developmentseed.org/) wider work in building the stac-spec
