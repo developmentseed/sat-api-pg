@@ -71,6 +71,7 @@ Try a simple request
 ```bash
 $ curl http://localhost:8080/rest/collectionitems?select=*
 ```
+
 To remove the docker compose stack run
 ```bash
 $ docker-compose stop
