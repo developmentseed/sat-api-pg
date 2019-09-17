@@ -48,9 +48,14 @@ foundation for building spatial APIs and we hope the community can expand on thi
 * [Docker](https://www.docker.com)
 * [Node.js](https://nodejs.org/en/)
 
-In the root folder of application, install the necessary js libs.
+In the root folder of the application, install the necessary js libs.
 ```bash
 $ yarn
+```
+
+The root folder of the application contains `.sample_env` with development environment settings.  Rename this file by running
+```bash
+$ mv .sample_env .env
 ```
 
 In the root folder of application, run the docker-compose command
