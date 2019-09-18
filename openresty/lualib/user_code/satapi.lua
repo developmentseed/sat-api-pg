@@ -53,6 +53,14 @@ function buildDatetime(datetime)
   return dateString
 end
 
+function wrapFeatureCollection(body)
+  local features = cjson.decode(body)
+  local itemCollection = {
+    type="FeatureCollection",
+    features=features
+  }
+  return cjson.encode(itemCollection)
+end
 function handleRequest()
   local defaultSelect = table.concat(defaultFields, ",")
   local uriArgs = { select=defaultSelect }

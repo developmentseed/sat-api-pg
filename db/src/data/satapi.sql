@@ -1,7 +1,7 @@
 CREATE EXTENSION postgis SCHEMA data;
 CREATE EXTENSION ltree SCHEMA data;
 CREATE TABLE collections(
-  collection_id varchar(1024) PRIMARY KEY,
+  id varchar(1024) PRIMARY KEY,
   description varchar(1024),
   properties jsonb
 );
@@ -13,7 +13,7 @@ CREATE TABLE items(
   assets jsonb,
   collection varchar(1024),
   datetime timestamp with time zone,
-  CONSTRAINT fk_collection FOREIGN KEY (collection) REFERENCES collections(collection_id)
+  CONSTRAINT fk_collection FOREIGN KEY (collection) REFERENCES collections(id)
 );
 
 CREATE VIEW items_string_geometry AS

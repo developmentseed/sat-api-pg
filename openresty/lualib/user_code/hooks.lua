@@ -10,17 +10,15 @@ end
 local function before_rest_response()
   local uri = string.gsub(ngx.var.request_uri, "?.*", "")
   local method = ngx.req.get_method()
-  if uri == "/rest/items" and method == "POST" then
-  else
+  if uri == "/rest/items" then
+    if uri ~= "POST" then
+      utils.set_body_postprocess_mode(utils.postprocess_modes.ALL)
+      utils.set_body_postprocess_fn(satapi.wrapFeatureCollection)
+    end
+  end
+  if uri == "/rest/search" then
     utils.set_body_postprocess_mode(utils.postprocess_modes.ALL)
-    utils.set_body_postprocess_fn(function(body)
-      local features = cjson.decode(body)
-      local itemCollection = {
-        type="FeatureCollection",
-        features=features
-      }
-      return cjson.encode(itemCollection)
-    end)
+    utils.set_body_postprocess_fn(satapi.wrapFeatureCollection)
   end
 end
 

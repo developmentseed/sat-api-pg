@@ -1,4 +1,4 @@
-INSERT INTO data.collections(collection_id, description, properties)
+INSERT INTO data.collections(id, description, properties)
 VALUES(
   'landsat-8-l1',
   'Landat 8 imagery radiometrically calibrated and orthorectified using gound points and Digital Elevation Model (DEM) data to correct relief displacement.',

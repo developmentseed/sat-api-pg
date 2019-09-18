@@ -11,7 +11,7 @@ CREATE OR REPLACE VIEW collectionitems AS
     i.datetime as datetime
   FROM data.items i
   RIGHT JOIN
-    data.collections c ON i.collection = c.collection_id;
+    data.collections c ON i.collection = c.id;
 ALTER VIEW collectionitems owner to api;
 
 CREATE FUNCTION search(
@@ -122,7 +122,10 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
-
 CREATE OR REPLACE VIEW items AS
   SELECT * FROM data.items_string_geometry;
 ALTER VIEW items owner to api;
+
+CREATE OR REPLACE VIEW collections AS
+  SELECT * FROM data.collections;
+ALTER VIEW collections owner to api;
