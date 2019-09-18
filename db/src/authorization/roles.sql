@@ -17,6 +17,11 @@ create role :"anonymous";
 grant :"anonymous" to :"authenticator";
 
 
+-- role for the main application user for the api
+drop role if exists application;
+create role application;
+grant application to :"authenticator";
+
 -- create all the applications user roles that are defined using the "user_role" type
 -- we use a function here in order to be able add new roles just by redefining the type
 create or replace function _temp_create_application_roles("authenticator" text, "roles" text[]) returns void as $$

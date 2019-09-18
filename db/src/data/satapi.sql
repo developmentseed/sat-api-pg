@@ -6,8 +6,7 @@ CREATE TABLE collections(
   properties jsonb
 );
 CREATE TABLE items(
-  item_id serial PRIMARY KEY,
-  id varchar(1024) NOT NULL,
+  id varchar(1024) PRIMARY KEY,
   type varchar(20) NOT NULL,
   geometry geometry,
   properties jsonb NOT NULL,
@@ -18,7 +17,7 @@ CREATE TABLE items(
 );
 
 CREATE VIEW items_string_geometry AS
-  SELECT item_id,
+  SELECT
   id,
   type,
   data.ST_AsGeoJSON(geometry) :: json as geometry,

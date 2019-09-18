@@ -204,6 +204,11 @@
 						"key": "Prefer",
 						"value": "return=minimal",
 						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE1Njg4MzI0MzQsImV4cCI6MTYwMDM2ODQzNCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsInJvbGUiOiJhcHBsaWNhdGlvbiJ9.MGcj44Mn4thGs1jUBIordS-VaHfXMeGGpuz8pNJ8-2E",
+						"type": "text"
 					}
 				],
 				"body": {
@@ -388,7 +393,7 @@
 					"raw": "{\n\t\"bbox\": [-114.18578, 30.64594, -111.68488, 32.81955],\n\t\"fields\":{\n\t\t\"include\": [\n\t\t\t\"properties.eo:row\",\n\t\t\t\"properties.eo:cloud_cover\"\n\t\t]\n\t}\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8080/rest/search?select=*&or=(properties->>\"eo:row\".eq.038,collectionproperties->>\"eo:ow\".eq.038)",
+					"raw": "http://localhost:8080/rest/search?select=*",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -405,7 +410,8 @@
 						},
 						{
 							"key": "or",
-							"value": "(properties->>\"eo:row\".eq.038,collectionproperties->>\"eo:ow\".eq.038)"
+							"value": "(properties->>\"eo:row\".eq.038,collectionproperties->>\"eo:ow\".eq.038)",
+							"disabled": true
 						}
 					]
 				}
@@ -485,7 +491,7 @@
 			"response": []
 		},
 		{
-			"name": "OpenResty datetime exact",
+			"name": "OpenResty Fields filter with no geometry.",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -497,10 +503,10 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"bbox\": [-180, -90, 180, 90],\n\t\"datetime\": \"2019-07-24T03:13:30.564234+00:00\"\n}"
+					"raw": "{\n\t\"fields\":{\n\t\t\"include\": [\n\t\t\t\"properties.eo:row\",\n\t\t\t\"properties.eo:cloud_cover\"\n\t\t]\n\t}\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8080/rest/search?select=*",
+					"raw": "http://localhost:8080/rest/search",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -509,12 +515,6 @@
 					"path": [
 						"rest",
 						"search"
-					],
-					"query": [
-						{
-							"key": "select",
-							"value": "*"
-						}
 					]
 				}
 			},
