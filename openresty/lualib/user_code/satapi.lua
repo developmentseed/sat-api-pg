@@ -18,12 +18,15 @@ function buildQueryString(query)
 end
 
 function buildFieldsObject(fields)
-  local selectTable = { "id", "type", "geometry", "properties" }
+  local selectTable = { "id", "type", "geometry", "properties", "assets" }
   local includeTable = {}
+  local excludeTable = {}
   local selectFields
   if fields.include then
     for _, field in ipairs(fields.include) do
+      -- This splits out properties fields
       local prefix, key = string.match(field, "(.*)%.(.*)")
+      -- If the key is present it is a properties field
       if key then
         table.insert(includeTable, key)
       else
@@ -31,10 +34,19 @@ function buildFieldsObject(fields)
       end
     end
   end
-  if (#selectTable) == 0 and (#includeTable) == 0 then
-    selectTable = defaultFields
+  if fields.exclude then
+    for _, field in ipairs(fields.exclude) do
+      -- This splits out properties fields
+      local prefix, key = string.match(field, "(.*)%.(.*)")
+      -- If the key is present it is a properties field
+      if key then
+        table.insert(excludeTable, key)
+      else
+        table.remove(selectTable, field)
+      end
+    end
   end
-  if (#includeTable) == 0 then
+  if (#includeTable) == 0 and (#includeTable) == 0 then
     table.insert(includeTable, "datetime")
   end
   selectFields = table.concat(selectTable, ",")
