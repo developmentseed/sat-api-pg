@@ -103,3 +103,12 @@ function handleRequest()
     end
   end
 end
+
+function wrapFeatureCollection(body)
+  local features = cjson.decode(body)
+  local itemCollection = {
+    type="FeatureCollection",
+    features=features
+  }
+  return cjson.encode(itemCollection)
+end
