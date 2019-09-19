@@ -17,7 +17,7 @@ function buildQueryString(query)
   return logicalAndString
 end
 
-function buildFieldsObject(fields)
+function buildFieldsObject(fields, query)
   local selectTable = { "id", "type", "geometry", "properties", "assets" }
   local includeTable = {}
   local excludeTable = {}
@@ -42,11 +42,18 @@ function buildFieldsObject(fields)
       if key then
         table.insert(excludeTable, key)
       else
-        table.remove(selectTable, field)
+        selectTable[field] = nil
       end
     end
   end
-  if (#includeTable) == 0 and (#includeTable) == 0 then
+  -- This is a temporary hack as the nature of the query requires the fields to be present
+  if query then
+    for key, keyValue in pairs(query) do
+      table.insert(includeTable, key)
+      excludeTable[key] = nil
+    end
+  end
+  if (#includeTable) == 0 and (#excludeTable) == 0 then
     table.insert(includeTable, "datetime")
   end
   selectFields = table.concat(selectTable, ",")
@@ -84,7 +91,7 @@ function handleRequest()
 
       local fields = bodyJson.fields
       if fields then
-        local selectFields, includeTable = buildFieldsObject(fields)
+        local selectFields, includeTable = buildFieldsObject(fields, query)
         uriArgs["select"] = selectFields
         bodyJson["include"] = includeTable
         ngx.req.set_body_data(cjson.encode(bodyJson))
