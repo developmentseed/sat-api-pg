@@ -18,8 +18,8 @@ grant select, insert, update on data.items_string_geometry to api;
 -- Anonymous can view collection items
 grant select on api.collectionitems to anonymous;
 grant select on api.items to anonymous;
-grant select on api.collections to anonymous;
 grant select on data.items to anonymous;
+grant select on api.collections to anonymous;
 
 -- Application can insert items with transformed geojson
 grant select, insert, update on data.collections to application;

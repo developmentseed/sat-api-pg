@@ -75,7 +75,7 @@ BEGIN
     WHERE data.ST_INTERSECTS(collectionitems.geom, intersects_geometry);
   END IF;
 END
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql IMMUTABLE;
 
 CREATE FUNCTION searchnogeom(
   include TEXT[] = NULL,
@@ -120,7 +120,7 @@ BEGIN
     FROM collectionitems;
   END IF;
 END
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql IMMUTABLE;
 
 CREATE OR REPLACE VIEW items AS
   SELECT * FROM data.items_string_geometry;
