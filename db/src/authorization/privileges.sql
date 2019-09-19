@@ -11,9 +11,9 @@ select auth.set_auth_endpoints_privileges('api', :'anonymous', enum_range(null::
 grant usage on schema api to anonymous, application;
 grant usage on schema data to anonymous, application;
 
-grant select on data.collections to api;
 grant select on data.items to api;
 grant select, insert, update on data.items_string_geometry to api;
+grant select, insert, update on data.collections to api;
 
 -- Anonymous can view collection items
 grant select on api.collectionitems to anonymous;
@@ -23,7 +23,8 @@ grant select on api.collections to anonymous;
 
 -- Application can insert items with transformed geojson
 grant select, insert, update on data.collections to application;
-grant select, insert, update on api.items to application;
+grant select, insert, update on api.collections to application;
 grant select, insert, update on data.items to application;
+grant select, insert, update on api.items to application;
 grant select, insert, update on data.items_string_geometry to application;
 --  GRANT usage ON sequence data.items_item_id_seq TO application;
