@@ -106,4 +106,4 @@ describe('fields extension', function () {
         })
   })
 
-})
+});
