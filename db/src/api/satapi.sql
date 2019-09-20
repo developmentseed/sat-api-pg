@@ -17,8 +17,7 @@ ALTER VIEW collectionitems owner to api;
 CREATE FUNCTION search(
   bbox numeric[] = NULL,
   intersects json = NULL,
-  include TEXT[] = NULL,
-  exclude TEXT[] = NULL
+  include TEXT[] = NULL
 )
 RETURNS setof collectionitems
 AS $$
@@ -52,22 +51,6 @@ BEGIN
     datetime
     FROM collectionitems
     WHERE data.ST_INTERSECTS(collectionitems.geom, intersects_geometry);
-  ELSIF exclude IS NOT NULL THEN
-    RETURN QUERY
-    SELECT
-    collectionproperties,
-    collection,
-    id,
-    geom,
-    type,
-    assets,
-    geometry,
-    (select jsonb_object_agg(e.key, e.value)
-      from jsonb_each(properties) e
-      where e.key != ALL (exclude)) properties,
-    datetime
-    FROM collectionitems
-    WHERE data.ST_INTERSECTS(collectionitems.geom, intersects_geometry);
   ELSE
     RETURN QUERY
     SELECT *
@@ -78,8 +61,7 @@ END
 $$ LANGUAGE plpgsql IMMUTABLE;
 
 CREATE FUNCTION searchnogeom(
-  include TEXT[] = NULL,
-  exclude TEXT[] = NULL
+  include TEXT[] = NULL
 )
 RETURNS setof collectionitems
 AS $$
@@ -97,21 +79,6 @@ BEGIN
     (select jsonb_object_agg(e.key, e.value)
       from jsonb_each(properties) e
       where e.key = ANY (include)) properties,
-    datetime
-    FROM collectionitems;
-  ELSIF exclude IS NOT NULL THEN
-    RETURN QUERY
-    SELECT
-    collectionproperties,
-    collection,
-    id,
-    geom,
-    type,
-    assets,
-    geometry,
-    (select jsonb_object_agg(e.key, e.value)
-      from jsonb_each(properties) e
-      where e.key != ALL (exclude)) properties,
     datetime
     FROM collectionitems;
   ELSE
