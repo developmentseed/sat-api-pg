@@ -2,7 +2,7 @@ import { rest_service, resetdb } from './common';
 import should from 'should';
 import landsatItem from './landsatItem.json';
 
-describe('items insert', function () {
+describe('items', function () {
   it('Initial insert of an item returns 201', function (done) {
     rest_service()
       .post('items')
