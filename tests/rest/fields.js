@@ -1,4 +1,5 @@
 import { restService, resetdb } from './common';
+import should from 'should'; // eslint-disable-line no-unused-vars
 
 describe('fields extension', function () {
   before(function (done) { resetdb(); done(); });
