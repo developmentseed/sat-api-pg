@@ -61,9 +61,7 @@ function handleRequest()
       if bbox or intersects then
         ngx.req.set_uri("/rpc/search")
       else
-        if fields then
-          ngx.req.set_uri("/rpc/searchnogeom")
-        end
+        ngx.req.set_uri("/rpc/searchnogeom")
       end
     end
   end
