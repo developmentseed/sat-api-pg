@@ -1,0 +1,22 @@
+{
+  "plugins": [
+    "mocha"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2017,
+    "sourceType": "module"
+  },
+  "env": {
+    "es6": true
+  },
+  "extends": "standard",
+  "rules": {
+    "semi": [2, "always"]
+  },
+  "globals": {
+    "describe": "readonly",
+    "it": "readonly",
+    "before": "readonly",
+    "after": "readonly"
+  }
+}
