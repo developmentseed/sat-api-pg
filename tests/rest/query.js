@@ -57,4 +57,21 @@ describe('query extension', function () {
         r.body.features.length.should.equal(1);
       });
   });
+
+  it('in operator', function (done) {
+    restService()
+      .post('search')
+      .send({
+        query: {
+          'eo:column': {
+            in: ['032', '037']
+          }
+        }
+      })
+      .expect('Content-Type', /json/)
+      .expect(200, done)
+      .expect(r => {
+        r.body.features.length.should.equal(2);
+      });
+  });
 });
