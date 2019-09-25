@@ -26,7 +26,7 @@ function processFilters(uriArgs, andQuery, datetime)
       uriArgs["and"] = "(" .. dateString .. ")"
     end
   end
-  ngx.req.set_uri_args(uriArgs)
+    ngx.req.set_uri_args(uriArgs)
 end
 
 function processSearch(uriArgs, andQuery, bodyJson)
@@ -45,10 +45,21 @@ function processSearch(uriArgs, andQuery, bodyJson)
   end
 end
 
+function formatBboxQueryParameter(bbox)
+  if type(bbox) == 'string' then
+    modifiedBbox = bbox:gsub("%[", "{")
+    modifiedBbox = modifiedBbox:gsub("%]", "}")
+    local args = ngx.req.get_uri_args()
+    args["bbox"] = modifiedBbox 
+    ngx.req.set_uri_args(args)
+  end
+end
+
 function setUri(bbox, intersects, uri)
   -- Must use the search function for spatial search.
   if bbox or intersects then
     ngx.req.set_uri("/rpc/search")
+    formatBboxQueryParameter(bbox)
   else
     -- If using the search endpoint there is the potential for collection queries
     -- and filters so the searchnogeom function is required.
@@ -82,7 +93,7 @@ function handleRequest()
   elseif method == 'GET' then
     if uri == "/rest/items" then
       local args = ngx.req.get_uri_args()
-      processFilters(uriArgs, andQuery, args["datetime"])
+      processFilters(uriArgs, andQuery, args.datetime)
       setUri(args.bbox, args.intersects, uri)
     end
   end
