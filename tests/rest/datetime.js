@@ -18,7 +18,7 @@ describe('datetime filter', function () {
       });
   });
 
-  it('wat', function (done) {
+  it('Datetime can be passed as query parameter in GET', function (done) {
     restService()
       .get('items')
       .query({
