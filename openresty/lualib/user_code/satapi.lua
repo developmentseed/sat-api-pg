@@ -16,7 +16,7 @@ function buildDatetime(datetime)
   return dateString
 end
 
-function processFilters(uriArgs, andQuery, datetime, sort)
+function processFilters(uriArgs, andQuery, datetime, sort, next, limit)
   if datetime then
     local dateString = buildDatetime(datetime)
     if andQuery then
@@ -26,6 +26,10 @@ function processFilters(uriArgs, andQuery, datetime, sort)
     else
       uriArgs["and"] = "(" .. dateString .. ")"
     end
+  end
+  if next and limit then
+    uriArgs["offset"] = next
+    uriArgs["limit"] = limit
   end
   -- Sort is described as a filter here rather than a Search extension because
   -- default datetime sorting is required.
@@ -105,13 +109,19 @@ function handleRequest()
       local bodyJson = cjson.decode(body)
       processSearch(uriArgs, andQuery, bodyJson)
       -- Use the filters from the body rather than uri args
-      processFilters(uriArgs, andQuery, bodyJson.datetime, bodyJson.sort)
+      processFilters(
+        uriArgs, andQuery, bodyJson.datetime, bodyJson.sort,
+        bodyJson.next, bodyJson.limit
+      )
       setUri(bodyJson.bbox, bodyJson.intersects, uri)
     end
   elseif method == 'GET' then
     if uri == "/rest/items" then
       local args = ngx.req.get_uri_args()
-      processFilters(uriArgs, andQuery, args.datetime)
+      processFilters(
+        uriArgs, andQuery, args.datetime, args.sort,
+        args.next, args.limit
+      )
       setUri(args.bbox, args.intersects, uri)
     end
   end
