@@ -50,15 +50,26 @@ function formatBboxQueryParameter(bbox)
     modifiedBbox = bbox:gsub("%[", "{")
     modifiedBbox = modifiedBbox:gsub("%]", "}")
     local args = ngx.req.get_uri_args()
-    args["bbox"] = modifiedBbox 
+    args["bbox"] = modifiedBbox
     ngx.req.set_uri_args(args)
   end
+end
+
+function formatIntersectsQueryParameter(intersects)
+	if type(intersects) == 'string' then
+    local body = {}
+    local intersectsTable = cjson.decode(intersects)
+    body["intersects"] = intersectsTable
+    ngx.req.set_body_data(cjson.encode(body))
+    ngx.req.set_method(ngx.HTTP_POST)
+	end
 end
 
 function setUri(bbox, intersects, uri)
   -- Must use the search function for spatial search.
   if bbox or intersects then
     ngx.req.set_uri("/rpc/search")
+    formatIntersectsQueryParameter(intersects)
     formatBboxQueryParameter(bbox)
   else
     -- If using the search endpoint there is the potential for collection queries

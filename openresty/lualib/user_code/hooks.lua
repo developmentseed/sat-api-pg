@@ -4,14 +4,18 @@ local function on_init()
 end
 
 local function on_rest_request()
+  local method = ngx.var.request_method
+  ngx.ctx.originalMethod = method
   satapi.handleRequest()
 end
 
 local function before_rest_response()
   local uri = string.gsub(ngx.var.request_uri, "?.*", "")
-  local method = ngx.req.get_method()
   if uri == "/rest/items" then
-    if method ~= "POST" then
+    -- If items are posted they should be created
+    -- Handle the case when a GET /items request with intersects redirects
+    -- to a POST request to the /search endpoint
+    if ngx.ctx.originalMethod ~= "POST" then
       utils.set_body_postprocess_mode(utils.postprocess_modes.ALL)
       utils.set_body_postprocess_fn(satapi.wrapFeatureCollection)
     end
