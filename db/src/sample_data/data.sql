@@ -263,7 +263,7 @@ VALUES(
       "datetime": "2019-09-18T05:46:06.899022+00:00",
       "eo:sun_azimuth": -41.99592743,
       "eo:sun_elevation": -33.41081542,
-      "eo:cloud_cover": -1,
+      "eo:cloud_cover": 5,
       "eo:row": "216",
       "eo:column": "139",
       "landsat:product_id": "LC08_L1GT_139216_20190918_20190918_01_RT",
