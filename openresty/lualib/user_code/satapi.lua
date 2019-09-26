@@ -27,7 +27,7 @@ function processFilters(uriArgs, andQuery, datetime, sort)
       uriArgs["and"] = "(" .. dateString .. ")"
     end
   end
-  -- Sort is described as a filter here rather than an extension because
+  -- Sort is described as a filter here rather than a Search extension because
   -- default datetime sorting is required.
   local order = sortExtension.buildSortString(sort)
   uriArgs["order"] = order
@@ -99,12 +99,14 @@ function handleRequest()
   local uri = string.gsub(ngx.var.request_uri, "?.*", "")
   if method == 'POST' then
     if uri == "/rest/search" then
-      if (body) then
-        local bodyJson = cjson.decode(body)
-        processSearch(uriArgs, andQuery, bodyJson)
-        processFilters(uriArgs, andQuery, bodyJson.datetime, bodyJson.sort)
-        setUri(bodyJson.bbox, bodyJson.intersects, uri)
+      if not body then
+        body = "{}"
       end
+      local bodyJson = cjson.decode(body)
+      processSearch(uriArgs, andQuery, bodyJson)
+      -- Use the filters from the body rather than uri args
+      processFilters(uriArgs, andQuery, bodyJson.datetime, bodyJson.sort)
+      setUri(bodyJson.bbox, bodyJson.intersects, uri)
     end
   elseif method == 'GET' then
     if uri == "/rest/items" then
