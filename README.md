@@ -14,7 +14,7 @@ To provide the community a Postgres backed reference implementation of the [STAC
 Postgres's flexibility and ecosystem of geospatial functionality provide a great
 foundation for building spatial APIs and we hope the community can expand on this work to drive STAC development forward.
 
-## Project Layout 
+## Project Layout
 
 ```bash
 .
@@ -42,7 +42,7 @@ foundation for building spatial APIs and we hope the community can expand on thi
 
 ```
 
-## Installation 
+## Installation
 
 ### Prerequisites
 * [Docker](https://www.docker.com)
