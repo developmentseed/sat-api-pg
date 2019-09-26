@@ -1,6 +1,7 @@
 module("satapi", package.seeall)
 require "extensions.fieldsExtension"
 require "extensions.queryExtension"
+require "extensions.sortExtension"
 
 local defaultFields = { "id", "collection", "geometry", "properties" ,"type" , "assets" }
 
@@ -15,7 +16,7 @@ function buildDatetime(datetime)
   return dateString
 end
 
-function processFilters(uriArgs, andQuery, datetime)
+function processFilters(uriArgs, andQuery, datetime, sort)
   if datetime then
     local dateString = buildDatetime(datetime)
     if andQuery then
@@ -26,7 +27,11 @@ function processFilters(uriArgs, andQuery, datetime)
       uriArgs["and"] = "(" .. dateString .. ")"
     end
   end
-    ngx.req.set_uri_args(uriArgs)
+  -- Sort is described as a filter here rather than an extension because
+  -- default datetime sorting is required.
+  local order = sortExtension.buildSortString(sort)
+  uriArgs["order"] = order
+  ngx.req.set_uri_args(uriArgs)
 end
 
 function processSearch(uriArgs, andQuery, bodyJson)
@@ -97,7 +102,7 @@ function handleRequest()
       if (body) then
         local bodyJson = cjson.decode(body)
         processSearch(uriArgs, andQuery, bodyJson)
-        processFilters(uriArgs, andQuery, bodyJson.datetime)
+        processFilters(uriArgs, andQuery, bodyJson.datetime, bodyJson.sort)
         setUri(bodyJson.bbox, bodyJson.intersects, uri)
       end
     end
