@@ -2,7 +2,9 @@ module("satapi", package.seeall)
 require "extensions.fieldsExtension"
 require "extensions.queryExtension"
 require "extensions.sortExtension"
-
+local path_constants = require "path_constants" 
+local searchPath = path_constants.searchPath
+local itemsPath = path_constants.itemsPath
 local defaultFields = { "id", "collection", "geometry", "properties" ,"type" , "assets", "bbox" }
 
 function buildDatetime(datetime)
@@ -83,7 +85,7 @@ function setUri(bbox, intersects, uri)
   else
     -- If using the search endpoint there is the potential for collection queries
     -- and filters so the searchnogeom function is required.
-    if uri == "/rest/stac/search" then
+    if uri == searchPath then
       ngx.req.set_uri("/rpc/searchnogeom")
     end
     -- If not we can pass all the traffic down to the raw PostgREST items endpoint.
@@ -102,7 +104,7 @@ function handleRequest()
   local body = ngx.req.get_body_data()
   local uri = string.gsub(ngx.var.request_uri, "?.*", "")
   if method == 'POST' then
-    if uri == "/rest/stac/search" then
+    if uri == searchPath then
       if not body then
         body = "{}"
       end
@@ -116,7 +118,7 @@ function handleRequest()
       setUri(bodyJson.bbox, bodyJson.intersects, uri)
     end
   elseif method == 'GET' then
-    if uri == "/rest/items" then
+    if uri == itemsPath then
       local args = ngx.req.get_uri_args()
       processFilters(
         uriArgs, andQuery, args.datetime, args.sort,

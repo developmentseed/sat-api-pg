@@ -1,3 +1,3 @@
-export const searchPath = 'stac/search';
+export const searchPath = 'search';
 export const itemsPath = 'items';
 export const collectionsPath = 'collections';
