@@ -3,7 +3,7 @@ require "extensions.fieldsExtension"
 require "extensions.queryExtension"
 require "extensions.sortExtension"
 
-local defaultFields = { "id", "collection", "geometry", "properties" ,"type" , "assets" }
+local defaultFields = { "id", "collection", "geometry", "properties" ,"type" , "assets", "bbox" }
 
 function buildDatetime(datetime)
   local dateString
