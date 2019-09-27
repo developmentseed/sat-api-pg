@@ -1,10 +1,11 @@
 import { restService } from './common';
 import landsatItem from './landsatItem.json';
+import { itemsPath } from './constants';
 
 describe('items', function () {
   it('Initial insert of an item returns 201', function (done) {
     restService()
-      .post('items')
+      .post(itemsPath)
       .set('Prefer', 'return=minimal')
       .set('Content-Type', 'application/json')
       .withRole('application')
@@ -14,7 +15,7 @@ describe('items', function () {
 
   it('Insert an item without a valid JWT or role returns 401', function (done) {
     restService()
-      .post('items')
+      .post(itemsPath)
       .set('Prefer', 'return=minimal')
       .set('Content-Type', 'application/json')
       .send(landsatItem)
@@ -23,7 +24,7 @@ describe('items', function () {
 
   it('Inserting an item with a duplicate id returns 409', function (done) {
     restService()
-      .post('items')
+      .post(itemsPath)
       .set('Prefer', 'return=minimal')
       .set('Content-Type', 'application/json')
       .withRole('application')

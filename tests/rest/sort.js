@@ -1,5 +1,6 @@
 import { restService, resetdb } from './common';
 import should from 'should'; // eslint-disable-line no-unused-vars
+import { searchPath, itemsPath } from './constants';
 
 describe('sort extension', function () {
   before(function (done) { resetdb(); done(); });
@@ -7,7 +8,7 @@ describe('sort extension', function () {
 
   it('Default sort by datetime for search POST', function (done) {
     restService()
-      .post('search')
+      .post(searchPath)
       .expect('Content-Type', /json/)
       .expect(200, done)
       .expect(r => {
@@ -21,7 +22,7 @@ describe('sort extension', function () {
 
   it('Default sort by datetime for items GET', function (done) {
     restService()
-      .get('items')
+      .get(itemsPath)
       .expect('Content-Type', /json/)
       .expect(200, done)
       .expect(r => {
@@ -35,7 +36,7 @@ describe('sort extension', function () {
 
   it('Search sorts desc by nested property', function (done) {
     restService()
-      .post('search')
+      .post(searchPath)
       .send({
         sort: [{
           field: 'properties.eo:cloud_cover',
@@ -55,7 +56,7 @@ describe('sort extension', function () {
 
   it('Search sorts asc by nested property', function (done) {
     restService()
-      .post('search')
+      .post(searchPath)
       .send({
         sort: [{
           field: 'properties.eo:cloud_cover',

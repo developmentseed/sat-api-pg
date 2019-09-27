@@ -20,7 +20,7 @@ local function before_rest_response()
       utils.set_body_postprocess_fn(satapi.wrapFeatureCollection)
     end
   end
-  if uri == "/rest/search" then
+  if uri == "/rest/stac/search" then
     utils.set_body_postprocess_mode(utils.postprocess_modes.ALL)
     utils.set_body_postprocess_fn(satapi.wrapFeatureCollection)
   end

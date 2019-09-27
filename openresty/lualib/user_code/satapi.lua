@@ -83,7 +83,7 @@ function setUri(bbox, intersects, uri)
   else
     -- If using the search endpoint there is the potential for collection queries
     -- and filters so the searchnogeom function is required.
-    if uri == "/rest/search" then
+    if uri == "/rest/stac/search" then
       ngx.req.set_uri("/rpc/searchnogeom")
     end
     -- If not we can pass all the traffic down to the raw PostgREST items endpoint.
@@ -102,7 +102,7 @@ function handleRequest()
   local body = ngx.req.get_body_data()
   local uri = string.gsub(ngx.var.request_uri, "?.*", "")
   if method == 'POST' then
-    if uri == "/rest/search" then
+    if uri == "/rest/stac/search" then
       if not body then
         body = "{}"
       end
