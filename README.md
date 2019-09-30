@@ -69,7 +69,7 @@ The API server will become available at the following endpoint:
 
 Try a simple request
 ```bash
-$ curl http://localhost:8080/rest/collectionitems?select=*
+$ curl http://localhost:8080/rest/items
 ```
 
 To remove the docker compose stack run
