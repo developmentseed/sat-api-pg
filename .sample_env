@@ -1,6 +1,6 @@
 # Docker specific configs
 # use only letters and numbers for the project name
-COMPOSE_PROJECT_NAME=sat-api-next
+COMPOSE_PROJECT_NAME=sat-api-pg
 
 
 # Global configs
