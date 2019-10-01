@@ -45,10 +45,43 @@ Parameters:
     MaxLength: '41'
     AllowedPattern: '[a-zA-Z0-9]*'
     ConstraintDescription: must contain only alphanumeric characters.
+  DBAnonRole:
+    Type: String
+    Default: 'anonymous'
+  DBSchema:
+    Type: String
+    Default: "api"
+  DBPool:
+    Type: String
+    Default: "10"
   JwtSecret:
     NoEcho: 'true'
     Description: The JWT secret for PostgREST auth.
     Type: String
+  MaxRows:
+    Type: String
+    Default: ""
+    Description: "MAX_ROWS env var"
+  PreRequest:
+    Type: String
+    Default: ""
+    Description: "PRE_REQUEST env var"
+  ListenerHostNamePattern:
+    Type: String
+    Description: Listen for requests on the load balancer for this domain
+    Default: "*"
+  OpenRestyImage:
+    Type: String
+    # Default: 'openresty:latest'
+    Description: This image exists in your account's ECR repository.
+  Version:
+    Type: String
+    Default: "latest"
+  PostgrestImage:
+    Type: String
+    Default: 'subzerocloud/postgrest'
+    Description: This image is not prepended with the ECR host because
+      it is a standard PostgREST image.
   PostgrestContainerCpu:
     Type: Number
     Default: 256
@@ -57,12 +90,6 @@ Parameters:
     Type: Number
     Default: 512
     Description: How much memory in megabytes to give the container
-  Path:
-    Type: String
-    Default: "*"
-    Description: A path on the public load balancer that this service
-                 should be connected to. Use * to send all load balancer
-                 traffic to this service.
   Priority:
     Type: Number
     Default: 1
@@ -300,10 +327,14 @@ Resources:
                   - 'logs:CreateLogStream'
                   - 'logs:PutLogEvents'
                 Resource: "*"
-  LogGroup:
+  PgRestLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Join ['', ['ecs/', !Ref 'AWS::StackName', '/tasks']]
+      LogGroupName: !Join ['', ['/ecs/', !Ref 'AWS::StackName', '/postgrest']]
+  OpenRestyLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['', ['/ecs/', !Ref 'AWS::StackName', '/openresty']]
 
   # Autoscaling group. This launches the actual EC2 instances that will register
   # themselves as members of the cluster, and run the docker containers.
@@ -397,3 +428,88 @@ Resources:
                   - 'ecr:BatchGetImage'
                   - 'ecr:GetDownloadUrlForLayer'
                 Resource: '*'
+
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      ContainerDefinitions:
+        - Name: 'postgrest'
+          Image: !Ref 'PostgrestImage'
+          Cpu: !Ref 'PostgrestContainerCpu'
+          Memory: !Ref 'PostgrestContainerMemory'
+          Environment:
+            # version used only to trigger image update and oncatiner restart
+            - Name: VERSION
+              Value: !Ref Version
+            - Name: PGRST_DB_URI
+              Value: !Join
+                - ""
+                -
+                  - "postgres://"
+                  - !Ref DBUser
+                  - ":"
+                  - !Ref DBPassword
+                  - "@"
+                  - !GetAtt [DB, Endpoint.Address]
+                  - ":"
+                  - !GetAtt [DB, Endpoint.Port]
+                  - "/"
+                  - !Ref DBName
+            - Name: PGRST_DB_SCHEMA
+              Value: !Ref DBSchema
+            - Name: PGRST_DB_ANON_ROLE
+              Value: !Ref DBAnonRole
+            - Name: PGRST_DB_POOL
+              Value: !Ref DBPool
+            - Name: PGRST_JWT_SECRET
+              Value: !Ref JwtSecret
+            - Name: PGRST_MAX_ROWS
+              Value: !Ref MaxRows
+            - Name: PGRST_PRE_REQUEST
+              Value: !Ref PreRequest
+          LogConfiguration:
+            LogDriver: "awslogs"
+            Options:
+              awslogs-group: !Ref PgRestLogGroup
+              awslogs-region: !Ref AWS::Region
+        - Name: "openresty"
+          Cpu: !Ref 'PostgrestContainerCpu'
+          Memory: !Ref 'PostgrestContainerMemory'
+          Image: !Join
+            - ""
+            -
+              - !Ref OpenRestyImage
+              - ":"
+              - !Ref Version
+          PortMappings:
+            - HostPort: "0"
+              ContainerPort: "80"
+              Protocol: "tcp"
+          Links:
+            - "postgrest:postgrest"
+          Environment:
+            - Name: DB_HOST
+              Value: !GetAtt [DB, Endpoint.Address]
+            - Name: DB_PORT
+              Value: !GetAtt [DB, Endpoint.Port]
+            - Name: DB_NAME
+              Value: !Ref DBName
+            - Name: DB_SCHEMA
+              Value: !Ref DBSchema
+            - Name: DB_USER
+              Value: !Ref DBUser
+            - Name: DB_PASS
+              Value: !Ref DBPassword
+            - Name: POSTGREST_HOST
+              Value: "postgrest"
+            - Name: POSTGREST_PORT
+              Value: "3000"
+            - Name: JWT_SECRET
+              Value: !Ref JwtSecret
+            - Name: DEVELOPMENT
+              Value: "0"
+          LogConfiguration:
+            LogDriver: "awslogs"
+            Options:
+              awslogs-group: !Ref OpenRestyLogGroup
+              awslogs-region: !Ref AWS::Region
