@@ -100,10 +100,20 @@ Parameters:
     Type: Number
     Default: '0'
     Description: Number of EC2 instances to launch in your ECS cluster.
+  DesiredCount:
+    Type: Number
+    Default: '0'
+    Description: The number of task instances to run on cluster.
   MaxSize:
     Type: Number
     Default: '4'
     Description: Maximum number of EC2 instances that can be launched.
+  Path:
+    Type: String
+    Default: "*"
+    Description: A path on the public load balancer that this service
+                 should be connected to. Use * to send all load balancer
+                 traffic to this service.
   ECSAMI:
     Description: AMI ID
     Type: AWS::EC2::Image::Id
@@ -288,6 +298,25 @@ Resources:
           Value: '30'
       UnhealthyThresholdCount: 3
       VpcId: !Ref VPC
+
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: "/"
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 4
+      Matcher:
+        HttpCode: '200'
+      Port: 80
+      Protocol: HTTP
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: '30'
+      UnhealthyThresholdCount: 3
+      VpcId: !Ref VPC
+
   ExternalListenerHttp:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -295,8 +324,21 @@ Resources:
       Port: 80
       LoadBalancerArn: !Ref ExternalLoadBalancer
       DefaultActions:
-        - TargetGroupArn: !Ref PlaceholderTargetGroup
+        - TargetGroupArn: !Ref TargetGroup
           Type: forward
+
+  # Create a rule on the load balancer for routing traffic to the target group
+  ListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+        - TargetGroupArn: !Ref 'TargetGroup'
+          Type: 'forward'
+      Conditions:
+        - Field: path-pattern
+          Values: [!Ref 'Path']
+      ListenerArn: !Ref ExternalListenerHttp
+      Priority: !Ref 'Priority'
   ServiceRole:
     Type: AWS::IAM::Role
     Properties:
@@ -513,3 +555,18 @@ Resources:
             Options:
               awslogs-group: !Ref OpenRestyLogGroup
               awslogs-region: !Ref AWS::Region
+  Service:
+    Type: AWS::ECS::Service
+    DependsOn: ListenerRule
+    Properties:
+      Cluster: !Ref ECSCluster
+      DeploymentConfiguration:
+        MaximumPercent: "200"
+        MinimumHealthyPercent: "50"
+      DesiredCount: !Ref DesiredCount
+      LoadBalancers:
+        - ContainerName: "openresty"
+          TargetGroupArn: !Ref TargetGroup
+          ContainerPort: 80
+      TaskDefinition: !Ref TaskDefinition
+      Role: !Ref ServiceRole
