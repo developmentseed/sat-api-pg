@@ -98,7 +98,7 @@ Parameters:
                  assigned to different paths on the load balancer.
   DesiredCapacity:
     Type: Number
-    Default: '0'
+    Default: '1'
     Description: Number of EC2 instances to launch in your ECS cluster.
   DesiredCount:
     Type: Number
@@ -125,13 +125,21 @@ Parameters:
     ConstraintDescription: Please choose a valid instance type.
 Outputs:
   PGConnection:
-    Value: !Join ['', ['postgres://', 'masteruser', ':',
-                       !Ref 'DBPassword', '@',
+    Value: !Join ['', ['postgres://', !Ref 'DBSuperUser', ':',
+                       !Ref 'DBSuperPassword', '@',
                        !GetAtt [DB, Endpoint.Address],
                        ':', !GetAtt [DB, Endpoint.Port], /,
                        !Ref 'DBName']]
     Export:
       Name: !Sub '${AWS::StackName}-PGConnection'
+  RDSHost:
+    Value: !GetAtt [DB, Endpoint.Address]
+    Export:
+      Name: !Sub '${AWS::StackName}-RDSHost'
+  RESTEndpoint:
+    Value: !GetAtt ExternalLoadBalancer.DNSName
+    Export:
+      Name: !Sub '${AWS::StackName}-RESTEndpoint'
 Mappings:
   # Hard values for the subnet masks. These masks define
   # the range of internal IP addresses that can be assigned.
@@ -247,28 +255,28 @@ Resources:
     Properties:
       GroupDescription: Access to the containers
       VpcId: !Ref 'VPC'
-  LoadBalancerSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
+  EcsSecurityGroupIngressFromPublicALB:
+    Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupDescription: "Allow ELB access from internet"
-      VpcId: !Ref VPC
-      SecurityGroupIngress:
-        - IpProtocol: "tcp"
-          FromPort: "80"
-          ToPort: "80"
-          CidrIp: "0.0.0.0/0"
-        - IpProtocol: "tcp"
-          FromPort: "443"
-          ToPort: "443"
-          CidrIp: "0.0.0.0/0"
-  LoadBalancerSecurityGroupIngress:
+      Description: Ingress from the public ALB
+      GroupId: !Ref ECSSecurityGroup
+      IpProtocol: -1
+      SourceSecurityGroupId: !Ref 'ExternalLoadBalancerSG'
+  EcsSecurityGroupIngressFromSelf:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref ECSSecurityGroup
-      IpProtocol: "tcp"
-      FromPort: "32768"
-      ToPort: "65535"
-      SourceSecurityGroupId: !GetAtt LoadBalancerSecurityGroup.GroupId
+      IpProtocol: "-1"
+      SourceSecurityGroupId: !Ref ECSSecurityGroup
+  ExternalLoadBalancerSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Access to the public facing load balancer
+      VpcId: !Ref 'VPC'
+      SecurityGroupIngress:
+        # Allow access to ALB from anywhere on the internet
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: -1
   ExternalLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -280,7 +288,7 @@ Resources:
         - Key: idle_timeout.timeout_seconds
           Value: "50"
       SecurityGroups:
-        - !GetAtt LoadBalancerSecurityGroup.GroupId
+        - !Ref ExternalLoadBalancerSG
   PlaceholderTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -387,7 +395,7 @@ Resources:
         - !Ref PublicSubnetOne
         - !Ref PublicSubnetTwo
       LaunchConfigurationName: !Ref 'ContainerInstances'
-      MinSize: '0'
+      MinSize: '1'
       MaxSize: !Ref 'MaxSize'
       DesiredCapacity: !Ref 'DesiredCapacity'
     CreationPolicy:
