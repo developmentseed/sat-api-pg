@@ -324,6 +324,7 @@ Resources:
           Value: '30'
       UnhealthyThresholdCount: 3
       VpcId: !Ref VPC
+      TargetType: ip
 
   ExternalListenerHttp:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -347,36 +348,36 @@ Resources:
           Values: [!Ref 'Path']
       ListenerArn: !Ref ExternalListenerHttp
       Priority: !Ref 'Priority'
-  ServiceRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: "Allow"
-            Principal:
-              Service:
-                - "ecs.amazonaws.com"
-            Action:
-              - "sts:AssumeRole"
-      Path: "/"
-      Policies:
-        - PolicyName: "EcsRole"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: "Allow"
-                Action:
-                  - "elasticloadbalancing:DeregisterInstancesFromLoadBalancer"
-                  - "elasticloadbalancing:DeregisterTargets"
-                  - "elasticloadbalancing:Describe*"
-                  - "elasticloadbalancing:RegisterInstancesWithLoadBalancer"
-                  - "elasticloadbalancing:RegisterTargets"
+  # ServiceRole:
+    # Type: AWS::IAM::Role
+    # Properties:
+      # AssumeRolePolicyDocument:
+        # Version: "2012-10-17"
+        # Statement:
+          # - Effect: "Allow"
+            # Principal:
+              # Service:
+                # - "ecs.amazonaws.com"
+            # Action:
+              # - "sts:AssumeRole"
+      # Path: "/"
+      # Policies:
+        # - PolicyName: "EcsRole"
+          # PolicyDocument:
+            # Version: "2012-10-17"
+            # Statement:
+              # - Effect: "Allow"
+                # Action:
+                  # - "elasticloadbalancing:DeregisterInstancesFromLoadBalancer"
+                  # - "elasticloadbalancing:DeregisterTargets"
+                  # - "elasticloadbalancing:Describe*"
+                  # - "elasticloadbalancing:RegisterInstancesWithLoadBalancer"
+                  # - "elasticloadbalancing:RegisterTargets"
 
-                  # Allow the ECS tasks to upload logs to CloudWatch
-                  - 'logs:CreateLogStream'
-                  - 'logs:PutLogEvents'
-                Resource: "*"
+                  # # Allow the ECS tasks to upload logs to CloudWatch
+                  # - 'logs:CreateLogStream'
+                  # - 'logs:PutLogEvents'
+                # Resource: "*"
   PgRestLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
@@ -482,6 +483,7 @@ Resources:
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
+      NetworkMode: awsvpc
       ContainerDefinitions:
         - Name: 'postgrest'
           Image: !Ref 'PostgrestImage'
@@ -532,11 +534,8 @@ Resources:
               - ":"
               - !Ref Version
           PortMappings:
-            - HostPort: "0"
-              ContainerPort: "80"
+            - ContainerPort: "80"
               Protocol: "tcp"
-          Links:
-            - "postgrest:postgrest"
           Environment:
             - Name: DB_HOST
               Value: !GetAtt [DB, Endpoint.Address]
@@ -577,4 +576,12 @@ Resources:
           TargetGroupArn: !Ref TargetGroup
           ContainerPort: 80
       TaskDefinition: !Ref TaskDefinition
-      Role: !Ref ServiceRole
+      # Role: !Ref ServiceRole
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - !Ref ECSSecurityGroup
+          Subnets:
+            - !Ref PublicSubnetOne
+            - !Ref PublicSubnetTwo
