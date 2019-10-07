@@ -550,7 +550,7 @@ Resources:
             - Name: DB_PASS
               Value: !Ref DBPassword
             - Name: POSTGREST_HOST
-              Value: "postgrest"
+              Value: "127.0.0.1"
             - Name: POSTGREST_PORT
               Value: "3000"
             - Name: JWT_SECRET
