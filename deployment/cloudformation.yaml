@@ -79,7 +79,7 @@ Parameters:
     Default: "latest"
   PostgrestImage:
     Type: String
-    Default: 'subzerocloud/postgrest'
+    Default: 'postgrest/postgrest:v5.2'
     Description: This image is not prepended with the ECR host because
       it is a standard PostgREST image.
   PostgrestContainerCpu:
@@ -556,7 +556,7 @@ Resources:
             - Name: JWT_SECRET
               Value: !Ref JwtSecret
             - Name: DEVELOPMENT
-              Value: "0"
+              Value: "1"
           LogConfiguration:
             LogDriver: "awslogs"
             Options:
