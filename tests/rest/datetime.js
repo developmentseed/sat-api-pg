@@ -1,5 +1,6 @@
 import { restService, resetdb } from './common';
 import should from 'should'; // eslint-disable-line no-unused-vars
+import { searchPath, itemsPath } from './constants';
 
 describe('datetime filter', function () {
   before(function (done) { resetdb(); done(); });
@@ -7,7 +8,7 @@ describe('datetime filter', function () {
 
   it('Handles date range queries', function (done) {
     restService()
-      .post('search')
+      .post(searchPath)
       .send({
         datetime: '2019-04-01T12:00/2019-08-21T14:02'
       })
@@ -20,7 +21,7 @@ describe('datetime filter', function () {
 
   it('Datetime can be passed as query parameter in GET', function (done) {
     restService()
-      .get('items')
+      .get(itemsPath)
       .query({
         datetime: '2019-04-01T12:00/2019-08-21T14:02'
       })

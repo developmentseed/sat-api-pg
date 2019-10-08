@@ -1,5 +1,6 @@
-import { restService, resetdb } from './common';
 import should from 'should'; // eslint-disable-line no-unused-vars
+import { restService, resetdb } from './common';
+import { searchPath } from './constants';
 
 describe('fields extension', function () {
   before(function (done) { resetdb(); done(); });
@@ -7,7 +8,7 @@ describe('fields extension', function () {
 
   it('includes default fields when include and exclude are null', function (done) {
     restService()
-      .post('search')
+      .post(searchPath)
       .send({
         fields: {}
       })
@@ -25,7 +26,7 @@ describe('fields extension', function () {
 
   it('includes default fields when include and exclude are empty', function (done) {
     restService()
-      .post('search')
+      .post(searchPath)
       .send({
         fields: {
           include: [],
@@ -47,7 +48,7 @@ describe('fields extension', function () {
   it('if only include is specified, properties are added to the defaults',
     function (done) {
       restService()
-        .post('search')
+        .post(searchPath)
         .send({
           fields: {
             include: [
@@ -69,7 +70,7 @@ describe('fields extension', function () {
       ' the defaults.  May result in an invalid item',
   function (done) {
     restService()
-      .post('search')
+      .post(searchPath)
       .send({
         fields: {
           exclude: [
@@ -88,7 +89,7 @@ describe('fields extension', function () {
   it('if the same field is specified in include and exclude, the include wins',
     function (done) {
       restService()
-        .post('search')
+        .post(searchPath)
         .send({
           fields: {
             include: [

@@ -2,3 +2,4 @@ node_modules
 package-lock.json
 .env
 .tern-port
+subzero-app.json

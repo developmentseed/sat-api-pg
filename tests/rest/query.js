@@ -1,5 +1,6 @@
 import { restService, resetdb } from './common';
 import should from 'should'; // eslint-disable-line no-unused-vars
+import { searchPath } from './constants';
 
 describe('query extension', function () {
   before(function (done) { resetdb(); done(); });
@@ -7,7 +8,7 @@ describe('query extension', function () {
 
   it('Uses collection properties and item properties for query', function (done) {
     restService()
-      .post('search')
+      .post(searchPath)
       .send({
         query: {
           'eo:gsd': {
@@ -25,7 +26,7 @@ describe('query extension', function () {
 
   it('Handles queries with no bbox or intersects', function (done) {
     restService()
-      .post('search')
+      .post(searchPath)
       .send({
         query: {
           'eo:cloud_cover': {
@@ -42,7 +43,7 @@ describe('query extension', function () {
 
   it('gte lte operators', function (done) {
     restService()
-      .post('search')
+      .post(searchPath)
       .send({
         query: {
           'eo:cloud_cover': {
@@ -60,7 +61,7 @@ describe('query extension', function () {
 
   it('in operator', function (done) {
     restService()
-      .post('search')
+      .post(searchPath)
       .send({
         query: {
           'eo:column': {

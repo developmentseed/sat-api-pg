@@ -1,18 +1,27 @@
+# CF esttings
+PROJECT=smallsats
+REGION=us-east-1
+STACK_NAME=smallsats-sat-api
+
+#Subzero settings
+APP_DIR=..
+OPENRESTY_DIR=../openresty
+MIGRATIONS_DIR=../db/migrations
+
 # Docker specific configs
 # use only letters and numbers for the project name
 COMPOSE_PROJECT_NAME=sat-api-pg
 
-
 # Global configs
-DEVELOPMENT=1
-JWT_SECRET=reallyreallyreallyreallyverysafe
+# DEVELOPMENT=1
+JWT_SECRET=reallyreallyreallyreally
 
 # DB connection details (used by all containers)
 # set PG_VERSION to match your production db major version
 PG_VERSION=11.2
-DB_HOST=db
+# DB_HOST=db
 DB_PORT=5432
-DB_NAME=app
+DB_NAME=smallsatsdb
 DB_SCHEMA=api
 DB_USER=authenticator
 DB_PASS=authenticatorpass
@@ -30,8 +39,10 @@ SERVER_PROXY_URI=http://localhost:8080/rest/
 
 # PostgreSQL container config
 # Use this to connect directly to the db running in the container
-SUPER_USER=superuser
-SUPER_USER_PASSWORD=superuserpass
+SUPER_USER=
+SUPER_USER_PASSWORD=
 
+OPENRESTY_REPO_URI=552819999234.dkr.ecr.us-east-1.amazonaws.com/sat-api-pg/openresty
+OPEN_RESTY_IMAGE=552819999234.dkr.ecr.us-east-1.amazonaws.com/sat-api-pg/openresty
 # psql  postgres://superuser:superuserpass@localhost:5432/app
-@localhost:5432/app
+# @localhost:5432/app

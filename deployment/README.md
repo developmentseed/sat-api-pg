@@ -1,0 +1,32 @@
+## Deploying the sat-api-pg to an AWS stack.
+
+Copy the `/deployment/.sample_env` to `/deployment/.env`.
+
+Update your project name and password settings accordingly. 
+
+To create the stack of required AWS resources. Run
+```bash
+$ cd deployment
+$ ./createStack.sh
+```
+
+Once your AWS stack has been created you can deploy the database creation/migrations and the updated OpenResty image.
+This will create the `sat-api-pg` schemas, users, tables, views and functions in your stack's RDS database.
+Prior to deploying these changes you must update the RDS instance's security policy to allow inbound traffic from the IP address of the machine where you are executing the deployment.
+This will allow the deployment package to run `psql` commands from your IP address.
+
+To build the deployment cofiguration file from you environment settings. From the `/deployment` directory run
+```bash
+$ ./createSubZeroConfig.sh
+```
+
+To deploy the database migrations and the push the latest OpenResty image to ECR run
+```bash
+$ ./deploy.sh
+```
+
+And finally now that our database is ready and the updated image is in ECR you can bring up an instance of your service by running
+```bash
+$ ./createStack.sh 1
+```
+

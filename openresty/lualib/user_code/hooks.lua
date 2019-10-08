@@ -1,4 +1,8 @@
 require "satapi"
+local path_constants = require "path_constants"
+local searchPath = path_constants.searchPath
+local itemsPath = path_constants.itemsPath
+
 local function on_init()
     -- print "on_init called"
 end
@@ -11,7 +15,7 @@ end
 
 local function before_rest_response()
   local uri = string.gsub(ngx.var.request_uri, "?.*", "")
-  if uri == "/rest/items" then
+  if uri == itemsPath then
     -- If items are posted they should be created
     -- Handle the case when a GET /items request with intersects redirects
     -- to a POST request to the /search endpoint
@@ -20,7 +24,7 @@ local function before_rest_response()
       utils.set_body_postprocess_fn(satapi.wrapFeatureCollection)
     end
   end
-  if uri == "/rest/search" then
+  if uri == searchPath then
     utils.set_body_postprocess_mode(utils.postprocess_modes.ALL)
     utils.set_body_postprocess_fn(satapi.wrapFeatureCollection)
   end

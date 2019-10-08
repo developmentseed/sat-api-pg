@@ -8,11 +8,12 @@ CREATE TABLE collections(
 CREATE TABLE items(
   id varchar(1024) PRIMARY KEY,
   type varchar(20) NOT NULL,
-  geometry geometry,
+  geometry geometry NOT NULL,
+  bbox numeric[] NOT NULL,
   properties jsonb NOT NULL,
-  assets jsonb,
+  assets jsonb NOT NULL,
   collection varchar(1024),
-  datetime timestamp with time zone,
+  datetime timestamp with time zone NOT NULL,
   CONSTRAINT fk_collection FOREIGN KEY (collection) REFERENCES collections(id)
 );
 
@@ -21,6 +22,7 @@ CREATE VIEW items_string_geometry AS
   id,
   type,
   data.ST_AsGeoJSON(geometry) :: json as geometry,
+  bbox,
   properties,
   assets,
   collection,
@@ -42,11 +44,12 @@ CREATE OR REPLACE FUNCTION convert_values()
     --  RAISE WARNING 'geometry not updated: %', SQLERRM;
   converted_geometry = data.st_setsrid(data.ST_GeomFromGeoJSON(NEW.geometry), 4326);
   converted_datetime = (new.properties)->'datetime';
-  INSERT INTO data.items(id, type, geometry, properties, assets, collection, datetime)
+  INSERT INTO data.items(id, type, geometry, bbox, properties, assets, collection, datetime)
   VALUES(
     new.id,
     new.type,
     converted_geometry,
+    new.bbox,
     new.properties,
     new.assets,
     new.collection,

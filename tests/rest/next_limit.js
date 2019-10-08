@@ -1,5 +1,6 @@
 import { restService, resetdb } from './common';
 import should from 'should'; // eslint-disable-line no-unused-vars
+import { searchPath, itemsPath } from './constants';
 
 describe('next and limit filters', function () {
   before(function (done) { resetdb(); done(); });
@@ -7,7 +8,7 @@ describe('next and limit filters', function () {
 
   it('Limits response search POST', function (done) {
     restService()
-      .post('search')
+      .post(searchPath)
       .send({
         next: 1,
         limit: 2
@@ -21,7 +22,7 @@ describe('next and limit filters', function () {
 
   it('Limits response for items GET', function (done) {
     restService()
-      .get('items')
+      .get(itemsPath)
       .query({
         next: 0,
         limit: 2
@@ -36,7 +37,7 @@ describe('next and limit filters', function () {
   it('Prefer header returns current range and totals for item GET',
     function (done) {
       restService()
-        .get('items')
+        .get(itemsPath)
         .query({
           next: 0,
           limit: 2
@@ -54,7 +55,7 @@ describe('next and limit filters', function () {
   it('Prefer header returns current range and totals for search POST',
     function (done) {
       restService()
-        .post('search')
+        .post(searchPath)
         .send({
           next: 0,
           limit: 2

@@ -87,7 +87,7 @@ VALUES(
         }
     ]
   }');
-INSERT INTO data.items_string_geometry(id, collection, type, properties, geometry, assets)
+INSERT INTO data.items_string_geometry(id, collection, type, properties, geometry, assets, bbox)
 VALUES(
   'LC80370382019170',
   'landsat-8-l1',
@@ -250,9 +250,15 @@ VALUES(
           "type": "image/x.geotiff",
           "href": "https://landsat-pds.s3.amazonaws.com/c1/L8/037/038/LC08_L1TP_037038_20190619_20190619_01_RT/LC08_L1TP_037038_20190619_20190619_01_RT_BQA.TIF"
       }
+  }',
+  '{
+    -114.18578,
+    30.64594,
+    -111.68488,
+    32.81955
   }'
 );
-INSERT INTO data.items_string_geometry(id, collection, type, properties, geometry, assets)
+INSERT INTO data.items_string_geometry(id, collection, type, properties, geometry, assets, bbox)
 VALUES(
   'LC81392162019261',
   'landsat-8-l1',
@@ -414,9 +420,15 @@ VALUES(
         "type": "image/x.geotiff",
         "href": "https://landsat-pds.s3.amazonaws.com/c1/L8/139/216/LC08_L1GT_139216_20190918_20190918_01_RT/LC08_L1GT_139216_20190918_20190918_01_RT_BQA.TIF"
     }
+  }',
+  '{
+    -123.46531,
+    44.9288,
+    -120.35062,
+    47.11366
   }'
 );
-INSERT INTO data.items_string_geometry(id, collection, type, properties, geometry, assets)
+INSERT INTO data.items_string_geometry(id, collection, type, properties, geometry, assets, bbox)
 VALUES(
   'LC80320392019263',
   'landsat-8-l1',
@@ -578,5 +590,11 @@ VALUES(
           "type": "image/x.geotiff",
           "href": "https://landsat-pds.s3.amazonaws.com/c1/L8/032/039/LC08_L1TP_032039_20190920_20190920_01_RT/LC08_L1TP_032039_20190920_20190920_01_RT_BQA.TIF"
       }
-  }'
+  }',
+  '{
+    -106.78402,
+    29.23152,
+    -104.36176,
+    31.36112
+   }'
 );
