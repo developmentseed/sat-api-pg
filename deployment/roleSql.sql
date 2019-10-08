@@ -9,12 +9,7 @@
 
 DROP ROLE IF EXISTS api;
 CREATE ROLE api;
-
---  DROP ROLE IF EXISTS anonymous;
---  CREATE ROLE anonymous;
-
---  DROP ROLE IF EXISTS application;
---  CREATE ROLE application;
+GRANT api to current_user; -- this is a workaround for RDS where the master user does not have SUPERUSER priviliges  
 
 DROP ROLE IF EXISTS webuser;
 CREATE ROLE webuser;
