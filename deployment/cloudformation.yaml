@@ -77,11 +77,11 @@ Parameters:
   Version:
     Type: String
     Default: "latest"
-  PostgrestImage:
-    Type: String
-    Default: 'postgrest/postgrest:v5.2'
-    Description: This image is not prepended with the ECR host because
-      it is a standard PostgREST image.
+  # PostgrestImage:
+    # Type: String
+    # Default: 'postgrest/postgrest:v5.2.0'
+    # Description: This image is not prepended with the ECR host because
+      # it is a standard PostgREST image.
   PostgrestContainerCpu:
     Type: Number
     Default: 256
@@ -456,7 +456,7 @@ Resources:
       NetworkMode: awsvpc
       ContainerDefinitions:
         - Name: 'postgrest'
-          Image: !Ref 'PostgrestImage'
+          Image: postgrest/postgrest:v5.2.0
           Cpu: !Ref 'PostgrestContainerCpu'
           Memory: !Ref 'PostgrestContainerMemory'
           Environment:
@@ -487,8 +487,6 @@ Resources:
               Value: !Ref JwtSecret
             - Name: PGRST_MAX_ROWS
               Value: !Ref MaxRows
-            - Name: PGRST_PRE_REQUEST
-              Value: !Ref PreRequest
           LogConfiguration:
             LogDriver: "awslogs"
             Options:
@@ -546,7 +544,6 @@ Resources:
           TargetGroupArn: !Ref TargetGroup
           ContainerPort: 80
       TaskDefinition: !Ref TaskDefinition
-      # Role: !Ref ServiceRole
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: DISABLED
