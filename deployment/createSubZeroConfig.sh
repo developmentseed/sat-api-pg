@@ -9,7 +9,7 @@ DOMAIN=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" \
 SUBZERO_APP_CONF=$(cat <<EOF
 {
   "name": "$STACK_NAME",
-  "domain": "$DOMAIN",
+  "domain": "",
   "openresty_repo": "${OPENRESTY_REPO_URI}",
   "db_location": "external",
   "db_admin": "${SUPER_USER}",
