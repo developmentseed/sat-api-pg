@@ -1,7 +1,12 @@
-INSERT INTO data.collections(id, description, properties)
+INSERT INTO data.collections(id, description, license, extent, properties)
 VALUES(
   'landsat-8-l1',
   'Landat 8 imagery radiometrically calibrated and orthorectified using gound points and Digital Elevation Model (DEM) data to correct relief displacement.',
+  'MIT-0',
+  '{
+      "bbox": [-180.0, -90.0, 180.0, 90.0],
+      "interval": [["2009-01-01T00:00:00Z", null]]
+    }',
   '{
     "eo:gsd": 15,
     "eo:platform": "landsat-8",
@@ -598,3 +603,5 @@ VALUES(
     31.36112
    }'
 );
+INSERT INTO data.apiUrls(url)
+VALUES('http://localhost:8080/rest');

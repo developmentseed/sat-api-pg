@@ -14,6 +14,7 @@ grant usage on schema data to anonymous, application;
 grant select on data.items to api;
 grant select, insert, update on data.items_string_geometry to api;
 grant select, insert, update on data.collections to api;
+grant select on data.collectionLinks to api;
 
 -- Anonymous can view collection items
 grant select on api.collectionitems to anonymous;

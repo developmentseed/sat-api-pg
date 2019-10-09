@@ -1,8 +1,23 @@
 CREATE EXTENSION postgis SCHEMA data;
 CREATE EXTENSION ltree SCHEMA data;
+CREATE TYPE linkObjects AS(
+  href varchar(1024),
+  rel varchar(1024),
+  type varchar(1024),
+  title varchar(1024)
+);
+CREATE TABLE apiUrls(
+  url varchar(1024)
+);
 CREATE TABLE collections(
   id varchar(1024) PRIMARY KEY,
-  description varchar(1024),
+  title varchar(1024),
+  description varchar(1024) NOT NULL,
+  keywords varchar(300)[],
+  version varchar(300),
+  license varchar(300) NOT NULL,
+  providers jsonb[],
+  extent jsonb,
   properties jsonb
 );
 CREATE TABLE items(
@@ -16,6 +31,24 @@ CREATE TABLE items(
   datetime timestamp with time zone NOT NULL,
   CONSTRAINT fk_collection FOREIGN KEY (collection) REFERENCES collections(id)
 );
+  --  ARRAY(
+    --  SELECT ROW(data.apiUrls.*)::data.apiUrls FROM data.apiUrls) as test
+CREATE VIEW collectionLinks AS
+  SELECT
+  id,
+  title,
+  description,
+  keywords,
+  version,
+  license,
+  providers,
+  extent,
+  properties,
+  (SELECT ARRAY[
+    ROW((SELECT url || '/collections' FROM data.apiUrls LIMIT 1),'self',null,null)::data.linkObjects,
+    ROW((SELECT url || '/collections' FROM data.apiUrls LIMIT 1),'root',null,null)::data.linkObjects
+  ]) as links
+  FROM data.collections;
 
 CREATE VIEW items_string_geometry AS
   SELECT

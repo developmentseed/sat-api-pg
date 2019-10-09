@@ -97,5 +97,5 @@ CREATE OR REPLACE VIEW items AS
 ALTER VIEW items owner to api;
 
 CREATE OR REPLACE VIEW collections AS
-  SELECT * FROM data.collections;
+  SELECT * FROM data.collectionLinks;
 ALTER VIEW collections owner to api;
