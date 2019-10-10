@@ -45,10 +45,10 @@ CREATE VIEW collectionLinks AS
   providers,
   extent,
   properties,
-  (SELECT ARRAY[
+  (SELECT array_cat(ARRAY[
     ROW((SELECT url || '/collections' FROM data.apiUrls LIMIT 1),'self',null,null)::data.linkobject,
     ROW((SELECT url || '/collections' FROM data.apiUrls LIMIT 1),'root',null,null)::data.linkobject
-  ]) as links
+  ], links)) as links
   FROM data.collections;
 
 CREATE VIEW items_string_geometry AS
