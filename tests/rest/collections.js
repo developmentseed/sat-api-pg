@@ -31,4 +31,53 @@ describe('collections', function () {
       .send(landsat8l2Collection)
       .expect(409, done);
   });
+
+  it('Adds self and root links based on apiUrl value', function (done) {
+    restService()
+      .get(collectionsPath)
+      .expect('Content-Type', /json/)
+      .expect(200, done)
+      .expect(r => {
+        r.body[0].links.length.should.equal(2);
+        r.body[0].links.should.containDeep([{
+          rel: 'root',
+          href: 'http://localhost:8080/rest/collections',
+          type: null,
+          title: null
+        },
+        {
+          rel: 'self',
+          href: 'http://localhost:8080/rest/collections',
+          type: null,
+          title: null
+        }]);
+      });
+  });
+
+  it('Merges derived_from link if included in inserted collection', function (done) {
+    restService()
+      .get(collectionsPath)
+      .expect('Content-Type', /json/)
+      .expect(200, done)
+      .expect(r => {
+        r.body[1].links.length.should.equal(3);
+        r.body[1].links.should.containDeep([{
+          rel: 'root',
+          href: 'http://localhost:8080/rest/collections',
+          type: null,
+          title: null
+        },
+        {
+          rel: 'self',
+          href: 'http://localhost:8080/rest/collections',
+          type: null,
+          title: null
+        },
+        {
+          rel: 'derived_from',
+          type: null,
+          title: null
+        }]);
+      });
+  });
 });

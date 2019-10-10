@@ -1,6 +1,16 @@
 {
     "id": "landsat-8-l2",
     "description": "Landat 8 imagery radiometrically calibrated and orthorectified using gound points and Digital Elevation Model (DEM) data to correct relief displacement.",
+    "license": "MIT",
+    "extent": {
+      "bbox": [-180.0, -90.0, 180.0, 90.0],
+      "interval": [["2009-01-01T00:00:00Z", null]]
+    },
+    "links": [{
+      "rel": "derived_from",
+      "type": null,
+      "title": null
+    }],
     "properties": {
         "eo:gsd": 15,
         "eo:platform": "landsat-8",
