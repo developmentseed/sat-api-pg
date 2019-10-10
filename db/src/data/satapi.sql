@@ -1,6 +1,6 @@
 CREATE EXTENSION postgis SCHEMA data;
 CREATE EXTENSION ltree SCHEMA data;
-CREATE TYPE linkObjects AS(
+CREATE TYPE linkobject AS(
   href varchar(1024),
   rel varchar(1024),
   type varchar(1024),
@@ -18,7 +18,8 @@ CREATE TABLE collections(
   license varchar(300) NOT NULL,
   providers jsonb[],
   extent jsonb,
-  properties jsonb
+  properties jsonb,
+  links linkobject[]
 );
 CREATE TABLE items(
   id varchar(1024) PRIMARY KEY,
@@ -45,8 +46,8 @@ CREATE VIEW collectionLinks AS
   extent,
   properties,
   (SELECT ARRAY[
-    ROW((SELECT url || '/collections' FROM data.apiUrls LIMIT 1),'self',null,null)::data.linkObjects,
-    ROW((SELECT url || '/collections' FROM data.apiUrls LIMIT 1),'root',null,null)::data.linkObjects
+    ROW((SELECT url || '/collections' FROM data.apiUrls LIMIT 1),'self',null,null)::data.linkobject,
+    ROW((SELECT url || '/collections' FROM data.apiUrls LIMIT 1),'root',null,null)::data.linkobject
   ]) as links
   FROM data.collections;
 
@@ -91,6 +92,47 @@ CREATE OR REPLACE FUNCTION convert_values()
   END;
   $BODY$
   LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION convert_collection_links()
+  RETURNS trigger AS
+  $BODY$
+  DECLARE
+    derivedlink data.linkobject;
+  BEGIN
+    SELECT * INTO derivedlink FROM unnest(new.links) as linkObj
+    WHERE linkObj.rel = 'derived_from';
+  INSERT INTO data.collections(
+    id,
+    title,
+    description,
+    keywords,
+    version,
+    license,
+    providers,
+    extent,
+    properties,
+    links
+  )
+  VALUES(
+    new.id,
+    new.title,
+    new.description,
+    new.keywords,
+    new.version,
+    new.license,
+    new.providers,
+    new.extent,
+    new.properties,
+    ARRAY[derivedlink]
+  );
+  RETURN NEW;
+  END;
+  $BODY$
+  LANGUAGE plpgsql;
+
+CREATE TRIGGER convert_collection_links INSTEAD OF INSERT
+  ON data.collectionLinks FOR EACH ROW
+  EXECUTE PROCEDURE data.convert_collection_links();
 
 CREATE TRIGGER convert_geometry_tg INSTEAD OF INSERT
    ON data.items_string_geometry FOR EACH ROW

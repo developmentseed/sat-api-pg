@@ -14,7 +14,7 @@ grant usage on schema data to anonymous, application;
 grant select on data.items to api;
 grant select, insert, update on data.items_string_geometry to api;
 grant select, insert, update on data.collections to api;
-grant select on data.collectionLinks to api;
+grant select, insert, update on data.collectionLinks to api;
 
 -- Anonymous can view collection items
 grant select on api.collectionitems to anonymous;
@@ -24,6 +24,7 @@ grant select on api.collections to anonymous;
 
 -- Application can insert items with transformed geojson
 grant select, insert, update on data.collections to application;
+grant select, insert, update on data.collectionLinks to application;
 grant select, insert, update on api.collections to application;
 grant select, insert, update on data.items to application;
 grant select, insert, update on api.items to application;
