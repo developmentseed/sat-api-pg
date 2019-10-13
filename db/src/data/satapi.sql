@@ -30,11 +30,10 @@ CREATE TABLE items(
   assets jsonb NOT NULL,
   collection varchar(1024),
   datetime timestamp with time zone NOT NULL,
+  links linkobject[],
   CONSTRAINT fk_collection FOREIGN KEY (collection) REFERENCES collections(id)
 );
-  --  ARRAY(
-    --  SELECT ROW(data.apiUrls.*)::data.apiUrls FROM data.apiUrls) as test
-CREATE VIEW collectionLinks AS
+CREATE VIEW collectionsLinks AS
   SELECT
   id,
   title,
@@ -46,10 +45,34 @@ CREATE VIEW collectionLinks AS
   extent,
   properties,
   (SELECT array_cat(ARRAY[
-    ROW((SELECT url || '/collections' FROM data.apiUrls LIMIT 1),'self',null,null)::data.linkobject,
-    ROW((SELECT url || '/collections' FROM data.apiUrls LIMIT 1),'root',null,null)::data.linkobject
+    ROW((
+        SELECT url || '/collections/' || id
+        FROM data.apiUrls LIMIT 1),'self',null,null)::data.linkobject,
+    ROW((
+        SELECT url || '/collections/' || id
+        FROM data.apiUrls LIMIT 1),'root',null,null)::data.linkobject
   ], links)) as links
   FROM data.collections;
+
+CREATE VIEW itemsLinks AS
+  SELECT
+  id,
+  type,
+  geometry,
+  bbox,
+  properties,
+  assets,
+  collection,
+  datetime,
+  (SELECT array_cat(ARRAY[
+    ROW((
+        SELECT url || '/collections/' || collection || '/' || id
+        FROM data.apiUrls LIMIT 1),'self',null,null)::data.linkobject,
+    ROW((
+        SELECT url || '/collections/' || collection
+        FROM data.apiUrls LIMIT 1),'parent',null,null)::data.linkobject
+  ], links)) as links
+  FROM data.items i;
 
 CREATE VIEW items_string_geometry AS
   SELECT
@@ -60,8 +83,9 @@ CREATE VIEW items_string_geometry AS
   properties,
   assets,
   collection,
-  datetime
-  FROM data.items;
+  datetime,
+  links
+  FROM data.itemsLinks;
 
 CREATE OR REPLACE FUNCTION convert_values()
   RETURNS trigger AS
@@ -69,6 +93,8 @@ CREATE OR REPLACE FUNCTION convert_values()
   DECLARE
     converted_geometry data.geometry;
     converted_datetime timestamp with time zone;
+    newlinks data.linkobject;
+    filteredlinks data.linkobject[];
   BEGIN
     --  IF TG_OP = 'INSERT' AND (NEW.geometry ISNULL) THEN
       --  RAISE EXCEPTION 'geometry is required';
@@ -78,7 +104,23 @@ CREATE OR REPLACE FUNCTION convert_values()
     --  RAISE WARNING 'geometry not updated: %', SQLERRM;
   converted_geometry = data.st_setsrid(data.ST_GeomFromGeoJSON(NEW.geometry), 4326);
   converted_datetime = (new.properties)->'datetime';
-  INSERT INTO data.items(id, type, geometry, bbox, properties, assets, collection, datetime)
+  SELECT * INTO newlinks FROM unnest(new.links) as linkObj
+  WHERE linkObj.rel = 'derived_from';
+  IF newlinks.href IS NOT NULL THEN
+    filteredlinks = ARRAY[newlinks];
+  ELSE
+    filteredlinks = NULL;
+  END IF;
+  INSERT INTO data.items(
+    id,
+    type,
+    geometry,
+    bbox,
+    properties,
+    assets,
+    collection,
+    datetime,
+    links)
   VALUES(
     new.id,
     new.type,
@@ -87,7 +129,8 @@ CREATE OR REPLACE FUNCTION convert_values()
     new.properties,
     new.assets,
     new.collection,
-    converted_datetime);
+    converted_datetime,
+    filteredlinks);
   RETURN NEW;
   END;
   $BODY$
@@ -97,10 +140,16 @@ CREATE OR REPLACE FUNCTION convert_collection_links()
   RETURNS trigger AS
   $BODY$
   DECLARE
-    derivedlink data.linkobject;
+    newlinks data.linkobject;
+    filteredlinks data.linkobject[];
   BEGIN
-    SELECT * INTO derivedlink FROM unnest(new.links) as linkObj
-    WHERE linkObj.rel = 'derived_from';
+  SELECT * INTO newlinks FROM unnest(new.links) as linkObj
+  WHERE linkObj.rel = 'derived_from';
+  IF newlinks.href IS NOT NULL THEN
+    filteredlinks = ARRAY[newlinks];
+  ELSE
+    filteredlinks = NULL;
+  END IF;
   INSERT INTO data.collections(
     id,
     title,
@@ -123,7 +172,7 @@ CREATE OR REPLACE FUNCTION convert_collection_links()
     new.providers,
     new.extent,
     new.properties,
-    ARRAY[derivedlink]
+    filteredlinks
   );
   RETURN NEW;
   END;
@@ -131,7 +180,7 @@ CREATE OR REPLACE FUNCTION convert_collection_links()
   LANGUAGE plpgsql;
 
 CREATE TRIGGER convert_collection_links INSTEAD OF INSERT
-  ON data.collectionLinks FOR EACH ROW
+  ON data.collectionsLinks FOR EACH ROW
   EXECUTE PROCEDURE data.convert_collection_links();
 
 CREATE TRIGGER convert_geometry_tg INSTEAD OF INSERT

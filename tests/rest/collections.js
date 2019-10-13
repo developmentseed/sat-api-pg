@@ -41,13 +41,13 @@ describe('collections', function () {
         r.body[0].links.length.should.equal(2);
         r.body[0].links.should.containDeep([{
           rel: 'root',
-          href: 'http://localhost:8080/rest/collections',
+          href: 'http://localhost:8080/rest/collections/landsat-8-l1',
           type: null,
           title: null
         },
         {
           rel: 'self',
-          href: 'http://localhost:8080/rest/collections',
+          href: 'http://localhost:8080/rest/collections/landsat-8-l1',
           type: null,
           title: null
         }]);
@@ -63,18 +63,19 @@ describe('collections', function () {
         r.body[1].links.length.should.equal(3);
         r.body[1].links.should.containDeep([{
           rel: 'root',
-          href: 'http://localhost:8080/rest/collections',
+          href: 'http://localhost:8080/rest/collections/landsat-8-l2',
           type: null,
           title: null
         },
         {
           rel: 'self',
-          href: 'http://localhost:8080/rest/collections',
+          href: 'http://localhost:8080/rest/collections/landsat-8-l2',
           type: null,
           title: null
         },
         {
           rel: 'derived_from',
+          href: 'derived',
           type: null,
           title: null
         }]);

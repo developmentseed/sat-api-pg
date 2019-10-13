@@ -5,7 +5,7 @@ require "extensions.sortExtension"
 local path_constants = require "path_constants" 
 local searchPath = path_constants.searchPath
 local itemsPath = path_constants.itemsPath
-local defaultFields = { "id", "collection", "geometry", "properties" ,"type" , "assets", "bbox" }
+local defaultFields = { "id", "collection", "geometry", "properties" ,"type" , "assets", "bbox", "links"}
 
 function buildDatetime(datetime)
   local dateString

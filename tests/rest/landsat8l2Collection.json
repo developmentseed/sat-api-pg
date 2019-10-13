@@ -8,6 +8,7 @@
     },
     "links": [{
       "rel": "derived_from",
+      "href": "derived",
       "type": null,
       "title": null
     }],
