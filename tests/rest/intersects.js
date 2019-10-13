@@ -2,6 +2,7 @@ import { restService, resetdb } from './common';
 import should from 'should'; // eslint-disable-line no-unused-vars
 import { searchPath, itemsPath } from './constants';
 import intersectPolygon from './intersects.json';
+import intersectsPoint from './intersectsPoint.json';
 
 describe('intersects filter', function () {
   before(function (done) { resetdb(); done(); });
@@ -33,4 +34,17 @@ describe('intersects filter', function () {
           r.body.features.length.should.equal(1);
         });
     });
+
+  it('Handles intersects with point geometry', function (done) {
+    restService()
+      .post(searchPath)
+      .send({
+        intersects: intersectsPoint
+      })
+      .expect('Content-Type', /json/)
+      .expect(200, done)
+      .expect(r => {
+        r.body.features.length.should.equal(1);
+      });
+  });
 });
