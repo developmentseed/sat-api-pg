@@ -2,10 +2,12 @@ module("satapi", package.seeall)
 require "extensions.fieldsExtension"
 require "extensions.queryExtension"
 require "extensions.sortExtension"
-local path_constants = require "path_constants" 
+local path_constants = require "path_constants"
 local searchPath = path_constants.searchPath
 local itemsPath = path_constants.itemsPath
+local collectionsPath = path_constants.collectionsPath
 local defaultFields = { "id", "collection", "geometry", "properties" ,"type" , "assets", "bbox", "links"}
+local defaultCollectionFields = { "id", "description", "properties" }
 
 function buildDatetime(datetime)
   local dateString
@@ -18,75 +20,117 @@ function buildDatetime(datetime)
   return dateString
 end
 
-function processFilters(uriArgs, andQuery, datetime, sort, next, limit)
+function processDatetimeFilter(andQuery, datetime)
+  local updatedAndQuery
   if datetime then
     local dateString = buildDatetime(datetime)
     if andQuery then
-      local andDateQuery =
-      string.sub(andQuery, 1,-2) .. "," .. dateString .. ")"
-      uriArgs["and"] = andDateQuery
+      updatedAndQuery = string.sub(andQuery, 1,-2) .. "," .. dateString .. ")"
     else
-      uriArgs["and"] = "(" .. dateString .. ")"
+      updatedAndQuery = "(" .. dateString .. ")"
     end
   end
+  return updatedAndQuery
+end
+
+function createFilterArgs(andQuery, sort, next, limit)
+  local defaultSelect = table.concat(defaultFields, ",")
+  local filterArgs = {}
+  filterArgs["select"] = defaultSelect
+  if andQuery then
+    filterArgs["and"] = andQuery
+  end
   if next and limit then
-    uriArgs["offset"] = next
-    uriArgs["limit"] = limit
+    filterArgs["offset"] = next
+    filterArgs["limit"] = limit
   end
-  -- Sort is described as a filter here rather than a Search extension because
-  -- default datetime sorting is required.
+  -- If sort is null returns default sorting order
   local order = sortExtension.buildSortString(sort)
-  uriArgs["order"] = order
-  ngx.req.set_uri_args(uriArgs)
+  filterArgs["order"] = order
+  return filterArgs
 end
 
-function processSearch(uriArgs, andQuery, bodyJson)
-  local query = bodyJson.query
-  if query then
-    andQuery = queryExtension.buildQueryString(query)
-    uriArgs["and"] = andQuery
-  end
-
-  local fields = bodyJson.fields
-  if fields then
-    local selectFields, includeTable = fieldsExtension.buildFieldsObject(fields, query)
-    uriArgs["select"] = selectFields
-    bodyJson["include"] = includeTable
-    ngx.req.set_body_data(cjson.encode(bodyJson))
-  end
-end
-
-function formatBboxQueryParameter(bbox)
+function createFilterBody(bbox, intersects)
+  local body = {}
   if type(bbox) == 'string' then
     modifiedBbox = bbox:gsub("%[", "{")
     modifiedBbox = modifiedBbox:gsub("%]", "}")
-    local args = ngx.req.get_uri_args()
-    args["bbox"] = modifiedBbox
-    ngx.req.set_uri_args(args)
+    body["bbox"] = modifiedBbox
   end
-end
-
-function formatIntersectsQueryParameter(intersects)
-	if type(intersects) == 'string' then
-    local body = {}
+  if type(intersects) == 'string' then
     local intersectsTable = cjson.decode(intersects)
     body["intersects"] = intersectsTable
-    ngx.req.set_body_data(cjson.encode(body))
-    ngx.req.set_method(ngx.HTTP_POST)
-	end
+  end
+  return body
+end
+
+function processSearchQuery(query, datetime)
+  local updatedAndQuery
+  if query then
+    updatedAndQuery = queryExtension.buildQueryString(query)
+    if datetime then
+      local dateString = buildDatetime(datetime)
+      updatedAndQuery = string.sub(updatedAndQuery, 1,-2) .. "," .. dateString .. ")"
+    end
+  else
+    if datetime then
+      local dateString = buildDatetime(datetime)
+      updatedAndQuery = "(" .. dateString .. ")"
+    end
+  end
+  return updatedAndQuery
+end
+
+function createSearchArgs(andQuery, sort, next, limit, fields)
+  local defaultSelect = table.concat(defaultFields, ",")
+  local searchArgs = {}
+  searchArgs["select"] = defaultSelect
+  if andQuery then
+    searchArgs["and"] = andQuery
+  end
+  if fields then
+    local selectFields, includeTable = fieldsExtension.buildFieldsObject(fields, query)
+    searchArgs["select"] = selectFields
+    -- bodyJson["include"] = includeTable
+    -- ngx.req.set_body_data(cjson.encode(bodyJson))
+  end
+  if next and limit then
+    searchArgs["offset"] = next
+    searchArgs["limit"] = limit
+  end
+  local order = sortExtension.buildSortString(sort)
+  searchArgs["order"] = order
+  return searchArgs
+end
+
+function createSearchBody(fields, bbox, intersects)
+  local body = {}
+  if fields then
+    local selectFields, includeTable = fieldsExtension.buildFieldsObject(fields, query)
+    body["include"] = includeTable
+  end
+  if bbox then
+    body["bbox"] = bbox
+  end
+  if intersects then
+    body["intersects"] = intersects
+  end
+  return body
 end
 
 function setUri(bbox, intersects, uri)
   -- Must use the search function for spatial search.
   if bbox or intersects then
     ngx.req.set_uri("/rpc/search")
-    formatIntersectsQueryParameter(intersects)
-    formatBboxQueryParameter(bbox)
+    ngx.req.set_method(ngx.HTTP_POST)
   else
     -- If using the search endpoint there is the potential for collection queries
     -- and filters so the searchnogeom function is required.
     if uri == searchPath then
       ngx.req.set_uri("/rpc/searchnogeom")
+      ngx.req.set_method(ngx.HTTP_POST)
+    else
+      ngx.req.set_uri("/items")
     end
     -- If not we can pass all the traffic down to the raw PostgREST items endpoint.
   end
@@ -95,37 +139,51 @@ end
 function handleRequest()
   -- Change cjson encoding behavior to support empty arrays.
   cjson.encode_empty_table_as_object(false)
-
   local method = ngx.req.get_method()
-  local defaultSelect = table.concat(defaultFields, ",")
-  local uriArgs = { select=defaultSelect }
-  local andQuery
   ngx.req.read_body()
   local body = ngx.req.get_body_data()
   local uri = string.gsub(ngx.var.request_uri, "?.*", "")
+
   if method == 'POST' then
     if uri == searchPath then
       if not body then
         body = "{}"
       end
       local bodyJson = cjson.decode(body)
-      processSearch(uriArgs, andQuery, bodyJson)
-      -- Use the filters from the body rather than uri args
-      processFilters(
-        uriArgs, andQuery, bodyJson.datetime, bodyJson.sort,
-        bodyJson.next, bodyJson.limit
-      )
+      local andQuery = processSearchQuery(bodyJson.query, bodyJson.datetime)
+      local searchArgs = createSearchArgs(
+                          andQuery,
+                          bodyJson.sort,
+                          bodyJson.next,
+                          bodyJson.limit,
+                          bodyJson.fields)
+      local searchBody = createSearchBody(
+                          bodyJson.fields,
+                          bodyJson.bbox,
+                          bodyJson.intersects)
+      ngx.req.set_body_data(cjson.encode(searchBody))
+      ngx.req.set_uri_args(searchArgs)
       setUri(bodyJson.bbox, bodyJson.intersects, uri)
     end
   elseif method == 'GET' then
-    if uri == itemsPath then
-      local args = ngx.req.get_uri_args()
-      processFilters(
-        uriArgs, andQuery, args.datetime, args.sort,
-        args.next, args.limit
-      )
-      setUri(args.bbox, args.intersects, uri)
-    end
+    -- local collections = string.find(uri, collectionsPath)
+    -- if collections then
+      -- -- handleWFS(args, uri, uriArgs)
+    -- else
+      if uri == itemsPath then
+        local args = ngx.req.get_uri_args()
+        local andQuery = processDatetimeFilter(nil, args.datetime)
+        local filterArgs = createFilterArgs(
+                            andQuery,
+                            args.sort, 
+                            args.next, 
+                            args.limit)
+        local filterBody = createFilterBody(args.bbox, args.intersects)
+        ngx.req.set_body_data(cjson.encode(filterBody))
+        ngx.req.set_uri_args(filterArgs)
+        setUri(args.bbox, args.intersects, uri)
+      end
+    -- end
   end
 end
 
