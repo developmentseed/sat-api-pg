@@ -2,6 +2,7 @@ module("satapi", package.seeall)
 require "extensions.fieldsExtension"
 require "extensions.queryExtension"
 require "extensions.sortExtension"
+local ngx_re = require "ngx.re"
 local path_constants = require "path_constants"
 local searchPath = path_constants.searchPath
 local itemsPath = path_constants.itemsPath
@@ -29,6 +30,8 @@ function processDatetimeFilter(andQuery, datetime)
     else
       updatedAndQuery = "(" .. dateString .. ")"
     end
+  else
+    updatedAndQuery = andQuery
   end
   return updatedAndQuery
 end
@@ -91,8 +94,6 @@ function createSearchArgs(andQuery, sort, next, limit, fields)
   if fields then
     local selectFields, includeTable = fieldsExtension.buildFieldsObject(fields, query)
     searchArgs["select"] = selectFields
-    -- bodyJson["include"] = includeTable
-    -- ngx.req.set_body_data(cjson.encode(bodyJson))
   end
   if next and limit then
     searchArgs["offset"] = next
@@ -166,24 +167,63 @@ function handleRequest()
       setUri(bodyJson.bbox, bodyJson.intersects, uri)
     end
   elseif method == 'GET' then
-    -- local collections = string.find(uri, collectionsPath)
-    -- if collections then
-      -- -- handleWFS(args, uri, uriArgs)
-    -- else
+    local collections = string.find(uri, collectionsPath)
+    local args = ngx.req.get_uri_args()
+    if collections then
+      handleWFS(args, uri)
+    else
       if uri == itemsPath then
-        local args = ngx.req.get_uri_args()
         local andQuery = processDatetimeFilter(nil, args.datetime)
         local filterArgs = createFilterArgs(
                             andQuery,
-                            args.sort, 
-                            args.next, 
+                            args.sort,
+                            args.next,
                             args.limit)
         local filterBody = createFilterBody(args.bbox, args.intersects)
         ngx.req.set_body_data(cjson.encode(filterBody))
         ngx.req.set_uri_args(filterArgs)
         setUri(args.bbox, args.intersects, uri)
       end
-    -- end
+    end
+  end
+end
+
+function handleWFS(args, uri)
+  local uriComponents = ngx_re.split(uri, '/')
+  local collections = uriComponents[3]
+  local collectionId = uriComponents[4]
+  local items = uriComponents[5]
+  local itemId = uriComponents[6]
+
+  if collectionId then
+    if items and items ~= '' then
+      local andQuery
+      andQuery = "(collection.eq." .. collectionId .. ")"
+      if itemId and itemId ~= '' then
+        andQuery = "(id.eq." .. itemId .. ")"
+      end
+      local andQuery = processDatetimeFilter(andQuery, args.datetime)
+      local filterArgs = createFilterArgs(
+                            andQuery,
+                            args.sort,
+                            args.next,
+                            args.limit)
+        local filterBody = createFilterBody(args.bbox, args.intersects)
+        ngx.req.set_body_data(cjson.encode(filterBody))
+        ngx.req.set_uri_args(filterArgs)
+        setUri(args.bbox, args.intersects, uri)
+    else
+      idQuery = "eq." .. collectionId
+      local defaultCollectionSelect = table.concat(defaultCollectionFields, ",")
+      local uriArgs = {}
+      uriArgs["id"] = idQuery
+      uriArgs["select"] = defaultCollectionSelect
+      ngx.req.set_uri_args(uriArgs)
+      ngx.req.set_uri("collections")
+    end
+  else
+    -- Handle trailing slashes
+    ngx.req.set_uri("collections")
   end
 end
 
