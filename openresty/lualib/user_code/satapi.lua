@@ -200,6 +200,8 @@ function handleWFS(args, uri)
       local andQuery
       andQuery = "(collection.eq." .. collectionId .. ")"
       if itemId and itemId ~= '' then
+        -- Return object rather than array
+        ngx.req.set_header("Accept", "application/vnd.pgrst.object+json")
         andQuery = "(id.eq." .. itemId .. ")"
       end
       local andQuery = processDatetimeFilter(andQuery, args.datetime)
@@ -218,6 +220,9 @@ function handleWFS(args, uri)
       local uriArgs = {}
       uriArgs["id"] = idQuery
       uriArgs["select"] = defaultCollectionSelect
+      local headers = ngx.req.get_headers()
+      -- Return object rather than array
+      ngx.req.set_header("Accept", "application/vnd.pgrst.object+json")
       ngx.req.set_uri_args(uriArgs)
       ngx.req.set_uri("collections")
     end

@@ -12,7 +12,6 @@ function buildQueryString(query)
         end
         invalues = invalues .. ')'
         filter = "\"" .. key .. "\"" .. "." .. operator .. "." .. invalues
-        print(filter)
       else
         filter = "\"" .. key .. "\"" .. "." .. operator .. "." .. keyValue[operator]
       end

@@ -1,6 +1,6 @@
 import { restService, resetdb } from './common';
 import should from 'should'; // eslint-disable-line no-unused-vars
-import { itemsPath, searchPath } from './constants';
+import { itemsPath, searchPath, wfsItemsPath } from './constants';
 
 describe('bbox filter', function () {
   before(function (done) { resetdb(); done(); });
@@ -36,6 +36,20 @@ describe('bbox filter', function () {
     function (done) {
       restService()
         .get(itemsPath)
+        .query({
+          bbox: '[-180, -90, 180, 90]'
+        })
+        .expect('Content-Type', /json/)
+        .expect(200, done)
+        .expect(r => {
+          r.body.features.length.should.be.above(1);
+        });
+    });
+
+  it('Handles bbox filter for wfs items endpoint with GET and query parameter',
+    function (done) {
+      restService()
+        .get(wfsItemsPath)
         .query({
           bbox: '[-180, -90, 180, 90]'
         })
