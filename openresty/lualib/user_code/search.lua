@@ -58,22 +58,11 @@ function createSearchBody(fields, bbox, intersects)
   return body
 end
 
-function buildSearch(
-  query,
-  datetime,
-  ids,
-  collections
-  sort,
-  next,
-  limit,
-  fields,
-  bbox,
-  intersects
-)
-  local andQuery = processSearchQuery(query, datetime)
-  andQuery = filters.processListFilter(andQuery, ids, "id")
-  andQuery = filters.processListFilter(andQuery, collections, "collection")
-  local searchArgs = createSearchArgs(andQuery, sort, next, limit, fields)
-  local searchBody = createSearchBody(fields, bbox, intersects)
+function buildSearch(json)
+  local andQuery = processSearchQuery(json.query, json.datetime)
+  andQuery = filters.processListFilter(andQuery, json.ids, "id")
+  andQuery = filters.processListFilter(andQuery, json.collections, "collection")
+  local searchArgs = createSearchArgs(andQuery, json.sort, json.next, json.limit, json.fields)
+  local searchBody = createSearchBody(json.fields, json.bbox, json.intersects)
   return searchArgs, searchBody
 end

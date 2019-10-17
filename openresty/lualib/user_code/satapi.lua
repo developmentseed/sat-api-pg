@@ -39,19 +39,9 @@ function handleRequest()
       if not body then
         body = "{}"
       end
+
       local bodyJson = cjson.decode(body)
-      local searchArgs, searchBody = search.buildSearch(
-        bodyJson.query,
-        bodyJson.datetime,
-        bodyJson.ids,
-        nil,
-        bodyJson.sort,
-        bodyJson.next
-        bodyJson.limit,
-        bodyJson.fields,
-        bodyJson.bbox,
-        bodyJson.intersects
-      )
+      local searchArgs, searchBody = search.buildSearch(bodyJson)
       ngx.req.set_body_data(cjson.encode(searchBody))
       ngx.req.set_uri_args(searchArgs)
       setUri(bodyJson.bbox, bodyJson.intersects, uri)
@@ -63,17 +53,7 @@ function handleRequest()
       handleWFS(args, uri)
     else
       if uri == itemsPath then
-        local filterArgs, filterBody = filters.buildFilters(
-          nil,
-          args.datetime,
-          args.ids,
-          nil,
-          args.sort,
-          args.next,
-          args.limit,
-          args.bbox
-          args.intersects
-        )
+        local filterArgs, filterBody = filters.buildFilters(nil, args)
         ngx.req.set_body_data(cjson.encode(filterBody))
         ngx.req.set_uri_args(filterArgs)
         setUri(args.bbox, args.intersects, uri)
@@ -98,19 +78,10 @@ function handleWFS(args, uri)
         ngx.req.set_header("Accept", "application/vnd.pgrst.object+json")
         andQuery = "(id.eq." .. itemId .. ")"
       end
-      local filterArgs, filterBody = filters.buildFilters(
-          args.datetime,
-          args.ids,
-          nil,
-          args.sort,
-          args.next,
-          args.limit,
-          args.bbox
-          args.intersects
-        )
-        ngx.req.set_body_data(cjson.encode(filterBody))
-        ngx.req.set_uri_args(filterArgs)
-        setUri(args.bbox, args.intersects, uri)
+      local filterArgs, filterBody = filters.buildFilters(andQuery, args)
+      ngx.req.set_body_data(cjson.encode(filterBody))
+      ngx.req.set_uri_args(filterArgs)
+      setUri(args.bbox, args.intersects, uri)
     else
       idQuery = "eq." .. collectionId
       local defaultCollectionSelect = table.concat(defaultFields.collections, ",")
