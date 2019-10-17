@@ -36,6 +36,30 @@ function processDatetimeFilter(andQuery, datetime)
   return updatedAndQuery
 end
 
+function processIdsFilter(andQuery, ids)
+  local updatedAndQuery
+  if ids then
+    local idsTable
+    if type(ids) == "table" then
+      idsTable = ids
+    else
+      idsTable = cjson.decode(ids)
+    end
+
+    local idsList = table.concat(idsTable, ",")
+    local idsQuery = "id.in.(" .. idsList .. ")"
+    if andQuery then
+      updatedAndQuery = string.sub(andQuery, 1,-2) .. "," .. idsQuery.. ")"
+    else
+      updatedAndQuery = "(" .. idsQuery .. ")"
+    end
+  else
+    updatedAndQuery = andQuery
+  end
+  print (updatedAndQuery)
+  return updatedAndQuery
+end
+
 function createFilterArgs(andQuery, sort, next, limit)
   local defaultSelect = table.concat(defaultFields, ",")
   local filterArgs = {}
@@ -152,6 +176,7 @@ function handleRequest()
       end
       local bodyJson = cjson.decode(body)
       local andQuery = processSearchQuery(bodyJson.query, bodyJson.datetime)
+      andQuery = processIdsFilter(andQuery, bodyJson.ids)
       local searchArgs = createSearchArgs(
                           andQuery,
                           bodyJson.sort,
@@ -174,6 +199,7 @@ function handleRequest()
     else
       if uri == itemsPath then
         local andQuery = processDatetimeFilter(nil, args.datetime)
+        andQuery = processIdsFilter(andQuery, args.ids)
         local filterArgs = createFilterArgs(
                             andQuery,
                             args.sort,
@@ -205,6 +231,7 @@ function handleWFS(args, uri)
         andQuery = "(id.eq." .. itemId .. ")"
       end
       local andQuery = processDatetimeFilter(andQuery, args.datetime)
+      andQuery = processIdsFilter(andQuery, args.ids)
       local filterArgs = createFilterArgs(
                             andQuery,
                             args.sort,
