@@ -47,6 +47,7 @@ foundation for building spatial APIs and we hope the community can expand on thi
 ### Prerequisites
 * [Docker](https://www.docker.com)
 * [Node.js](https://nodejs.org/en/)
+* [Yarn](https://yarnpkg.com/lang/en/)
 
 In the root folder of the application, install the necessary js libs.
 ```bash
@@ -88,22 +89,23 @@ In the root of your project run.
 $ yarn subzero dashboard
 ```
 After this step you can view the logs of all the stack components (SQL queries will also be logged) and
-if you edit a sql/conf/lua file in your project, the changes will immediately be applied.
+if you edit a sql / conf / lua file in your project, the changes will immediately be applied.
 
 
 ## Testing
+Conformance with the stac specification and extensions can understood by reviewing the integration tests available at `/tests/rest`.
+You can also write pgTAP tests that run directly in your database, useful for testing the logic that resides in your database (user privileges, Row Level Security, stored procedures).
 
-The starter kit comes with a testing infrastructure setup.
-You can write pgTAP tests that run directly in your database, useful for testing the logic that resides in your database (user privileges, Row Level Security, stored procedures).
-Integration tests are written in JavaScript.
-
-Here is how you run them
+Here is how you run the tests
 
 ```bash
 yarn test                   # Run all tests (db, rest)
 yarn test_db                # Run pgTAP tests
 yar test_rest               # Run integration tests
 ```
+
+## Deployment
+For AWS deployment steps see [deployment/README.md](deployment/README.md).
 
 ## Contributing
 This project was initiated as part of [Development Seed's](https://developmentseed.org/) wider work in building the stac-spec

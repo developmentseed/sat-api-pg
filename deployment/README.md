@@ -1,8 +1,12 @@
 ## Deploying the sat-api-pg to an AWS stack.
 
-Copy the `/deployment/.sample_env` to `/deployment/.env`.
+### Prerequisites
+* [aws-cli](https://aws.amazon.com/cli/)
+* [psql](https://www.postgresql.org/docs/9.5/libpq.html)
 
-Update your project name and password settings accordingly. 
+Copy the `/deployment/.sample_env` to `/deployment/.env`. And update accordingly with the values relevant for your project. 
+
+Then...
 
 To create the stack of required AWS resources. Run
 ```bash
@@ -29,4 +33,5 @@ And finally now that our database is ready and the updated image is in ECR you c
 ```bash
 $ ./createStack.sh 1
 ```
+(The 1 indicates a single instance of your service).
 
