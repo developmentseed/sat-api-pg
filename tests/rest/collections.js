@@ -53,13 +53,13 @@ describe('collections', function () {
         r.body[0].links.should.containDeep([{
           rel: 'root',
           href: 'http://localhost:8080/rest/collections/landsat-8-l1',
-          type: null,
+          type: 'application/json',
           title: null
         },
         {
           rel: 'self',
           href: 'http://localhost:8080/rest/collections/landsat-8-l1',
-          type: null,
+          type: 'application/json',
           title: null
         }]);
       });
@@ -82,13 +82,13 @@ describe('collections', function () {
             r.body[1].links.should.containDeep([{
               rel: 'root',
               href: 'http://localhost:8080/rest/collections/landsat-8-l2',
-              type: null,
+              type: 'application/json',
               title: null
             },
             {
               rel: 'self',
               href: 'http://localhost:8080/rest/collections/landsat-8-l2',
-              type: null,
+              type: 'application/json',
               title: null
             },
             {

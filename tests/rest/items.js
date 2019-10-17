@@ -52,13 +52,13 @@ describe('items', function () {
         r.body.features[0].links.should.containDeep([{
           rel: 'self',
           href: 'http://localhost:8080/rest/collections/landsat-8-l1/LC80320392019263',
-          type: null,
+          type: 'application/geo+json',
           title: null
         },
         {
           rel: 'parent',
           href: 'http://localhost:8080/rest/collections/landsat-8-l1',
-          type: null,
+          type: 'application/json',
           title: null
         }]);
       });
@@ -82,13 +82,13 @@ describe('items', function () {
               {
                 rel: 'self',
                 href: 'http://localhost:8080/rest/collections/landsat-8-l1/LC81152062019205',
-                type: null,
+                type: 'application/geo+json',
                 title: null
               },
               {
                 rel: 'parent',
                 href: 'http://localhost:8080/rest/collections/landsat-8-l1',
-                type: null,
+                type: 'application/json',
                 title: null
               },
               {

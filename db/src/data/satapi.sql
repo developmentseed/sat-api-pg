@@ -45,12 +45,14 @@ CREATE VIEW collectionsLinks AS
   extent,
   properties,
   (SELECT array_cat(ARRAY[
-    ROW((
-        SELECT url || '/collections/' || id
-        FROM data.apiUrls LIMIT 1),'self',null,null)::data.linkobject,
-    ROW((
-        SELECT url || '/collections/' || id
-        FROM data.apiUrls LIMIT 1),'root',null,null)::data.linkobject
+    ROW((SELECT url || '/collections/' || id FROM data.apiUrls LIMIT 1),
+        'self',
+        'application/json',
+        null)::data.linkobject,
+    ROW((SELECT url || '/collections/' || id FROM data.apiUrls LIMIT 1),
+      'root',
+      'application/json' ,
+      null)::data.linkobject
   ], links)) as links
   FROM data.collections;
 
@@ -67,10 +69,16 @@ CREATE VIEW itemsLinks AS
   (SELECT array_cat(ARRAY[
     ROW((
         SELECT url || '/collections/' || collection || '/' || id
-        FROM data.apiUrls LIMIT 1),'self',null,null)::data.linkobject,
+        FROM data.apiUrls LIMIT 1),
+        'self',
+        'application/geo+json',
+        null)::data.linkobject,
     ROW((
         SELECT url || '/collections/' || collection
-        FROM data.apiUrls LIMIT 1),'parent',null,null)::data.linkobject
+        FROM data.apiUrls LIMIT 1),
+        'parent',
+        'application/json',
+        null)::data.linkobject
   ], links)) as links
   FROM data.items i;
 
