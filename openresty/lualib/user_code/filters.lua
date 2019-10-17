@@ -19,22 +19,22 @@ function processDatetimeFilter(andQuery, datetime)
   return updatedAndQuery
 end
 
-function processIdsFilter(andQuery, ids)
+function processListFilter(andQuery, list, key)
   local updatedAndQuery
-  if ids then
-    local idsTable
-    if type(ids) == "table" then
-      idsTable = ids
+  if list then
+    local listTable
+    if type(list) == "table" then
+      listTable = list
     else
-      idsTable = cjson.decode(ids)
+      listTable = cjson.decode(list)
     end
 
-    local idsList = table.concat(idsTable, ",")
-    local idsQuery = "id.in.(" .. idsList .. ")"
+    local listString = table.concat(listTable, ",")
+    local listQuery = key .. ".in.(" .. listString .. ")"
     if andQuery then
-      updatedAndQuery = string.sub(andQuery, 1,-2) .. "," .. idsQuery.. ")"
+      updatedAndQuery = string.sub(andQuery, 1,-2) .. "," .. listQuery .. ")"
     else
-      updatedAndQuery = "(" .. idsQuery .. ")"
+      updatedAndQuery = "(" .. listQuery .. ")"
     end
   else
     updatedAndQuery = andQuery
@@ -71,4 +71,21 @@ function createFilterBody(bbox, intersects)
     body["intersects"] = intersectsTable
   end
   return body
+end
+
+function buildFilters(
+    andQuery,
+    datetime,
+    ids,
+    collections,
+    sort,
+    next,
+    limit,
+    bbox,
+    intersects)
+  local andQuery = processDatetimeFilter(andQuery, args.datetime)
+  andQuery = filters.processListFilter(andQuery, ids, "id")
+  local filterArgs = filters.createFilterArgs(andQuery, sort, next, limit)
+  local filterBody = filters.createFilterBody(bbox, intersects)
+  return filterArgs, filterBody
 end

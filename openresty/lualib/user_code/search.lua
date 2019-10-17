@@ -3,6 +3,7 @@ require "extensions.fieldsExtension"
 require "extensions.queryExtension"
 require "extensions.sortExtension"
 require "datetimeBuilder"
+local filters = require "filters"
 local defaultFields = require "defaultFields"
 
 function processSearchQuery(query, datetime)
@@ -55,4 +56,23 @@ function createSearchBody(fields, bbox, intersects)
     body["intersects"] = intersects
   end
   return body
+end
+
+function buildSearch(
+  query,
+  datetime,
+  ids,
+  collections
+  sort,
+  next,
+  limit,
+  fields,
+  bbox,
+  intersects
+)
+  local andQuery = processSearchQuery(query, datetime)
+  andQuery = filters.processListFilter(andQuery, ids, "id")
+  local searchArgs = createSearchArgs(andQuery, sort, next, limit, fields)
+  local searchBody = createSearchBody(fields, bbox, intersects)
+  return searchArgs, searchBody
 end

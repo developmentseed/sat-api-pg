@@ -40,18 +40,18 @@ function handleRequest()
         body = "{}"
       end
       local bodyJson = cjson.decode(body)
-      local andQuery = search.processSearchQuery(bodyJson.query, bodyJson.datetime)
-      andQuery = filters.processIdsFilter(andQuery, bodyJson.ids)
-      local searchArgs = search.createSearchArgs(
-                          andQuery,
-                          bodyJson.sort,
-                          bodyJson.next,
-                          bodyJson.limit,
-                          bodyJson.fields)
-      local searchBody = search.createSearchBody(
-                          bodyJson.fields,
-                          bodyJson.bbox,
-                          bodyJson.intersects)
+      local searchArgs, searchBody = search.buildSearch(
+        bodyJson.query,
+        bodyJson.datetime,
+        bodyJson.ids,
+        nil,
+        bodyJson.sort,
+        bodyJson.next
+        bodyJson.limit,
+        bodyJson.fields,
+        bodyJson.bbox,
+        bodyJson.intersects
+      )
       ngx.req.set_body_data(cjson.encode(searchBody))
       ngx.req.set_uri_args(searchArgs)
       setUri(bodyJson.bbox, bodyJson.intersects, uri)
@@ -63,14 +63,17 @@ function handleRequest()
       handleWFS(args, uri)
     else
       if uri == itemsPath then
-        local andQuery = filters.processDatetimeFilter(nil, args.datetime)
-        andQuery = filters.processIdsFilter(andQuery, args.ids)
-        local filterArgs = filters.createFilterArgs(
-                            andQuery,
-                            args.sort,
-                            args.next,
-                            args.limit)
-        local filterBody = filters.createFilterBody(args.bbox, args.intersects)
+        local filterArgs, filterBody = filters.buildFilters(
+          nil,
+          args.datetime,
+          args.ids,
+          nil,
+          args.sort,
+          args.next,
+          args.limit,
+          args.bbox
+          args.intersects
+        )
         ngx.req.set_body_data(cjson.encode(filterBody))
         ngx.req.set_uri_args(filterArgs)
         setUri(args.bbox, args.intersects, uri)
@@ -95,14 +98,16 @@ function handleWFS(args, uri)
         ngx.req.set_header("Accept", "application/vnd.pgrst.object+json")
         andQuery = "(id.eq." .. itemId .. ")"
       end
-      local andQuery = filters.processDatetimeFilter(andQuery, args.datetime)
-      andQuery = filters.processIdsFilter(andQuery, args.ids)
-      local filterArgs = filters.createFilterArgs(
-                            andQuery,
-                            args.sort,
-                            args.next,
-                            args.limit)
-        local filterBody = filters.createFilterBody(args.bbox, args.intersects)
+      local filterArgs, filterBody = filters.buildFilters(
+          args.datetime,
+          args.ids,
+          nil,
+          args.sort,
+          args.next,
+          args.limit,
+          args.bbox
+          args.intersects
+        )
         ngx.req.set_body_data(cjson.encode(filterBody))
         ngx.req.set_uri_args(filterArgs)
         setUri(args.bbox, args.intersects, uri)
