@@ -72,6 +72,7 @@ function buildSearch(
 )
   local andQuery = processSearchQuery(query, datetime)
   andQuery = filters.processListFilter(andQuery, ids, "id")
+  andQuery = filters.processListFilter(andQuery, collections, "collection")
   local searchArgs = createSearchArgs(andQuery, sort, next, limit, fields)
   local searchBody = createSearchBody(fields, bbox, intersects)
   return searchArgs, searchBody

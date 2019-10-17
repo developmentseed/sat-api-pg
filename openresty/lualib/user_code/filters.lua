@@ -85,6 +85,7 @@ function buildFilters(
     intersects)
   local andQuery = processDatetimeFilter(andQuery, args.datetime)
   andQuery = filters.processListFilter(andQuery, ids, "id")
+  andQuery = filters.processListFilter(andQuery, collections, "collection")
   local filterArgs = filters.createFilterArgs(andQuery, sort, next, limit)
   local filterBody = filters.createFilterBody(bbox, intersects)
   return filterArgs, filterBody
