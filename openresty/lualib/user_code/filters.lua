@@ -74,15 +74,6 @@ function createFilterBody(bbox, intersects)
 end
 
 function buildFilters(existingAndQuery, args)
-    -- andQuery,
-    -- datetime,
-    -- ids,
-    -- collections,
-    -- sort,
-    -- next,
-    -- limit,
-    -- bbox,
-    -- intersects)
   local andQuery = processDatetimeFilter(existingAndQuery, args.datetime)
   andQuery = filters.processListFilter(andQuery, args.ids, "id")
   andQuery = filters.processListFilter(andQuery, args.collections, "collection")
