@@ -1,147 +1,12 @@
 module("satapi", package.seeall)
-require "extensions.fieldsExtension"
-require "extensions.queryExtension"
-require "extensions.sortExtension"
+local defaultFields = require "defaultFields"
+local filters = require "filters"
+local search = require "search"
 local ngx_re = require "ngx.re"
 local path_constants = require "path_constants"
 local searchPath = path_constants.searchPath
 local itemsPath = path_constants.itemsPath
 local collectionsPath = path_constants.collectionsPath
-local defaultFields = { "id", "collection", "geometry", "properties" ,"type" , "assets", "bbox", "links"}
-local defaultCollectionFields = { "id", "description", "properties" }
-
-function buildDatetime(datetime)
-  local dateString
-  local startdate, enddate = string.match(datetime, "(.*)/(.*)")
-  if startdate and enddate then
-    dateString = "datetime.gt." .. startdate .. "," .. "datetime.lt." .. enddate
-  else
-    dateString = "datetime.eq." .. datetime
-  end
-  return dateString
-end
-
-function processDatetimeFilter(andQuery, datetime)
-  local updatedAndQuery
-  if datetime then
-    local dateString = buildDatetime(datetime)
-    if andQuery then
-      updatedAndQuery = string.sub(andQuery, 1,-2) .. "," .. dateString .. ")"
-    else
-      updatedAndQuery = "(" .. dateString .. ")"
-    end
-  else
-    updatedAndQuery = andQuery
-  end
-  return updatedAndQuery
-end
-
-function processIdsFilter(andQuery, ids)
-  local updatedAndQuery
-  if ids then
-    local idsTable
-    if type(ids) == "table" then
-      idsTable = ids
-    else
-      idsTable = cjson.decode(ids)
-    end
-
-    local idsList = table.concat(idsTable, ",")
-    local idsQuery = "id.in.(" .. idsList .. ")"
-    if andQuery then
-      updatedAndQuery = string.sub(andQuery, 1,-2) .. "," .. idsQuery.. ")"
-    else
-      updatedAndQuery = "(" .. idsQuery .. ")"
-    end
-  else
-    updatedAndQuery = andQuery
-  end
-  print (updatedAndQuery)
-  return updatedAndQuery
-end
-
-function createFilterArgs(andQuery, sort, next, limit)
-  local defaultSelect = table.concat(defaultFields, ",")
-  local filterArgs = {}
-  filterArgs["select"] = defaultSelect
-  if andQuery then
-    filterArgs["and"] = andQuery
-  end
-  if next and limit then
-    filterArgs["offset"] = next
-    filterArgs["limit"] = limit
-  end
-  -- If sort is null returns default sorting order
-  local order = sortExtension.buildSortString(sort)
-  filterArgs["order"] = order
-  return filterArgs
-end
-
-function createFilterBody(bbox, intersects)
-  local body = {}
-  if type(bbox) == 'string' then
-    modifiedBbox = bbox:gsub("%[", "{")
-    modifiedBbox = modifiedBbox:gsub("%]", "}")
-    body["bbox"] = modifiedBbox
-  end
-  if type(intersects) == 'string' then
-    local intersectsTable = cjson.decode(intersects)
-    body["intersects"] = intersectsTable
-  end
-  return body
-end
-
-function processSearchQuery(query, datetime)
-  local updatedAndQuery
-  if query then
-    updatedAndQuery = queryExtension.buildQueryString(query)
-    if datetime then
-      local dateString = buildDatetime(datetime)
-      updatedAndQuery = string.sub(updatedAndQuery, 1,-2) .. "," .. dateString .. ")"
-    end
-  else
-    if datetime then
-      local dateString = buildDatetime(datetime)
-      updatedAndQuery = "(" .. dateString .. ")"
-    end
-  end
-  return updatedAndQuery
-end
-
-function createSearchArgs(andQuery, sort, next, limit, fields)
-  local defaultSelect = table.concat(defaultFields, ",")
-  local searchArgs = {}
-  searchArgs["select"] = defaultSelect
-  if andQuery then
-    searchArgs["and"] = andQuery
-  end
-  if fields then
-    local selectFields, includeTable = fieldsExtension.buildFieldsObject(fields, query)
-    searchArgs["select"] = selectFields
-  end
-  if next and limit then
-    searchArgs["offset"] = next
-    searchArgs["limit"] = limit
-  end
-  local order = sortExtension.buildSortString(sort)
-  searchArgs["order"] = order
-  return searchArgs
-end
-
-function createSearchBody(fields, bbox, intersects)
-  local body = {}
-  if fields then
-    local selectFields, includeTable = fieldsExtension.buildFieldsObject(fields, query)
-    body["include"] = includeTable
-  end
-  if bbox then
-    body["bbox"] = bbox
-  end
-  if intersects then
-    body["intersects"] = intersects
-  end
-  return body
-end
 
 function setUri(bbox, intersects, uri)
   -- Must use the search function for spatial search.
@@ -175,15 +40,15 @@ function handleRequest()
         body = "{}"
       end
       local bodyJson = cjson.decode(body)
-      local andQuery = processSearchQuery(bodyJson.query, bodyJson.datetime)
-      andQuery = processIdsFilter(andQuery, bodyJson.ids)
-      local searchArgs = createSearchArgs(
+      local andQuery = search.processSearchQuery(bodyJson.query, bodyJson.datetime)
+      andQuery = filters.processIdsFilter(andQuery, bodyJson.ids)
+      local searchArgs = search.createSearchArgs(
                           andQuery,
                           bodyJson.sort,
                           bodyJson.next,
                           bodyJson.limit,
                           bodyJson.fields)
-      local searchBody = createSearchBody(
+      local searchBody = search.createSearchBody(
                           bodyJson.fields,
                           bodyJson.bbox,
                           bodyJson.intersects)
@@ -198,14 +63,14 @@ function handleRequest()
       handleWFS(args, uri)
     else
       if uri == itemsPath then
-        local andQuery = processDatetimeFilter(nil, args.datetime)
-        andQuery = processIdsFilter(andQuery, args.ids)
-        local filterArgs = createFilterArgs(
+        local andQuery = filters.processDatetimeFilter(nil, args.datetime)
+        andQuery = filters.processIdsFilter(andQuery, args.ids)
+        local filterArgs = filters.createFilterArgs(
                             andQuery,
                             args.sort,
                             args.next,
                             args.limit)
-        local filterBody = createFilterBody(args.bbox, args.intersects)
+        local filterBody = filters.createFilterBody(args.bbox, args.intersects)
         ngx.req.set_body_data(cjson.encode(filterBody))
         ngx.req.set_uri_args(filterArgs)
         setUri(args.bbox, args.intersects, uri)
@@ -230,20 +95,20 @@ function handleWFS(args, uri)
         ngx.req.set_header("Accept", "application/vnd.pgrst.object+json")
         andQuery = "(id.eq." .. itemId .. ")"
       end
-      local andQuery = processDatetimeFilter(andQuery, args.datetime)
-      andQuery = processIdsFilter(andQuery, args.ids)
-      local filterArgs = createFilterArgs(
+      local andQuery = filters.processDatetimeFilter(andQuery, args.datetime)
+      andQuery = filters.processIdsFilter(andQuery, args.ids)
+      local filterArgs = filters.createFilterArgs(
                             andQuery,
                             args.sort,
                             args.next,
                             args.limit)
-        local filterBody = createFilterBody(args.bbox, args.intersects)
+        local filterBody = filters.createFilterBody(args.bbox, args.intersects)
         ngx.req.set_body_data(cjson.encode(filterBody))
         ngx.req.set_uri_args(filterArgs)
         setUri(args.bbox, args.intersects, uri)
     else
       idQuery = "eq." .. collectionId
-      local defaultCollectionSelect = table.concat(defaultCollectionFields, ",")
+      local defaultCollectionSelect = table.concat(defaultFields.collections, ",")
       local uriArgs = {}
       uriArgs["id"] = idQuery
       uriArgs["select"] = defaultCollectionSelect
