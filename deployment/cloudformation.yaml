@@ -456,7 +456,7 @@ Resources:
       NetworkMode: awsvpc
       ContainerDefinitions:
         - Name: 'postgrest'
-          Image: postgrest/postgrest:v5.2.0
+          Image: postgrest/postgrest
           Cpu: !Ref 'PostgrestContainerCpu'
           Memory: !Ref 'PostgrestContainerMemory'
           Environment:

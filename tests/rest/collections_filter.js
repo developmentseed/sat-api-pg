@@ -2,46 +2,46 @@ import { restService, resetdb } from './common';
 import should from 'should'; // eslint-disable-line no-unused-vars
 import { searchPath, itemsPath, wfsItemsPath } from './constants';
 
-describe('datetime filter', function () {
+describe('collections filter', function () {
   before(function (done) { resetdb(); done(); });
   after(function (done) { resetdb(); done(); });
 
-  it('Handles date range queries', function (done) {
+  it('Collections filter for search endpoint', function (done) {
     restService()
       .post(searchPath)
       .send({
-        datetime: '2019-04-01T12:00/2019-08-21T14:02'
+        collections: ['landsat-8-l1']
       })
       .expect('Content-Type', /json/)
       .expect(200, done)
       .expect(r => {
-        r.body.features.length.should.equal(1);
+        r.body.features.length.should.be.above(1);
       });
   });
 
-  it('Datetime can be passed as query parameter in GET', function (done) {
+  it('Collections filter as query parameter for items GET', function (done) {
     restService()
       .get(itemsPath)
       .query({
-        datetime: '2019-04-01T12:00/2019-08-21T14:02'
+        collections: JSON.stringify(['landsat-8-l1'])
       })
       .expect('Content-Type', /json/)
       .expect(200, done)
       .expect(r => {
-        r.body.features.length.should.equal(1);
+        r.body.features.length.should.be.above(1);
       });
   });
 
-  it('Datetime can be passed as query parameter in GET for wfs items', function (done) {
+  it('Collections can be passed as query parameter in GET for wfs items', function (done) {
     restService()
       .get(wfsItemsPath)
       .query({
-        datetime: '2019-04-01T12:00/2019-08-21T14:02'
+        collections: JSON.stringify(['landsat-8-l1'])
       })
       .expect('Content-Type', /json/)
       .expect(200, done)
       .expect(r => {
-        r.body.features.length.should.equal(1);
+        r.body.features.length.should.be.above(1);
       });
   });
 });

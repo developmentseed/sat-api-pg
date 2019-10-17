@@ -9,8 +9,9 @@ CREATE OR REPLACE VIEW collectionitems AS
     i.assets,
     data.ST_AsGeoJSON(i.geometry) :: json as geometry,
     i.properties as properties,
-    i.datetime as datetime
-  FROM data.items i
+    i.datetime as datetime,
+    i.links
+  FROM data.itemsLinks i
   RIGHT JOIN
     data.collections c ON i.collection = c.id;
 ALTER VIEW collectionitems owner to api;
@@ -50,7 +51,8 @@ BEGIN
     (select jsonb_object_agg(e.key, e.value)
       from jsonb_each(properties) e
       where e.key = ANY (include)) properties,
-    datetime
+    datetime,
+    links
     FROM collectionitems
     WHERE data.ST_INTERSECTS(collectionitems.geom, intersects_geometry);
   ELSE
@@ -82,7 +84,8 @@ BEGIN
     (select jsonb_object_agg(e.key, e.value)
       from jsonb_each(properties) e
       where e.key = ANY (include)) properties,
-    datetime
+    datetime,
+    links
     FROM collectionitems;
   ELSE
     RETURN QUERY
@@ -97,5 +100,5 @@ CREATE OR REPLACE VIEW items AS
 ALTER VIEW items owner to api;
 
 CREATE OR REPLACE VIEW collections AS
-  SELECT * FROM data.collections;
+  SELECT * FROM data.collectionsLinks;
 ALTER VIEW collections owner to api;

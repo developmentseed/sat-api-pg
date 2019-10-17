@@ -63,7 +63,6 @@ CREATE SCHEMA request;
 
 CREATE SCHEMA settings;
 
-
 -- load some variables from the env
 \setenv base_dir :DIR
 \set base_dir `if [ $base_dir != ":"DIR ]; then echo $base_dir; else echo "/docker-entrypoint-initdb.d"; fi`
@@ -90,7 +89,6 @@ grant :"anonymous" to :"authenticator";
 drop role if exists application;
 create role application;
 grant application to :"authenticator";
-
 --
 -- Name: ltree; Type: EXTENSION; Schema: -; Owner: 
 --
@@ -150,6 +148,19 @@ CREATE TYPE api."user" AS (
 	name text,
 	email text,
 	role text
+);
+
+
+
+--
+-- Name: linkobject; Type: TYPE; Schema: data; Owner: superuser
+--
+
+CREATE TYPE data.linkobject AS (
+	href character varying(1024),
+	rel character varying(1024),
+	type character varying(1024),
+	title character varying(1024)
 );
 
 
@@ -273,13 +284,30 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: apiurls; Type: TABLE; Schema: data; Owner: superuser
+--
+
+CREATE TABLE data.apiurls (
+    url character varying(1024)
+);
+
+
+
+--
 -- Name: collections; Type: TABLE; Schema: data; Owner: superuser
 --
 
 CREATE TABLE data.collections (
     id character varying(1024) NOT NULL,
-    description character varying(1024),
-    properties jsonb
+    title character varying(1024),
+    description character varying(1024) NOT NULL,
+    keywords character varying(300)[],
+    version character varying(300),
+    license character varying(300) NOT NULL,
+    providers jsonb[],
+    extent jsonb,
+    properties jsonb,
+    links data.linkobject[]
 );
 
 
@@ -296,8 +324,31 @@ CREATE TABLE data.items (
     properties jsonb NOT NULL,
     assets jsonb NOT NULL,
     collection character varying(1024),
-    datetime timestamp with time zone NOT NULL
+    datetime timestamp with time zone NOT NULL,
+    links data.linkobject[]
 );
+
+
+
+--
+-- Name: itemslinks; Type: VIEW; Schema: data; Owner: superuser
+--
+
+CREATE VIEW data.itemslinks AS
+ SELECT i.id,
+    i.type,
+    i.geometry,
+    i.bbox,
+    i.properties,
+    i.assets,
+    i.collection,
+    i.datetime,
+    ( SELECT array_cat(ARRAY[ROW((( SELECT (((((apiurls.url)::text || '/collections/'::text) || (i.collection)::text) || '/'::text) || (i.id)::text)
+                   FROM data.apiurls
+                 LIMIT 1))::character varying(1024), 'self'::character varying(1024), 'application/geo+json'::character varying(1024), NULL::character varying(1024))::data.linkobject, ROW((( SELECT (((apiurls.url)::text || '/collections/'::text) || (i.collection)::text)
+                   FROM data.apiurls
+                 LIMIT 1))::character varying(1024), 'parent'::character varying(1024), 'application/json'::character varying(1024), NULL::character varying(1024))::data.linkobject], i.links) AS array_cat) AS links
+   FROM data.items i;
 
 
 
@@ -315,8 +366,9 @@ CREATE VIEW api.collectionitems AS
     i.assets,
     (data.st_asgeojson(i.geometry))::json AS geometry,
     i.properties,
-    i.datetime
-   FROM (data.items i
+    i.datetime,
+    i.links
+   FROM (data.itemslinks i
      RIGHT JOIN data.collections c ON (((i.collection)::text = (c.id)::text)));
 
 
@@ -326,7 +378,7 @@ ALTER TABLE api.collectionitems OWNER TO api;
 -- Name: search(numeric[], json, text[]); Type: FUNCTION; Schema: api; Owner: superuser
 --
 
-CREATE FUNCTION api.search(bbox numeric[] DEFAULT NULL, intersects json DEFAULT NULL, include text[] DEFAULT NULL) RETURNS SETOF api.collectionitems
+CREATE FUNCTION api.search(bbox numeric[] DEFAULT NULL::numeric[], intersects json DEFAULT NULL::json, include text[] DEFAULT NULL::text[]) RETURNS SETOF api.collectionitems
     LANGUAGE plpgsql IMMUTABLE
     AS $$
 DECLARE
@@ -357,7 +409,8 @@ BEGIN
     (select jsonb_object_agg(e.key, e.value)
       from jsonb_each(properties) e
       where e.key = ANY (include)) properties,
-    datetime
+    datetime,
+    links
     FROM collectionitems
     WHERE data.ST_INTERSECTS(collectionitems.geom, intersects_geometry);
   ELSE
@@ -375,7 +428,7 @@ $$;
 -- Name: searchnogeom(text[]); Type: FUNCTION; Schema: api; Owner: superuser
 --
 
-CREATE FUNCTION api.searchnogeom(include text[] DEFAULT NULL) RETURNS SETOF api.collectionitems
+CREATE FUNCTION api.searchnogeom(include text[] DEFAULT NULL::text[]) RETURNS SETOF api.collectionitems
     LANGUAGE plpgsql IMMUTABLE
     AS $$
 BEGIN
@@ -393,7 +446,8 @@ BEGIN
     (select jsonb_object_agg(e.key, e.value)
       from jsonb_each(properties) e
       where e.key = ANY (include)) properties,
-    datetime
+    datetime,
+    links
     FROM collectionitems;
   ELSE
     RETURN QUERY
@@ -512,6 +566,54 @@ $_$;
 
 
 --
+-- Name: convert_collection_links(); Type: FUNCTION; Schema: data; Owner: superuser
+--
+
+CREATE FUNCTION data.convert_collection_links() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+  DECLARE
+    newlinks data.linkobject;
+    filteredlinks data.linkobject[];
+  BEGIN
+  SELECT * INTO newlinks FROM unnest(new.links) as linkObj
+  WHERE linkObj.rel = 'derived_from';
+  IF newlinks.href IS NOT NULL THEN
+    filteredlinks = ARRAY[newlinks];
+  ELSE
+    filteredlinks = NULL;
+  END IF;
+  INSERT INTO data.collections(
+    id,
+    title,
+    description,
+    keywords,
+    version,
+    license,
+    providers,
+    extent,
+    properties,
+    links
+  )
+  VALUES(
+    new.id,
+    new.title,
+    new.description,
+    new.keywords,
+    new.version,
+    new.license,
+    new.providers,
+    new.extent,
+    new.properties,
+    filteredlinks
+  );
+  RETURN NEW;
+  END;
+  $$;
+
+
+
+--
 -- Name: convert_values(); Type: FUNCTION; Schema: data; Owner: superuser
 --
 
@@ -521,6 +623,8 @@ CREATE FUNCTION data.convert_values() RETURNS trigger
   DECLARE
     converted_geometry data.geometry;
     converted_datetime timestamp with time zone;
+    newlinks data.linkobject;
+    filteredlinks data.linkobject[];
   BEGIN
     --  IF TG_OP = 'INSERT' AND (NEW.geometry ISNULL) THEN
       --  RAISE EXCEPTION 'geometry is required';
@@ -530,7 +634,23 @@ CREATE FUNCTION data.convert_values() RETURNS trigger
     --  RAISE WARNING 'geometry not updated: %', SQLERRM;
   converted_geometry = data.st_setsrid(data.ST_GeomFromGeoJSON(NEW.geometry), 4326);
   converted_datetime = (new.properties)->'datetime';
-  INSERT INTO data.items(id, type, geometry, bbox, properties, assets, collection, datetime)
+  SELECT * INTO newlinks FROM unnest(new.links) as linkObj
+  WHERE linkObj.rel = 'derived_from';
+  IF newlinks.href IS NOT NULL THEN
+    filteredlinks = ARRAY[newlinks];
+  ELSE
+    filteredlinks = NULL;
+  END IF;
+  INSERT INTO data.items(
+    id,
+    type,
+    geometry,
+    bbox,
+    properties,
+    assets,
+    collection,
+    datetime,
+    links)
   VALUES(
     new.id,
     new.type,
@@ -539,7 +659,8 @@ CREATE FUNCTION data.convert_values() RETURNS trigger
     new.properties,
     new.assets,
     new.collection,
-    converted_datetime);
+    converted_datetime,
+    filteredlinks);
   RETURN NEW;
   END;
   $$;
@@ -741,14 +862,44 @@ $_$;
 
 
 --
+-- Name: collectionslinks; Type: VIEW; Schema: data; Owner: superuser
+--
+
+CREATE VIEW data.collectionslinks AS
+ SELECT collections.id,
+    collections.title,
+    collections.description,
+    collections.keywords,
+    collections.version,
+    collections.license,
+    collections.providers,
+    collections.extent,
+    collections.properties,
+    ( SELECT array_cat(ARRAY[ROW((( SELECT (((apiurls.url)::text || '/collections/'::text) || (collections.id)::text)
+                   FROM data.apiurls
+                 LIMIT 1))::character varying(1024), 'self'::character varying(1024), 'application/json'::character varying(1024), NULL::character varying(1024))::data.linkobject, ROW((( SELECT (((apiurls.url)::text || '/collections/'::text) || (collections.id)::text)
+                   FROM data.apiurls
+                 LIMIT 1))::character varying(1024), 'root'::character varying(1024), 'application/json'::character varying(1024), NULL::character varying(1024))::data.linkobject], collections.links) AS array_cat) AS links
+   FROM data.collections;
+
+
+
+--
 -- Name: collections; Type: VIEW; Schema: api; Owner: api
 --
 
 CREATE VIEW api.collections AS
- SELECT collections.id,
-    collections.description,
-    collections.properties
-   FROM data.collections;
+ SELECT collectionslinks.id,
+    collectionslinks.title,
+    collectionslinks.description,
+    collectionslinks.keywords,
+    collectionslinks.version,
+    collectionslinks.license,
+    collectionslinks.providers,
+    collectionslinks.extent,
+    collectionslinks.properties,
+    collectionslinks.links
+   FROM data.collectionslinks;
 
 
 ALTER TABLE api.collections OWNER TO api;
@@ -758,15 +909,16 @@ ALTER TABLE api.collections OWNER TO api;
 --
 
 CREATE VIEW data.items_string_geometry AS
- SELECT items.id,
-    items.type,
-    (data.st_asgeojson(items.geometry))::json AS geometry,
-    items.bbox,
-    items.properties,
-    items.assets,
-    items.collection,
-    items.datetime
-   FROM data.items;
+ SELECT itemslinks.id,
+    itemslinks.type,
+    (data.st_asgeojson(itemslinks.geometry))::json AS geometry,
+    itemslinks.bbox,
+    itemslinks.properties,
+    itemslinks.assets,
+    itemslinks.collection,
+    itemslinks.datetime,
+    itemslinks.links
+   FROM data.itemslinks;
 
 
 
@@ -782,7 +934,8 @@ CREATE VIEW api.items AS
     items_string_geometry.properties,
     items_string_geometry.assets,
     items_string_geometry.collection,
-    items_string_geometry.datetime
+    items_string_geometry.datetime,
+    items_string_geometry.links
    FROM data.items_string_geometry;
 
 
@@ -884,6 +1037,13 @@ ALTER TABLE ONLY settings.secrets
 
 
 --
+-- Name: collectionslinks convert_collection_links; Type: TRIGGER; Schema: data; Owner: superuser
+--
+
+CREATE TRIGGER convert_collection_links INSTEAD OF INSERT ON data.collectionslinks FOR EACH ROW EXECUTE PROCEDURE data.convert_collection_links();
+
+
+--
 -- Name: items_string_geometry convert_geometry_tg; Type: TRIGGER; Schema: data; Owner: superuser
 --
 
@@ -971,6 +1131,14 @@ GRANT SELECT,INSERT,UPDATE ON TABLE data.items TO application;
 
 
 --
+-- Name: TABLE itemslinks; Type: ACL; Schema: data; Owner: superuser
+--
+
+GRANT SELECT,INSERT,UPDATE ON TABLE data.itemslinks TO api;
+GRANT SELECT,INSERT,UPDATE ON TABLE data.itemslinks TO application;
+
+
+--
 -- Name: TABLE collectionitems; Type: ACL; Schema: api; Owner: api
 --
 
@@ -983,6 +1151,14 @@ GRANT SELECT ON TABLE api.collectionitems TO anonymous;
 
 REVOKE ALL ON FUNCTION api.signup(name text, email text, password text) FROM PUBLIC;
 GRANT ALL ON FUNCTION api.signup(name text, email text, password text) TO anonymous;
+
+
+--
+-- Name: TABLE collectionslinks; Type: ACL; Schema: data; Owner: superuser
+--
+
+GRANT SELECT,INSERT,UPDATE ON TABLE data.collectionslinks TO api;
+GRANT SELECT,INSERT,UPDATE ON TABLE data.collectionslinks TO application;
 
 
 --
