@@ -92,4 +92,24 @@ describe('query extension', function () {
         r.body.features.length.should.equal(3);
       });
   });
+
+  it('Handles multiple query properties', function (done) {
+    restService()
+      .post(searchPath)
+      .send({
+        query: {
+          'eo:cloud_cover': {
+            lt: 6
+          },
+          'eo:sun_azimuth': {
+            lt: 50
+          }
+        }
+      })
+      .expect('Content-Type', /json/)
+      .expect(200, done)
+      .expect(r => {
+        r.body.features.length.should.equal(1);
+      });
+  });
 });
