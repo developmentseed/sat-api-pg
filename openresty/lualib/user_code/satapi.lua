@@ -108,3 +108,13 @@ function wrapFeatureCollection(body)
   }
   return cjson.encode(itemCollection)
 end
+
+function returnConformance()
+  local conformanceTable = { conformsTo={
+    "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core",
+    "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/html",
+    "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson"
+  }}
+  return cjson.encode(conformanceTable)
+end
+
