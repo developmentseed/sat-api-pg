@@ -64,10 +64,10 @@ end
 
 function handleWFS(args, uri)
   local uriComponents = ngx_re.split(uri, '/')
-  local collections = uriComponents[3]
-  local collectionId = uriComponents[4]
-  local items = uriComponents[5]
-  local itemId = uriComponents[6]
+  local collections = uriComponents[2]
+  local collectionId = uriComponents[3]
+  local items = uriComponents[4]
+  local itemId = uriComponents[5]
 
   if collectionId then
     if items and items ~= '' then
