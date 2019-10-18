@@ -5,7 +5,11 @@ function buildQueryString(query)
   local filter = ''
   for key, keyValue in pairs(query) do
     for operator, operatorValue in pairs(keyValue) do
+      local propertiesAccessor = "properties->"
+      local collectionPropertiesAccessor = "collectionproperties->"
       if (operator == 'in') then
+        propertiesAccessor = "properties->>"
+        collectionPropertiesAccessor = "collectionproperties->>"
         local invalues = '('
         for _, initem in ipairs(keyValue[operator]) do
           invalues = invalues .. initem .. ','
@@ -15,8 +19,8 @@ function buildQueryString(query)
       else
         filter = "\"" .. key .. "\"" .. "." .. operator .. "." .. keyValue[operator]
       end
-      local propertyFilter = "properties->>" .. filter
-      local collectionPropertyFilter = "collectionproperties->>" .. filter
+      local propertyFilter = propertiesAccessor .. filter
+      local collectionPropertyFilter = collectionPropertiesAccessor .. filter
       local logicalOr =
         "or(" .. propertyFilter .. "," .. collectionPropertyFilter.. ")"
       table.insert(logicalAndTable, logicalOr)

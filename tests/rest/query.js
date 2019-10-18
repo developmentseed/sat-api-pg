@@ -75,4 +75,21 @@ describe('query extension', function () {
         r.body.features.length.should.equal(2);
       });
   });
+
+  it('Json field queries without type coercion', function (done) {
+    restService()
+      .post(searchPath)
+      .send({
+        query: {
+          'eo:cloud_cover': {
+            lt: 100
+          }
+        }
+      })
+      .expect('Content-Type', /json/)
+      .expect(200, done)
+      .expect(r => {
+        r.body.features.length.should.equal(3);
+      });
+  });
 });
