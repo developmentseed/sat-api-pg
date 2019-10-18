@@ -52,7 +52,7 @@ describe('fields extension', function () {
         .send({
           fields: {
             include: [
-              'properties.eo:row',
+              'properties.landsat:row',
               'properties.eo:cloud_cover'
             ]
           }
@@ -61,7 +61,7 @@ describe('fields extension', function () {
         .expect(200, done)
         .expect(r => {
           r.body.features[0].properties.should.have.property('datetime');
-          r.body.features[0].properties.should.have.property('eo:row');
+          r.body.features[0].properties.should.have.property('landsat:row');
           r.body.features[0].properties.should.have.property('eo:cloud_cover');
         });
     });
@@ -93,17 +93,17 @@ describe('fields extension', function () {
         .send({
           fields: {
             include: [
-              'properties.eo:row'
+              'properties.landsat:row'
             ],
             exclude: [
-              'properties.eo:row'
+              'properties.landsat:row'
             ]
           }
         })
         .expect('Content-Type', /json/)
         .expect(200, done)
         .expect(r => {
-          r.body.features[0].properties.should.have.property('eo:row');
+          r.body.features[0].properties.should.have.property('landsat:row');
         });
     });
 });

@@ -64,7 +64,7 @@ describe('query extension', function () {
       .post(searchPath)
       .send({
         query: {
-          'eo:column': {
+          'landsat:column': {
             in: ['032', '037']
           }
         }
