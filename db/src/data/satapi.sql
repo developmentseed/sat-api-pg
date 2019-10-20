@@ -56,6 +56,27 @@ CREATE VIEW collectionsLinks AS
   ], links)) as links
   FROM data.collections;
 
+CREATE VIEW rootLinks AS
+  SELECT
+  'sat-api-pg' AS title,
+  'sat-api-pg' AS id,
+  'STAC v0.8.0 implementation by Development Seed' AS description,
+  '0.8.0' AS stac_version,
+  (SELECT ARRAY[
+    ROW((SELECT url || '/collections' FROM data.apiUrls LIMIT 1),
+        'data',
+        'application/json',
+        null)::data.linkobject,
+    ROW((SELECT url || '/conformance' FROM data.apiUrls LIMIT 1),
+        'conformance',
+        'application/json',
+        null)::data.linkobject,
+    ROW((SELECT url FROM data.apiUrls LIMIT 1),
+      'self',
+      'application/json' ,
+      null)::data.linkobject
+  ]) as links;
+
 CREATE VIEW itemsLinks AS
   SELECT
   id,

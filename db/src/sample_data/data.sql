@@ -604,4 +604,4 @@ VALUES(
    }'
 );
 INSERT INTO data.apiUrls(url)
-VALUES('http://localhost:8080/rest');
+VALUES('http://localhost:8080');

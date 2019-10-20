@@ -102,3 +102,7 @@ ALTER VIEW items owner to api;
 CREATE OR REPLACE VIEW collections AS
   SELECT * FROM data.collectionsLinks;
 ALTER VIEW collections owner to api;
+
+CREATE OR REPLACE VIEW root AS
+  SELECT * FROM data.rootLinks;
+ALTER VIEW root owner to api;

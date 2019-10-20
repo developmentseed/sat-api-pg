@@ -2,6 +2,7 @@ import { restService, resetdb } from './common';
 import landsatItem from './landsatItem.json';
 import { itemsPath } from './constants';
 
+const proxy = process.env.SERVER_PROXY_URI;
 describe('items', function () {
   beforeEach(function (done) { resetdb(); done(); });
   afterEach(function (done) { resetdb(); done(); });
@@ -51,13 +52,13 @@ describe('items', function () {
         r.body.features[0].links.length.should.equal(2);
         r.body.features[0].links.should.containDeep([{
           rel: 'self',
-          href: 'http://localhost:8080/rest/collections/landsat-8-l1/LC80320392019263',
+          href: `${proxy}collections/landsat-8-l1/LC80320392019263`,
           type: 'application/geo+json',
           title: null
         },
         {
           rel: 'parent',
-          href: 'http://localhost:8080/rest/collections/landsat-8-l1',
+          href: `${proxy}collections/landsat-8-l1`,
           type: 'application/json',
           title: null
         }]);
@@ -81,13 +82,13 @@ describe('items', function () {
             r.body.features[2].links.should.containDeep([
               {
                 rel: 'self',
-                href: 'http://localhost:8080/rest/collections/landsat-8-l1/LC81152062019205',
+                href: `${proxy}collections/landsat-8-l1/LC81152062019205`,
                 type: 'application/geo+json',
                 title: null
               },
               {
                 rel: 'parent',
-                href: 'http://localhost:8080/rest/collections/landsat-8-l1',
+                href: `${proxy}collections/landsat-8-l1`,
                 type: 'application/json',
                 title: null
               },

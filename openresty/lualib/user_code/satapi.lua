@@ -52,7 +52,10 @@ function handleRequest()
     if collections then
       handleWFS(args, uri)
     else
-      if uri == itemsPath then
+      if uri == "/" then
+        ngx.req.set_header("Accept", "application/vnd.pgrst.object+json")
+        ngx.req.set_uri("root")
+      elseif uri == itemsPath then
         local filterArgs, filterBody = filters.buildFilters(nil, args)
         ngx.req.set_body_data(cjson.encode(filterBody))
         ngx.req.set_uri_args(filterArgs)

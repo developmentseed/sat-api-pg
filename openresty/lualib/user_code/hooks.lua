@@ -26,7 +26,8 @@ local function before_rest_response()
   -- Don't wrap in a feature collection
   if ((collections == 'collections' and items == nil) or itemId) then
   else
-    if (uri == "/conformance") then
+    if uri == "/" then
+    elseif uri == "/conformance" then
       utils.set_body_postprocess_mode(utils.postprocess_modes.ALL)
       utils.set_body_postprocess_fn(satapi.returnConformance)
     else
