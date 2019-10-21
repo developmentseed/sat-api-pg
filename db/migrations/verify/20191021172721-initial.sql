@@ -1,4 +1,4 @@
--- Verify sat-api-pg:20191017194602-initial on pg
+-- Verify sat-api-pg:20191021172721-initial on pg
 
 BEGIN;
 

@@ -89,6 +89,7 @@ grant :"anonymous" to :"authenticator";
 drop role if exists application;
 create role application;
 grant application to :"authenticator";
+
 --
 -- Name: ltree; Type: EXTENSION; Schema: -; Owner: 
 --
@@ -343,6 +344,7 @@ CREATE VIEW data.itemslinks AS
     i.assets,
     i.collection,
     i.datetime,
+    '0.8.0'::text AS stac_version,
     ( SELECT array_cat(ARRAY[ROW((( SELECT (((((apiurls.url)::text || '/collections/'::text) || (i.collection)::text) || '/'::text) || (i.id)::text)
                    FROM data.apiurls
                  LIMIT 1))::character varying(1024), 'self'::character varying(1024), 'application/geo+json'::character varying(1024), NULL::character varying(1024))::data.linkobject, ROW((( SELECT (((apiurls.url)::text || '/collections/'::text) || (i.collection)::text)
@@ -367,7 +369,8 @@ CREATE VIEW api.collectionitems AS
     (data.st_asgeojson(i.geometry))::json AS geometry,
     i.properties,
     i.datetime,
-    i.links
+    i.links,
+    i.stac_version
    FROM (data.itemslinks i
      RIGHT JOIN data.collections c ON (((i.collection)::text = (c.id)::text)));
 
@@ -410,7 +413,8 @@ BEGIN
       from jsonb_each(properties) e
       where e.key = ANY (include)) properties,
     datetime,
-    links
+    links,
+    stac_version
     FROM collectionitems
     WHERE data.ST_INTERSECTS(collectionitems.geom, intersects_geometry);
   ELSE
@@ -447,7 +451,8 @@ BEGIN
       from jsonb_each(properties) e
       where e.key = ANY (include)) properties,
     datetime,
-    links
+    links,
+    stac_version
     FROM collectionitems;
   ELSE
     RETURN QUERY
@@ -917,7 +922,8 @@ CREATE VIEW data.items_string_geometry AS
     itemslinks.assets,
     itemslinks.collection,
     itemslinks.datetime,
-    itemslinks.links
+    itemslinks.links,
+    itemslinks.stac_version
    FROM data.itemslinks;
 
 
@@ -935,11 +941,46 @@ CREATE VIEW api.items AS
     items_string_geometry.assets,
     items_string_geometry.collection,
     items_string_geometry.datetime,
-    items_string_geometry.links
+    items_string_geometry.links,
+    items_string_geometry.stac_version
    FROM data.items_string_geometry;
 
 
 ALTER TABLE api.items OWNER TO api;
+
+--
+-- Name: rootlinks; Type: VIEW; Schema: data; Owner: superuser
+--
+
+CREATE VIEW data.rootlinks AS
+ SELECT 'sat-api-pg'::text AS title,
+    'sat-api-pg'::text AS id,
+    'STAC v0.8.0 implementation by Development Seed'::text AS description,
+    '0.8.0'::text AS stac_version,
+    ( SELECT ARRAY[ROW((( SELECT ((apiurls.url)::text || '/collections'::text)
+                   FROM data.apiurls
+                 LIMIT 1))::character varying(1024), 'data'::character varying(1024), 'application/json'::character varying(1024), NULL::character varying(1024))::data.linkobject, ROW((( SELECT ((apiurls.url)::text || '/conformance'::text)
+                   FROM data.apiurls
+                 LIMIT 1))::character varying(1024), 'conformance'::character varying(1024), 'application/json'::character varying(1024), NULL::character varying(1024))::data.linkobject, ROW(( SELECT apiurls.url
+                   FROM data.apiurls
+                 LIMIT 1), 'self'::character varying(1024), 'application/json'::character varying(1024), NULL::character varying(1024))::data.linkobject] AS "array") AS links;
+
+
+
+--
+-- Name: root; Type: VIEW; Schema: api; Owner: api
+--
+
+CREATE VIEW api.root AS
+ SELECT rootlinks.title,
+    rootlinks.id,
+    rootlinks.description,
+    rootlinks.stac_version,
+    rootlinks.links
+   FROM data.rootlinks;
+
+
+ALTER TABLE api.root OWNER TO api;
 
 --
 -- Name: user; Type: TABLE; Schema: data; Owner: superuser
@@ -1183,6 +1224,20 @@ GRANT SELECT,INSERT,UPDATE ON TABLE data.items_string_geometry TO application;
 
 GRANT SELECT ON TABLE api.items TO anonymous;
 GRANT SELECT,INSERT,UPDATE ON TABLE api.items TO application;
+
+
+--
+-- Name: TABLE rootlinks; Type: ACL; Schema: data; Owner: superuser
+--
+
+GRANT SELECT ON TABLE data.rootlinks TO api;
+
+
+--
+-- Name: TABLE root; Type: ACL; Schema: api; Owner: api
+--
+
+GRANT SELECT ON TABLE api.root TO anonymous;
 
 
 --

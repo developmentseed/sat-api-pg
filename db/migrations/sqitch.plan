@@ -1,4 +1,4 @@
 %syntax-version=1.0.0
 %project=sat-api-pg
 
-20191017194602-initial 2019-10-17T19:46:14Z root <root@linuxkit-025000000001> # Add 20191017194602-initial migration
+20191021172721-initial 2019-10-21T17:27:35Z root <root@linuxkit-025000000001> # Add 20191021172721-initial migration
