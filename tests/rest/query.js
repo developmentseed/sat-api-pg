@@ -59,7 +59,7 @@ describe('query extension', function () {
       });
   });
 
-  it('in operator', function (done) {
+  it('in operator with strings', function (done) {
     restService()
       .post(searchPath)
       .send({
@@ -76,7 +76,24 @@ describe('query extension', function () {
       });
   });
 
-  it('Json field queries without type coercion', function (done) {
+  it('in operator with numbers', function (done) {
+    restService()
+      .post(searchPath)
+      .send({
+        query: {
+          'eo:epsg': {
+            in: [32610, 32613]
+          }
+        }
+      })
+      .expect('Content-Type', /json/)
+      .expect(200, done)
+      .expect(r => {
+        r.body.features.length.should.equal(2);
+      });
+  });
+
+  it('Json field queries with numbers', function (done) {
     restService()
       .post(searchPath)
       .send({
@@ -90,6 +107,23 @@ describe('query extension', function () {
       .expect(200, done)
       .expect(r => {
         r.body.features.length.should.equal(3);
+      });
+  });
+
+  it('Json field queries with strings', function (done) {
+    restService()
+      .post(searchPath)
+      .send({
+        query: {
+          'landsat:row': {
+            eq: '039'
+          }
+        }
+      })
+      .expect('Content-Type', /json/)
+      .expect(200, done)
+      .expect(r => {
+        r.body.features.length.should.equal(1);
       });
   });
 
