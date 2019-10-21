@@ -4,6 +4,8 @@
 * [aws-cli](https://aws.amazon.com/cli/)
 * [psql](https://www.postgresql.org/docs/9.5/libpq.html)
 
+Create an [ECR repository](https://docs.aws.amazon.com/AmazonECR/latest/userguide/repository-create.html) to house your OpenResty image (the image will be pushed to this repository as part of the `deploy.sh` step below.
+
 Copy the `/deployment/.sample_env` to `/deployment/.env`. And update accordingly with the values relevant for your project. 
 
 Then...
