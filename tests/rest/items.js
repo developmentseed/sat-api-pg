@@ -1,5 +1,6 @@
 import { restService, resetdb } from './common';
 import landsatItem from './landsatItem.json';
+import landsatItems from './landsatItems.json';
 import { itemsPath } from './constants';
 
 const proxy = process.env.SERVER_PROXY_URI;
@@ -98,6 +99,24 @@ describe('items', function () {
                 type: null,
                 title: null
               }]);
+          });
+      });
+  });
+
+  it('Insert an array of items', function (done) {
+    restService()
+      .post(itemsPath)
+      .set('Prefer', 'return=minimal')
+      .set('Content-Type', 'application/json')
+      .withRole('application')
+      .send(landsatItems)
+      .end(() => {
+        restService()
+          .get(itemsPath)
+          .set('Content-Type', 'application/json')
+          .expect(200, done)
+          .expect(r => {
+            r.body.features.length.should.equal(5);
           });
       });
   });
