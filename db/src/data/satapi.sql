@@ -87,6 +87,7 @@ CREATE VIEW itemsLinks AS
   assets,
   collection,
   datetime,
+  '0.8.0' AS stac_version,
   (SELECT array_cat(ARRAY[
     ROW((
         SELECT url || '/collections/' || collection || '/' || id
@@ -113,7 +114,8 @@ CREATE VIEW items_string_geometry AS
   assets,
   collection,
   datetime,
-  links
+  links,
+  stac_version
   FROM data.itemsLinks;
 
 CREATE OR REPLACE FUNCTION convert_values()

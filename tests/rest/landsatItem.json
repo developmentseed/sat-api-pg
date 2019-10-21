@@ -1,4 +1,5 @@
 {
+    "stac_version": "0",
     "links": [{
       "rel": "derived_from",
       "href": "derived",

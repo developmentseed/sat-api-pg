@@ -10,7 +10,8 @@ CREATE OR REPLACE VIEW collectionitems AS
     data.ST_AsGeoJSON(i.geometry) :: json as geometry,
     i.properties as properties,
     i.datetime as datetime,
-    i.links
+    i.links,
+    i.stac_version
   FROM data.itemsLinks i
   RIGHT JOIN
     data.collections c ON i.collection = c.id;
@@ -52,7 +53,8 @@ BEGIN
       from jsonb_each(properties) e
       where e.key = ANY (include)) properties,
     datetime,
-    links
+    links,
+    stac_version
     FROM collectionitems
     WHERE data.ST_INTERSECTS(collectionitems.geom, intersects_geometry);
   ELSE
@@ -85,7 +87,8 @@ BEGIN
       from jsonb_each(properties) e
       where e.key = ANY (include)) properties,
     datetime,
-    links
+    links,
+    stac_version
     FROM collectionitems;
   ELSE
     RETURN QUERY
