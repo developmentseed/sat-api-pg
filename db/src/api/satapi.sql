@@ -22,7 +22,7 @@ CREATE FUNCTION search(
   intersects json = NULL,
   include TEXT[] = NULL
 )
-RETURNS setof collectionitems
+RETURNS setof api.collectionitems
 AS $$
 DECLARE
   intersects_geometry data.geometry;
@@ -55,12 +55,12 @@ BEGIN
     datetime,
     links,
     stac_version
-    FROM collectionitems
+    FROM api.collectionitems
     WHERE data.ST_INTERSECTS(collectionitems.geom, intersects_geometry);
   ELSE
     RETURN QUERY
     SELECT *
-    FROM collectionitems
+    FROM api.collectionitems
     WHERE data.ST_INTERSECTS(collectionitems.geom, intersects_geometry);
   END IF;
 END
@@ -69,7 +69,7 @@ $$ LANGUAGE plpgsql IMMUTABLE;
 CREATE FUNCTION searchnogeom(
   include TEXT[] = NULL
 )
-RETURNS setof collectionitems
+RETURNS setof api.collectionitems
 AS $$
 BEGIN
   IF include IS NOT NULL THEN
@@ -89,11 +89,11 @@ BEGIN
     datetime,
     links,
     stac_version
-    FROM collectionitems;
+    FROM api.collectionitems;
   ELSE
     RETURN QUERY
     SELECT *
-    FROM collectionitems;
+    FROM api.collectionitems;
   END IF;
 END
 $$ LANGUAGE plpgsql IMMUTABLE;
