@@ -33,8 +33,13 @@ function handleRequest()
   ngx.req.read_body()
   local body = ngx.req.get_body_data()
   local uri = string.gsub(ngx.var.request_uri, "?.*", "")
+  -- Trim trailing slash
+  if string.len(uri) > 1 and string.sub(uri, -1) == "/" then
+    uri = string.sub(uri, 1, string.len(uri) - 1)
+  end
 
   if method == 'POST' then
+    print(uri)
     if uri == searchPath then
       if not body then
         body = "{}"
