@@ -45,7 +45,7 @@ BEGIN
     collection,
     id,
     geom,
-    bbox,
+    collectionitems.bbox,
     type,
     assets,
     geometry,
