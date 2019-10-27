@@ -36,6 +36,7 @@ CREATE TABLE items(
 CREATE VIEW collectionsLinks AS
   SELECT
   id,
+  '0.8.0' AS stac_version,
   title,
   description,
   keywords,
