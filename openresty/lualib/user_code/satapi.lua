@@ -4,6 +4,7 @@ local filters = require "filters"
 local search = require "search"
 local ngx_re = require "ngx.re"
 local path_constants = require "path_constants"
+local apiPath = path_constants.apiPath
 local searchPath = path_constants.searchPath
 local itemsPath = path_constants.itemsPath
 local collectionsPath = path_constants.collectionsPath
@@ -57,7 +58,7 @@ function handleRequest()
     if collections then
       handleWFS(args, uri)
     else
-      if uri == "/" then
+      if uri == apiPath then
         ngx.req.set_header("Accept", "application/vnd.pgrst.object+json")
         ngx.req.set_uri("root")
       elseif uri == itemsPath then
