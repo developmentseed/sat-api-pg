@@ -121,9 +121,18 @@ describe('items', function () {
       });
   });
 
-  it('Delete is restricted', function (done) {
+  it('Delete is restricted for items', function (done) {
     restService()
       .delete(itemsPath)
+      .set('Prefer', 'return=minimal')
+      .set('Content-Type', 'application/json')
+      .withRole('application')
+      .expect(405, done);
+  });
+
+  it('Patch is restricted for items', function (done) {
+    restService()
+      .patch(itemsPath)
       .set('Prefer', 'return=minimal')
       .set('Content-Type', 'application/json')
       .withRole('application')
