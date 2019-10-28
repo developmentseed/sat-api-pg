@@ -1,0 +1,56 @@
+components:
+  parameters:
+    query:
+      name: query
+      in: query
+      description: query for properties in items. Use the JSON form of the queryFilter used in POST.
+      required: false
+      schema:
+        type: string
+  schemas:
+    searchBody:
+      allOf:
+        - $ref: '#/components/schemas/queryFilter'
+    queryFilter:
+      type: object
+      description: Allows users to query properties for specific values
+      properties:
+        query:
+          $ref: '#/components/schemas/query'
+    query:
+      type: object
+      description: Define which properties to query and the operatations to apply
+      additionalProperties:
+        $ref: '#/components/schemas/queryProp'
+      example:
+        eo:cloud_cover:
+          lt: 50
+        published:
+          gt: '2016-02-12T00:00:00Z'
+          lte: '2016-03-18T12:31:12Z'
+    queryProp:
+      description: Apply query operations to a specific property
+      anyOf:
+        - description: if the object doesn't contain any of the operators, it is equivalent to using the equals operator
+        - type: object
+          description: Match using an operator
+          properties:
+            eq:
+              description: Find items with a property that is equal to the specified value. For strings, a case-insensitive comparison must be performed.
+            gt:
+              type: number
+              description: Find items with a property value greater than the specified value.
+            lt:
+              type: number
+              description: Find items with a property value less than the specified value.
+            gte:
+              type: number
+              description: Find items with a property value greater than or equal the specified value.
+            lte:
+              type: number
+              description: Find items with a property value greater than or equal the specified value.
+            in:
+              type: array
+              items:
+                type: string
+              description: Find items with a property that matches one of the specified strings. A case-insensitive comparison must be performed.

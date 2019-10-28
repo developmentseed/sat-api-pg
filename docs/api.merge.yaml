@@ -1,0 +1,1 @@
+!!files_merge_append ["docs/STAC.yaml", "docs/query.fragment.yaml", "docs/fields.fragment.yaml", "docs/sort.fragment.yaml", "docs/insert.fragment.yaml"]

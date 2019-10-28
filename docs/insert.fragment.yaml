@@ -1,0 +1,81 @@
+openapi: 3.0.1
+paths:
+  '/items':
+    post:
+      summary: add a new feature
+      description: create a new feature
+      operationId: postFeature
+      tags:
+        - Insert Extension
+      security:
+        - BearerAuth: [application]
+      parameters:
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Use Bearer yourJWTtokenwithapplicationrole
+        - in: header
+          name: Prefer
+          schema:
+            type: string
+          required: true
+          description: Use return=minimal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/item'
+                - $ref: '#/components/schemas/itemCollection'
+      responses:
+        '201':
+          description: Status of the create request.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/ConflictRequest'
+        '5XX':
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          description: An error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exception'
+            text/html:
+              schema:
+                type: string
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/exception'
+    BadRequest:
+      description: The request was malformed or semantically invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/exception'
+    ConflictRequest:
+      description: The request has a conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/exception'
+    InternalServerError:
+      description: The request was syntactically and semantically valid, but an error occurred while trying to act upon it
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/exception'
