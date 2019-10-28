@@ -14,7 +14,7 @@ COMPOSE_PROJECT_NAME=sat-api-pg
 
 # Global configs
 # DEVELOPMENT=1
-JWT_SECRET=reallyreallyreallyreally
+JWT_SECRET=reallyreallyreallyreallysupersafe
 
 # DB connection details (used by all containers)
 # set PG_VERSION to match your production db major version
