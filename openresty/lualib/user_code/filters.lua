@@ -3,6 +3,7 @@ require "extensions.queryExtension"
 require "extensions.sortExtension"
 require "datetimeBuilder"
 local defaultFields = require "defaultFields"
+local limit_constants = require "limit_constants"
 
 function processDatetimeFilter(andQuery, datetime)
   local updatedAndQuery
@@ -52,6 +53,9 @@ function createFilterArgs(andQuery, sort, next, limit)
   if next and limit then
     filterArgs["offset"] = next
     filterArgs["limit"] = limit
+  else
+    filterArgs["offset"] = limit_constants.offset
+    filterArgs["limit"] = limit_constants.limit
   end
   -- If sort is null returns default sorting order
   local order = sortExtension.buildSortString(sort)
