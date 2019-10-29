@@ -15,13 +15,15 @@ paths:
           schema:
             type: string
           required: true
-          description: Use Bearer yourJWTtokenwithapplicationrole
+          description: A bearer JWT with an 'application' role
+          default: Bearer token
         - in: header
           name: Prefer
           schema:
             type: string
           required: true
-          description: Use return=minimal
+          description: Controls the response type from the insert
+          default: return=minimal
       requestBody:
         content:
           application/json:

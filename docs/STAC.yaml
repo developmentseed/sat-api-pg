@@ -118,6 +118,7 @@ paths:
         Use content negotiation to request HTML or GeoJSON.
       operationId: getFeatures
       parameters:
+        - $ref: '#/components/parameters/collectionId'
         - $ref: '#/components/parameters/bbox'
         - $ref: '#/components/parameters/datetime'
         - $ref: '#/components/parameters/limit'
@@ -204,10 +205,10 @@ components:
         vertical axis (elevation or depth):
 
         * Lower left corner, coordinate axis 1
-        * Lower left corner, coordinate axis 2  
-        * Lower left corner, coordinate axis 3 (optional) 
-        * Upper right corner, coordinate axis 1 
-        * Upper right corner, coordinate axis 2 
+        * Lower left corner, coordinate axis 2
+        * Lower left corner, coordinate axis 3 (optional)
+        * Upper right corner, coordinate axis 1
+        * Upper right corner, coordinate axis 2
         * Upper right corner, coordinate axis 3 (optional)
 
         The coordinate reference system of the values is WGS84
@@ -242,28 +243,22 @@ components:
       required: true
       schema:
         type: string
+      example: landsat-8-l1
     datetime:
       name: datetime
       in: query
       description: >-
         Either a date-time or an interval, open or closed. Date and time
-        expressions
-
-        adhere to RFC 3339. Open intervals are expressed using double-dots.
-
+        expressions adhere to RFC 3339
 
         Examples:
 
+        * A date-time: "2019-04-12T23:20:50Z"
 
-        * A date-time: "2018-02-12T23:20:50Z"
-
-        * A closed interval: "2018-02-12T00:00:00Z/2018-03-18T12:31:12Z"
-
-        * Open intervals: "2018-02-12T00:00:00Z/.." or "../2018-03-18T12:31:12Z"
+        * A closed interval: "2019-04-12T00:00:00Z/2019-08-18T22:31:12Z"
 
 
         Only features that have a temporal property that intersects the value of
-
         `datetime` are selected.
 
 
@@ -285,6 +280,7 @@ components:
       required: true
       schema:
         type: string
+      example: 'LC80370382019170'
     limit:
       name: limit
       in: query
@@ -313,9 +309,7 @@ components:
       in: query
       description: >
         Array of Item ids to return. All other filter parameters that further
-        restrict the number of 
-
-        search results (except `next` and `limit`) are ignored
+        restrict the number of search results (except `next` and `limit`) are ignored
       required: false
       schema:
         $ref: '#/components/schemas/ids'
@@ -847,19 +841,19 @@ components:
         - $ref: '#/components/schemas/datetimeFilter'
         - $ref: '#/components/schemas/intersectsFilter'
         - $ref: '#/components/schemas/nextFilter'
-        - $ref: '#/components/schemas/collectionsFilter'
-        - $ref: '#/components/schemas/idsFilter'
         - $ref: '#/components/schemas/limitFilter'
     next:
       type: string
+      example: '0'
       description: >-
         The token to retrieve the next set of results, e.g., offset, page,
-        continuation token
-      default: null
+        continuation token. Defaults to 0
+      default: '0'
     limit:
       type: integer
-      example: 10
-      description: The maximum number of results to return (page size). Defaults to 10
+      example: 50
+      description: The maximum number of results to return (page size). Defaults to 50
+      default: 50
     bbox:
       description: |
         Only features that have a geometry that intersects the bounding box are
@@ -868,10 +862,10 @@ components:
         vertical axis (elevation or depth):
 
         * Lower left corner, coordinate axis 1
-        * Lower left corner, coordinate axis 2  
-        * Lower left corner, coordinate axis 3 (optional) 
-        * Upper right corner, coordinate axis 1 
-        * Upper right corner, coordinate axis 2 
+        * Lower left corner, coordinate axis 2
+        * Lower left corner, coordinate axis 3 (optional)
+        * Upper right corner, coordinate axis 1
+        * Upper right corner, coordinate axis 2
         * Upper right corner, coordinate axis 3 (optional)
 
         The coordinate reference system of the values is WGS84
@@ -895,10 +889,10 @@ components:
       items:
         type: number
       example:
-        - -110
-        - 39.5
-        - -105
-        - 40.5
+        - -179
+        - -89
+        - 179
+        - 89
     bboxFilter:
       type: object
       description: Only return items that intersect the provided bounding box.
@@ -916,7 +910,7 @@ components:
       type: array
       description: >
         Array of Item ids to return. All other filter parameters that further
-        restrict the number of 
+        restrict the number of
 
         search results (except `next` and `limit`) are ignored
       items:
@@ -969,12 +963,9 @@ components:
         Examples:
 
 
-        * A date-time: "2018-02-12T23:20:50Z"
+        * A date-time: "2019-04-12T23:20:50Z"
 
-        * A closed interval: "2018-02-12T00:00:00Z/2018-03-18T12:31:12Z"
-
-        * Open intervals: "2018-02-12T00:00:00Z/.." or "../2018-03-18T12:31:12Z"
-
+        * A closed interval: "2019-04-12T00:00:00Z/2019-08-18T21:31:12Z"
 
         Only features that have a temporal property that intersects the value of
 
@@ -986,7 +977,7 @@ components:
         server whether only a single temporal property is used to determine
 
         the extent or all relevant temporal properties.
-      example: '2018-02-12T00:00:00Z/2018-03-18T12:31:12Z'
+      example: '2019-04-12T00:00:00Z/2019-08-18T21:31:12Z'
     stac_version:
       title: STAC version
       type: string

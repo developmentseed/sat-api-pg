@@ -25,9 +25,6 @@ components:
       example:
         eo:cloud_cover:
           lt: 50
-        published:
-          gt: '2016-02-12T00:00:00Z'
-          lte: '2016-03-18T12:31:12Z'
     queryProp:
       description: Apply query operations to a specific property
       anyOf:
