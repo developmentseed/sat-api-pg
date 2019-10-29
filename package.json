@@ -7,7 +7,7 @@
     "dotenv": "4.0.0",
     "eslint": "^6.4.0",
     "eslint-plugin-mocha": "^6.1.1",
-    "jsonwebtoken": "^8.3.0",
+    "jsonwebtoken": "^8.5.1",
     "mocha": "^6.0.2",
     "should": "^11.2.0",
     "standard": "^14.3.1",
