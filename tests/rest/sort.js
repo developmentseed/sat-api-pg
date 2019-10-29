@@ -39,7 +39,7 @@ describe('sort extension', function () {
       .post(searchPath)
       .send({
         sort: [{
-          field: 'properties.eo:cloud_cover',
+          field: 'eo:cloud_cover',
           direction: 'desc'
         }]
       })
@@ -59,7 +59,7 @@ describe('sort extension', function () {
       .post(searchPath)
       .send({
         sort: [{
-          field: 'properties.eo:cloud_cover',
+          field: 'eo:cloud_cover',
           direction: 'asc'
         }]
       })
