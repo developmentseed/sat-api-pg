@@ -113,3 +113,10 @@ and open sourced to to the community to help drive contributions and new functio
 [@sharkinsspatial](https://github.com/sharkinsspatial) or info@developmentseed.org for additional support or assistance with customization.
 Anyone and everyone is welcome to contribute.
 
+## STAC alignment
+This API implementation closely follows the [STAC API specification.](https://github.com/radiantearth/stac-spec/tree/dev/api-spec).  Becase the STAC API specifcation is under active development there are some current differences between the STAC specification [v0.8.0](https://github.com/radiantearth/stac-spec/releases/tag/v0.8.0).
+Notable differences
+
+ - Though the [search extension](https://github.com/radiantearth/stac-spec/tree/master/api-spec/extensions/search) is not currently implemented much of the same behavior can be acheived via the use of http headers.  When using the `next` and `limit` parameters, responses will contain a `Content-Range` header which shows the current range of the response.  To obtain the total number of items found the request can specify the `Prefer: count=exact` header and the full count will be available in the `Content-Range` response header. 
+
+Be aware that this exact count can be slow for very large tables.  For increased performance utilize the `Prefer: count=planned` header.  Note that the accuracy of this count depends on how up-to-date are the PostgreSQL statistics tables.
