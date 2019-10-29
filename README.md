@@ -110,7 +110,7 @@ yar test_rest               # Run integration tests
 For AWS deployment steps see [deployment/README.md](deployment/README.md).
 
 ## Contributing
-This project was initiated as part of [Development Seed's](https://developmentseed.org/) wider work in building the stac-spec
+This project was initiated as part of [Development Seed's](https://developmentseed.org/) wider work in helping to build the [STAC API specification.](https://github.com/radiantearth/stac-spec/tree/dev/api-spec)
 and open sourced to to the community to help drive contributions and new functionality.  New contributions are welcomed and you can contact
 [@sharkinsspatial](https://github.com/sharkinsspatial) or info@developmentseed.org for additional support or assistance with customization.
 Anyone and everyone is welcome to contribute.
