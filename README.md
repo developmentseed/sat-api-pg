@@ -2,6 +2,8 @@
 
 ## A Postgres backed STAC API.
 
+[sat-api-pg OpenAPI Docs](http://devseed.com/sat-api-pg-swagger/)
+
 Built on the foundation of the excellent
 
 [PostgREST](https://postgrest.com) - Postgres REST API backends.
@@ -114,7 +116,7 @@ and open sourced to to the community to help drive contributions and new functio
 Anyone and everyone is welcome to contribute.
 
 ## STAC alignment
-This API implementation closely follows the [STAC API specification.](https://github.com/radiantearth/stac-spec/tree/dev/api-spec).  Becase the STAC API specifcation is under active development there are some current differences between the STAC specification [v0.8.0](https://github.com/radiantearth/stac-spec/releases/tag/v0.8.0).
+This API implementation closely follows the [STAC API specification.](https://github.com/radiantearth/stac-spec/tree/dev/api-spec).  Becase the STAC API specifcation is under active development there are some current differences between the STAC specification [v0.8.0](https://github.com/radiantearth/stac-spec/releases/tag/v0.8.0).  For more details on capabilities see [sat-api-pg OpenAPI Docs](http://devseed.com/sat-api-pg-swagger/).
 Notable differences
 
  - Though the [search extension](https://github.com/radiantearth/stac-spec/tree/master/api-spec/extensions/search) is not currently implemented much of the same behavior can be acheived via the use of http headers.  When using the `next` and `limit` parameters, responses will contain a `Content-Range` header which shows the current range of the response.  To obtain the total number of items found the request can specify the `Prefer: count=exact` header and the full count will be available in the `Content-Range` response header.  Be aware that this exact count can be slow for very large tables.  For increased performance we will soon release support for the `Prefer: count=planned` header to provide an estimated count.  Note that the accuracy of this count depends on how up-to-date are the PostgreSQL statistics tables.
@@ -127,4 +129,4 @@ Notable differences
  $ node generateToken.js 
  ```
 
- Due to permissions on the base table where records are stored the request must also set the header `Prefer: return=minimal`.
+  Due to permissions on the base table where records are stored insert requests must also set the header `Prefer: return=minimal`.
