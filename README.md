@@ -117,6 +117,14 @@ Anyone and everyone is welcome to contribute.
 This API implementation closely follows the [STAC API specification.](https://github.com/radiantearth/stac-spec/tree/dev/api-spec).  Becase the STAC API specifcation is under active development there are some current differences between the STAC specification [v0.8.0](https://github.com/radiantearth/stac-spec/releases/tag/v0.8.0).
 Notable differences
 
- - Though the [search extension](https://github.com/radiantearth/stac-spec/tree/master/api-spec/extensions/search) is not currently implemented much of the same behavior can be acheived via the use of http headers.  When using the `next` and `limit` parameters, responses will contain a `Content-Range` header which shows the current range of the response.  To obtain the total number of items found the request can specify the `Prefer: count=exact` header and the full count will be available in the `Content-Range` response header. 
+ - Though the [search extension](https://github.com/radiantearth/stac-spec/tree/master/api-spec/extensions/search) is not currently implemented much of the same behavior can be acheived via the use of http headers.  When using the `next` and `limit` parameters, responses will contain a `Content-Range` header which shows the current range of the response.  To obtain the total number of items found the request can specify the `Prefer: count=exact` header and the full count will be available in the `Content-Range` response header.  Be aware that this exact count can be slow for very large tables.  For increased performance we'll soon release support for the `Prefer: count=planned` header to provide an estimated count.  Note that the accuracy of this count depends on how up-to-date are the PostgreSQL statistics tables.
 
-Be aware that this exact count can be slow for very large tables.  For increased performance utilize the `Prefer: count=planned` header.  Note that the accuracy of this count depends on how up-to-date are the PostgreSQL statistics tables.
+ - The API contains a generic `/items` endpoint which supports access to items across parent collections.  The rationale for this is tied to the insert extension described below.
+
+ - The [transaction](https://github.com/radiantearth/stac-spec/tree/master/api-spec/extensions/transaction) is not currently implemented but insert behavior using http POST is enabled for `items` and `collections`.  Authentication for insert operations is handled via the `Authorization` header with JWT tokens.  To make an authenticated request the client must include an Authorization HTTP header with the value `Bearer <jwt>`. Tokens can be generated using the `JWT_SECRET` from the `.env` file by running
+ 
+ ```shell
+ $ node generateToken.js 
+ ```
+
+    Due to permissions on the base table where records are stored the request must also set the header `Prefer: return=minimal`.
