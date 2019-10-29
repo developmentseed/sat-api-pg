@@ -95,10 +95,8 @@ if you edit a sql / conf / lua file in your project, the changes will immediatel
 
 
 ## Testing
-Conformance with the stac specification and extensions can understood by reviewing the integration tests available at `/tests/rest`.
-You can also write pgTAP tests that run directly in your database, useful for testing the logic that resides in your database (user privileges, Row Level Security, stored procedures).
-
-Here is how you run the tests
+Conformance with the [STAC API specification.](https://github.com/radiantearth/stac-spec/tree/dev/api-spec) and extensions can be understood by reviewing the integration tests available at `/tests/rest`.
+To run tests, the `docker-compose` stack must be running.
 
 ```bash
 yarn test                   # Run all tests (db, rest)
@@ -125,7 +123,7 @@ Notable differences
 
  - The [transaction](https://github.com/radiantearth/stac-spec/tree/master/api-spec/extensions/transaction) is not currently implemented but insert behavior using http POST is enabled for `items` and `collections`.  Authentication for insert operations is handled via the `Authorization` header with JWT tokens.  To make an authenticated request the client must include an Authorization HTTP header with the value `Bearer <jwt>`. Tokens can be generated using the `JWT_SECRET` from the `.env` file by running
  
- ```shell
+ ```bash
  $ node generateToken.js 
  ```
 
