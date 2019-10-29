@@ -68,7 +68,7 @@ $ docker-compose up -d
 
 The API server will become available at the following endpoint:
 
-- REST [http://localhost:8080/rest/](http://localhost:8080/rest/)
+- REST [http://localhost:8080](http://localhost:8080)
 
 Try a simple request
 ```bash
