@@ -87,6 +87,8 @@ function handleWFS(args, uri)
         -- Return object rather than array
         ngx.req.set_header("Accept", "application/vnd.pgrst.object+json")
         andQuery = "(id.eq." .. itemId .. ")"
+      else
+        ngx.req.set_header("Accept", "application/json")
       end
       local filterArgs, filterBody = filters.buildFilters(andQuery, args)
       ngx.req.set_body_data(cjson.encode(filterBody))
