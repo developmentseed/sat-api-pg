@@ -8,6 +8,7 @@ local apiPath = path_constants.apiPath
 local searchPath = path_constants.searchPath
 local itemsPath = path_constants.itemsPath
 local collectionsPath = path_constants.collectionsPath
+local conformancePath = path_constants.conformancePath
 
 function setUri(bbox, intersects, uri)
   -- Must use the search function for spatial search.
@@ -38,7 +39,6 @@ function handleRequest()
   if string.len(uri) > 1 and string.sub(uri, -1) == "/" then
     uri = string.sub(uri, 1, string.len(uri) - 1)
   end
-
   if method == 'POST' then
     ngx.req.set_header("Accept", "application/json")
     if uri == searchPath then
@@ -67,6 +67,9 @@ function handleRequest()
         ngx.req.set_body_data(cjson.encode(filterBody))
         ngx.req.set_uri_args(filterArgs)
         setUri(args.bbox, args.intersects, uri)
+      -- This uses the root path for conformance to have a valid response
+      elseif uri == conformancePath then
+        ngx.req.set_uri("root")
       end
     end
   end

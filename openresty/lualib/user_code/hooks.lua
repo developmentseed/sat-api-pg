@@ -4,6 +4,7 @@ local apiPath = path_constants.apiPath
 local searchPath = path_constants.searchPath
 local itemsPath = path_constants.itemsPath
 local collectionsPath = path_constants.collectionsPath
+local conformancePath = path_constants.conformancePath
 local ngx_re = require "ngx.re"
 
 local function on_init()
@@ -28,7 +29,7 @@ local function before_rest_response()
   if ((collections == 'collections' and items == nil) or itemId) then
   else
     if uri == apiPath then
-    elseif uri == "/conformance" then
+    elseif uri == conformancePath then
       utils.set_body_postprocess_mode(utils.postprocess_modes.ALL)
       utils.set_body_postprocess_fn(satapi.returnConformance)
     else
