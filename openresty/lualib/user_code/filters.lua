@@ -22,15 +22,14 @@ end
 
 function processListFilter(andQuery, list, key)
   local updatedAndQuery
+  local listString
   if list then
-    local listTable
     if type(list) == "table" then
-      listTable = list
+      listString = table.concat(list, ",")
     else
-      listTable = cjson.decode(list)
+      listString = list
     end
 
-    local listString = table.concat(listTable, ",")
     local listQuery = key .. ".in.(" .. listString .. ")"
     if andQuery then
       updatedAndQuery = string.sub(andQuery, 1,-2) .. "," .. listQuery .. ")"

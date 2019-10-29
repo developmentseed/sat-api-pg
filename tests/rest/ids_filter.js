@@ -23,7 +23,7 @@ describe('ids filter', function () {
     restService()
       .get(itemsPath)
       .query({
-        ids: JSON.stringify(['LC80370382019170', 'LC81392162019261'])
+        ids: 'LC80370382019170,LC81392162019261'
       })
       .expect('Content-Type', /json/)
       .expect(200, done)
@@ -36,7 +36,7 @@ describe('ids filter', function () {
     restService()
       .get(wfsItemsPath)
       .query({
-        ids: JSON.stringify(['LC80370382019170', 'LC81392162019261'])
+        ids: 'LC80370382019170,LC81392162019261'
       })
       .expect('Content-Type', /json/)
       .expect(200, done)

@@ -23,7 +23,7 @@ describe('collections filter', function () {
     restService()
       .get(itemsPath)
       .query({
-        collections: JSON.stringify(['landsat-8-l1'])
+        collections: 'landsat-8-l1'
       })
       .expect('Content-Type', /json/)
       .expect(200, done)
@@ -36,7 +36,7 @@ describe('collections filter', function () {
     restService()
       .get(wfsItemsPath)
       .query({
-        collections: JSON.stringify(['landsat-8-l1'])
+        collections: 'landsat-8-l1'
       })
       .expect('Content-Type', /json/)
       .expect(200, done)
