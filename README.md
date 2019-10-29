@@ -12,7 +12,7 @@ Built on the foundation of the excellent
 
 ## Purpose
 
-To provide the community a Postgres backed reference implementation of the [STAC API specification.](https://github.com/radiantearth/stac-spec/tree/dev/api-spec)
+To provide the community a Postgres backed reference implementation of the [STAC API specification](https://github.com/radiantearth/stac-spec/tree/dev/api-spec).
 Postgres's flexibility and ecosystem of geospatial functionality provide a great
 foundation for building spatial APIs and we hope the community can expand on this work to drive STAC development forward.
 
@@ -95,7 +95,7 @@ if you edit a sql / conf / lua file in your project, the changes will immediatel
 
 
 ## Testing
-Conformance with the [STAC API specification.](https://github.com/radiantearth/stac-spec/tree/dev/api-spec) and extensions can be understood by reviewing the integration tests available at `/tests/rest`.
+Conformance with the [STAC API specification](https://github.com/radiantearth/stac-spec/tree/dev/api-spec) and extensions can be understood by reviewing the integration tests available at `/tests/rest`.
 To run tests, the `docker-compose` stack must be running.
 
 ```bash
@@ -108,13 +108,13 @@ yar test_rest               # Run integration tests
 For AWS deployment steps see [deployment/README.md](deployment/README.md).
 
 ## Contributing
-This project was initiated as part of [Development Seed's](https://developmentseed.org/) wider work in helping to build the [STAC API specification.](https://github.com/radiantearth/stac-spec/tree/dev/api-spec)
+This project was initiated as part of [Development Seed's](https://developmentseed.org/) wider work in helping to build the [STAC API specification](https://github.com/radiantearth/stac-spec/tree/dev/api-spec)
 and open sourced to to the community to help drive contributions and new functionality.  New contributions are welcomed and you can contact
 [@sharkinsspatial](https://github.com/sharkinsspatial) or info@developmentseed.org for additional support or assistance with customization.
 Anyone and everyone is welcome to contribute.
 
 ## STAC alignment
-This API implementation closely follows the [STAC API specification.](https://github.com/radiantearth/stac-spec/tree/dev/api-spec).  Becase the STAC API specifcation is under active development there are some current differences between the STAC specification [v0.8.0](https://github.com/radiantearth/stac-spec/releases/tag/v0.8.0).  For more details on capabilities see [sat-api-pg OpenAPI Docs](http://devseed.com/sat-api-pg-swagger/).
+This API implementation closely follows the [STAC API specification](https://github.com/radiantearth/stac-spec/tree/dev/api-spec).  Becase the STAC API specifcation is under active development there are some current differences between the STAC specification [v0.8.0](https://github.com/radiantearth/stac-spec/releases/tag/v0.8.0).  For more details on capabilities see [sat-api-pg OpenAPI Docs](http://devseed.com/sat-api-pg-swagger/).
 Notable differences
 
  - Though the [search extension](https://github.com/radiantearth/stac-spec/tree/master/api-spec/extensions/search) is not currently implemented much of the same behavior can be acheived via the use of http headers.  When using the `next` and `limit` parameters, responses will contain a `Content-Range` header which shows the current range of the response.  To obtain the total number of items found the request can specify the `Prefer: count=exact` header and the full count will be available in the `Content-Range` response header.  Be aware that this exact count can be slow for very large tables.  For increased performance we will soon release support for the `Prefer: count=planned` header to provide an estimated count.  Note that the accuracy of this count depends on how up-to-date are the PostgreSQL statistics tables.
