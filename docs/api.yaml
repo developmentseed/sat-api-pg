@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: The SpatioTemporal Asset Catalog API
+  title: The sat-api-pg STAC API
   version: 0.8.0
   license:
     name: Apache License 2.0
@@ -102,13 +102,15 @@ paths:
           schema:
             type: string
           required: true
-          description: Use Bearer yourJWTtokenwithapplicationrole
+          description: A bearer JWT with an 'application' role
+          default: Bearer token
         - in: header
           name: Prefer
           schema:
             type: string
           required: true
-          description: Use return=minimal
+          description: Controls the response type from the insert
+          default: return=minimal
       requestBody:
         content:
           application/json:
@@ -402,6 +404,7 @@ components:
       required:
         - id
         - links
+        - description
       properties:
         id:
           description: 'identifier of the collection used, for example, in URIs'
