@@ -37,7 +37,7 @@ describe('bbox filter', function () {
       restService()
         .get(itemsPath)
         .query({
-          bbox: '[-180, -90, 180, 90]'
+          bbox: '-180,-90,180,90'
         })
         .expect('Content-Type', /json/)
         .expect(200, done)
@@ -51,7 +51,7 @@ describe('bbox filter', function () {
       restService()
         .get(wfsItemsPath)
         .query({
-          bbox: '[-180, -90, 180, 90]'
+          bbox: '-180,-90,180,90'
         })
         .expect('Content-Type', /json/)
         .expect(200, done)

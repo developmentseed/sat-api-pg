@@ -66,8 +66,7 @@ end
 function createFilterBody(bbox, intersects)
   local body = {}
   if type(bbox) == 'string' then
-    modifiedBbox = bbox:gsub("%[", "{")
-    modifiedBbox = modifiedBbox:gsub("%]", "}")
+    modifiedBbox = "{" .. bbox .. "}"
     body["bbox"] = modifiedBbox
   end
   if type(intersects) == 'string' then

@@ -40,7 +40,7 @@ function handleRequest()
   end
 
   if method == 'POST' then
-    print(uri)
+    ngx.req.set_header("Accept", "application/json")
     if uri == searchPath then
       if not body then
         body = "{}"
@@ -62,6 +62,7 @@ function handleRequest()
         ngx.req.set_header("Accept", "application/vnd.pgrst.object+json")
         ngx.req.set_uri("root")
       elseif uri == itemsPath then
+        ngx.req.set_header("Accept", "application/json")
         local filterArgs, filterBody = filters.buildFilters(nil, args)
         ngx.req.set_body_data(cjson.encode(filterBody))
         ngx.req.set_uri_args(filterArgs)
