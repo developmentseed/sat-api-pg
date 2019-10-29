@@ -1565,7 +1565,5 @@ components:
           schema:
             type: string
 servers:
-  - url: 'http://dev.cool-sat.com'
+  - url: 'http://localhost:8080'
     description: Development server
-  - url: 'http://www.cool-sat.com'
-    description: Production server

@@ -223,7 +223,7 @@ paths:
         '200':
           description: A feature collection.
           content:
-            application/geo+json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/itemCollection'
             text/html:
@@ -1780,7 +1780,5 @@ components:
       scheme: bearer
       bearerFormat: JWT
 servers:
-  - url: 'http://dev.cool-sat.com'
+  - url: 'http://localhost:8080'
     description: Development server
-  - url: 'http://www.cool-sat.com'
-    description: Production server
