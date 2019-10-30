@@ -1,5 +1,6 @@
 {
   "name": "sat-api-pg",
+  "version": "0.0.1",
   "dependencies": {},
   "devDependencies": {
     "babel-core": "^6.24.0",
@@ -23,7 +24,8 @@
   },
   "author": {
     "name": "Sean Harkins",
-    "url": "https://github.com/sharkinsspatial"
+    "url": "https://github.com/sharkinsspatial",
+    "email": "sean@developmentseed.org"
   },
   "license": "MIT"
 }
