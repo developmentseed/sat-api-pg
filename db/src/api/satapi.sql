@@ -45,8 +45,8 @@ SELECT
     collectionproperties,
     collection,
     id,
-    geom,
-    collectionitems.bbox,
+    c.geom,
+    c.bbox,
     type,
     assets,
     geometry,
@@ -60,10 +60,10 @@ SELECT
     datetime,
     links,
     stac_version
-    FROM api.collectionitems, g
+    FROM api.collectionitems c, g
     WHERE (
       g.geom IS NULL OR 
-      data.ST_Intersects(g.geom, intersects
+      data.ST_Intersects(g.geom, c.geom)
     );
 $$ LANGUAGE SQL IMMUTABLE;
 

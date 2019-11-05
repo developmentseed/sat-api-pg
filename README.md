@@ -101,7 +101,7 @@ To run tests, the `docker-compose` stack must be running.
 ```bash
 yarn test                   # Run all tests (db, rest)
 yarn test_db                # Run pgTAP tests
-yar test_rest               # Run integration tests
+yarn test_rest               # Run integration tests
 ```
 
 ## Deployment
