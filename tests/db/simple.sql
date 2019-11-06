@@ -1,5 +1,5 @@
 begin;
-select * from no_plan();
+select * from plan(3);
 
 select has_schema('information_schema');
 
