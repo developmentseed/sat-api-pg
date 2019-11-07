@@ -17,6 +17,7 @@ grant select, insert, update on data.collections to api;
 grant select, insert, update on data.collectionsLinks to api;
 grant select, insert, update on data.itemsLinks to api;
 grant select on data.rootLinks to api;
+grant select on data.stacLinks to api;
 
 -- Anonymous can view collection items
 grant select on api.collectionitems to anonymous;

@@ -112,4 +112,4 @@ ALTER VIEW root owner to api;
 
 CREATE OR REPLACE VIEW stac AS
   SELECT * FROM data.stacLinks;
-ALTER VIEW root owner to api;
+ALTER VIEW stac owner to api;
