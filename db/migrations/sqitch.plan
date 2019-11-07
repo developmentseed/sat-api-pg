@@ -3,3 +3,4 @@
 
 20191021172721-initial 2019-10-21T17:27:35Z root <root@linuxkit-025000000001> # Add 20191021172721-initial migration
 20191107093406-stacendpoint 2019-11-07T09:34:07Z root <root@linuxkit-025000000001> # Add stac endpoint
+20191107214618-rootcollection 2019-11-07T21:46:19Z root <root@linuxkit-025000000001> # Add root level collections shape
