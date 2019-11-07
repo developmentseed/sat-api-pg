@@ -6,16 +6,6 @@ describe('wfs endpoints', function () {
   before(function (done) { resetdb(); done(); });
   after(function (done) { resetdb(); done(); });
 
-  it('Returns collections as an array', function (done) {
-    restService()
-      .get(collectionsPath)
-      .expect('Content-Type', /json/)
-      .expect(200, done)
-      .expect(r => {
-        r.body.length.should.equal(1);
-      });
-  });
-
   it('Returns specific collection as object', function (done) {
     restService()
       .get(`${collectionsPath}/landsat-8-l1`)

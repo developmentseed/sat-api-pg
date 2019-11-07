@@ -236,6 +236,21 @@ CREATE OR REPLACE FUNCTION convert_collection_links()
   $BODY$
   LANGUAGE plpgsql;
 
+CREATE OR REPLACE VIEW collectionsobject AS
+  SELECT
+  (SELECT ARRAY(
+      SELECT
+      ROW((SELECT url || '/collections/' || data.collectionsLinks.id FROM data.apiUrls LIMIT 1),
+      'child',
+      'application/json',
+      null)::data.linkobject
+      FROM data.collectionsLinks)
+  ) as links,
+  (SELECT ARRAY(
+    SELECT row_to_json(collection) 
+    FROM (SELECT * FROM data.collectionsLinks) collection
+  )) as collections;
+
 CREATE TRIGGER convert_collection_links INSTEAD OF INSERT
   ON data.collectionsLinks FOR EACH ROW
   EXECUTE PROCEDURE data.convert_collection_links();

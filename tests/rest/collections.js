@@ -1,3 +1,4 @@
+import should from 'should'; // eslint-disable-line no-unused-vars
 import { restService, resetdb } from './common';
 import { collectionsPath } from './constants';
 import landsat8l2Collection from './landsat8l2Collection.json';
@@ -50,16 +51,16 @@ describe('collections', function () {
       .expect('Content-Type', /json/)
       .expect(200, done)
       .expect(r => {
-        r.body[0].links.length.should.equal(2);
-        r.body[0].links.should.containDeep([{
-          rel: 'root',
+        r.body.collections[0].links.length.should.equal(2);
+        r.body.collections[0].links.should.containDeep([{
           href: `${proxy}collections/landsat-8-l1`,
+          rel: 'self',
           type: 'application/json',
           title: null
         },
         {
-          rel: 'self',
           href: `${proxy}collections/landsat-8-l1`,
+          rel: 'root',
           type: 'application/json',
           title: null
         }]);
@@ -79,22 +80,22 @@ describe('collections', function () {
           .expect('Content-Type', /json/)
           .expect(200, done)
           .expect(r => {
-            r.body[1].links.length.should.equal(3);
-            r.body[1].links.should.containDeep([{
-              rel: 'root',
+            r.body.collections[1].links.length.should.equal(3);
+            r.body.collections[1].links.should.containDeep([{
               href: `${proxy}collections/landsat-8-l2`,
-              type: 'application/json',
-              title: null
-            },
-            {
               rel: 'self',
-              href: `${proxy}collections/landsat-8-l2`,
               type: 'application/json',
               title: null
             },
             {
-              rel: 'derived_from',
+              href: `${proxy}collections/landsat-8-l2`,
+              rel: 'root',
+              type: 'application/json',
+              title: null
+            },
+            {
               href: 'derived',
+              rel: 'derived_from',
               type: null,
               title: null
             }]);

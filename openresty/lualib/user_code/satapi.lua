@@ -10,20 +10,24 @@ local itemsPath = path_constants.itemsPath
 local collectionsPath = path_constants.collectionsPath
 local conformancePath = path_constants.conformancePath
 local stacPath = path_constants.stacPath
+local pg_searchPath = path_constants.pg_searchPath
+local pg_searchNoGeomPath = path_constants.pg_searchNoGeomPath
+local pg_root = path_constants.pg_root
+local pg_rootcollections = path_constants.pg_rootcollections
 
 function setUri(bbox, intersects, uri)
   -- Must use the search function for spatial search.
   if bbox or intersects then
-    ngx.req.set_uri("/rpc/search")
+    ngx.req.set_uri(pg_searchPath)
     ngx.req.set_method(ngx.HTTP_POST)
   else
     -- If using the search endpoint there is the potential for collection queries
     -- and filters so the searchnogeom function is required.
     if uri == searchPath then
-      ngx.req.set_uri("/rpc/searchnogeom")
+      ngx.req.set_uri(pg_searchNoGeomPath)
       ngx.req.set_method(ngx.HTTP_POST)
     else
-      ngx.req.set_uri("/items")
+      ngx.req.set_uri(itemsPath)
     end
     -- If not we can pass all the traffic down to the raw PostgREST items endpoint.
   end
@@ -40,7 +44,6 @@ function handleRequest()
   if string.len(uri) > 1 and string.sub(uri, -1) == "/" then
     uri = string.sub(uri, 1, string.len(uri) - 1)
   end
-  print(uri)
   if method == 'POST' then
     ngx.req.set_header("Accept", "application/json")
     if uri == searchPath then
@@ -62,7 +65,7 @@ function handleRequest()
     else
       if uri == apiPath then
         ngx.req.set_header("Accept", "application/vnd.pgrst.object+json")
-        ngx.req.set_uri("root")
+        ngx.req.set_uri(pg_root)
       elseif uri == itemsPath then
         ngx.req.set_header("Accept", "application/json")
         local filterArgs, filterBody = filters.buildFilters(nil, args)
@@ -71,10 +74,10 @@ function handleRequest()
         setUri(args.bbox, args.intersects, uri)
       -- This uses the root path for conformance to have a valid response
       elseif uri == conformancePath then
-        ngx.req.set_uri("root")
+        ngx.req.set_uri(pg_root)
       elseif uri == stacPath then
         ngx.req.set_header("Accept", "application/vnd.pgrst.object+json")
-        ngx.req.set_uri("stac")
+        ngx.req.set_uri(stacPath)
       end
     end
   end
@@ -112,11 +115,12 @@ function handleWFS(args, uri)
       -- Return object rather than array
       ngx.req.set_header("Accept", "application/vnd.pgrst.object+json")
       ngx.req.set_uri_args(uriArgs)
-      ngx.req.set_uri("collections")
+      ngx.req.set_uri(collectionsPath)
     end
   else
     -- Handle trailing slashes
-    ngx.req.set_uri("collections")
+    ngx.req.set_header("Accept", "application/vnd.pgrst.object+json")
+    ngx.req.set_uri(pg_rootcollections)
   end
 end
 

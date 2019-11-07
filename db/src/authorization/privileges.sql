@@ -18,6 +18,7 @@ grant select, insert, update on data.collectionsLinks to api;
 grant select, insert, update on data.itemsLinks to api;
 grant select on data.rootLinks to api;
 grant select on data.stacLinks to api;
+grant select on data.collectionsobject to api;
 
 -- Anonymous can view collection items
 grant select on api.collectionitems to anonymous;
@@ -26,12 +27,13 @@ grant select on data.items to anonymous;
 grant select on api.collections to anonymous;
 grant select on api.root to anonymous;
 grant select on api.stac to anonymous;
+grant select on api.rootcollections to anonymous;
 
 -- Application can insert items with transformed geojson
 grant select, insert, update on data.collections to application;
 grant select, insert, update on data.collectionsLinks to application;
-grant select, insert, update on data.itemsLinks to application;
 grant select, insert, update on api.collections to application;
+grant select, insert, update on data.itemsLinks to application;
 grant select, insert, update on data.items to application;
 grant select, insert, update on api.items to application;
 grant select, insert, update on data.items_string_geometry to application;
