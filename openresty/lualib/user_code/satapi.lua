@@ -9,6 +9,7 @@ local searchPath = path_constants.searchPath
 local itemsPath = path_constants.itemsPath
 local collectionsPath = path_constants.collectionsPath
 local conformancePath = path_constants.conformancePath
+local stacPath = path_constants.stacPath
 
 function setUri(bbox, intersects, uri)
   -- Must use the search function for spatial search.
@@ -39,6 +40,7 @@ function handleRequest()
   if string.len(uri) > 1 and string.sub(uri, -1) == "/" then
     uri = string.sub(uri, 1, string.len(uri) - 1)
   end
+  print(uri)
   if method == 'POST' then
     ngx.req.set_header("Accept", "application/json")
     if uri == searchPath then
@@ -70,6 +72,9 @@ function handleRequest()
       -- This uses the root path for conformance to have a valid response
       elseif uri == conformancePath then
         ngx.req.set_uri("root")
+      elseif uri == stacPath then
+        ngx.req.set_header("Accept", "application/vnd.pgrst.object+json")
+        ngx.req.set_uri("stac")
       end
     end
   end

@@ -24,6 +24,7 @@ grant select on api.items to anonymous;
 grant select on data.items to anonymous;
 grant select on api.collections to anonymous;
 grant select on api.root to anonymous;
+grant select on api.stac to anonymous;
 
 -- Application can insert items with transformed geojson
 grant select, insert, update on data.collections to application;

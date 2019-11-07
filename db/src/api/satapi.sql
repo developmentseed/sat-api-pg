@@ -109,3 +109,7 @@ ALTER VIEW collections owner to api;
 CREATE OR REPLACE VIEW root AS
   SELECT * FROM data.rootLinks;
 ALTER VIEW root owner to api;
+
+CREATE OR REPLACE VIEW stac AS
+  SELECT * FROM data.stacLinks;
+ALTER VIEW root owner to api;
