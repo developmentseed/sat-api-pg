@@ -22,6 +22,7 @@ CREATE OR REPLACE FUNCTION search(
   bbox numeric[] default NULL,
   intersects json default NULL,
   include text[] default NULL,
+  sort text default 'ORDER BY c.datetime',
   next text default '0',
   lim int default 50
 ) RETURNS setof api.collectionitems AS $$
@@ -73,6 +74,8 @@ RETURN QUERY EXECUTE
     )'
 ||
 COALESCE(andQuery, '')
+||
+' ' || sort
 || ';'
 USING bbox, intersects, include;
 END;

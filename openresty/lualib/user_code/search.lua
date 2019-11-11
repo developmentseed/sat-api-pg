@@ -3,7 +3,6 @@ require "extensions.fieldsExtension"
 require "extensions.queryExtension"
 require "extensions.sortExtension"
 require "datetimeBuilder"
--- local filters = require "filters"
 local defaultFields = require "defaultFields"
 local limit_constants = require "limit_constants"
 
@@ -24,31 +23,10 @@ function processSearchQuery(query, datetime)
   if updatedAndQuery then
     updatedAndQuery = " AND " .. updatedAndQuery
   end
-  print(updatedAndQuery)
   return updatedAndQuery
 end
 
--- function createSearchArgs(andQuery, sort, next, limit, fields)
-  -- local defaultSelect = table.concat(defaultFields.items, ",")
-  -- local searchArgs = {}
-  -- searchArgs["select"] = defaultSelect
-  -- if fields then
-    -- local selectFields, includeTable = fieldsExtension.buildFieldsObject(fields, query)
-    -- searchArgs["select"] = selectFields
-  -- end
-  -- if next and limit then
-    -- searchArgs["offset"] = next
-    -- searchArgs["limit"] = limit
-  -- else
-    -- searchArgs["offset"] = limit_constants.offset
-    -- searchArgs["limit"] = limit_constants.limit
-  -- end
-  -- local order = sortExtension.buildSortString(sort)
-  -- searchArgs["order"] = order
-  -- return searchArgs
--- end
-
-function createSearchBody(fields, bbox, intersects, andQuery)
+function createSearchBody(fields, bbox, intersects, andQuery, sort)
   local body = {}
   local searchArgs = {}
   if next and limit then
@@ -74,6 +52,7 @@ function createSearchBody(fields, bbox, intersects, andQuery)
   if andQuery then
     body["andquery"] = andQuery
   end
+  body["sort"] = sort
   return body
 end
 
@@ -81,7 +60,8 @@ function buildSearch(json) local andQuery = processSearchQuery(json.query, json.
   -- andQuery = filters.processListFilter(andQuery, json.ids, "id")
   -- andQuery = filters.processListFilter(andQuery, json.collections, "collection")
   -- local searchArgs = createSearchArgs(andQuery, json.sort, json.next, json.limit, json.fields)
-  local searchBody = createSearchBody(json.fields, json.bbox, json.intersects, andQuery)
+  local sort = sortExtension.buildSortSQL(json.sort)
+  local searchBody = createSearchBody(json.fields, json.bbox, json.intersects, andQuery, sort)
   -- return searchArgs, searchBody
   return searchBody
 end
