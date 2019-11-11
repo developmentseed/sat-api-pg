@@ -16,7 +16,7 @@ function buildQueryString(query)
   for key, keyValue in pairs(query) do
     for operator, operatorValue in pairs(keyValue) do
       local castType = ""
-      if type(keyValue[operator]) != "string" then
+      if type(keyValue[operator]) ~= "string" then
         castType = "::numeric"
       end
       if (operator == 'in') then

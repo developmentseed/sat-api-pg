@@ -11,7 +11,6 @@ function processSearchQuery(query, datetime)
   local updatedAndQuery
   if query then
     updatedAndQuery = queryExtension.buildQueryString(query)
-    print(updatedAndQuery)
     if datetime then
       local dateString = datetimeBuilder.buildDatetimeSQL(datetime)
       updatedAndQuery = updatedAndQuery  .. " AND " .. dateString
@@ -25,6 +24,7 @@ function processSearchQuery(query, datetime)
   if updatedAndQuery then
     updatedAndQuery = " AND " .. updatedAndQuery
   end
+  print(updatedAndQuery)
   return updatedAndQuery
 end
 
@@ -50,6 +50,7 @@ end
 
 function createSearchBody(fields, bbox, intersects, andQuery)
   local body = {}
+  local searchArgs = {}
   if next and limit then
     body["next"] = next
     body["lim"] = limit
@@ -59,10 +60,10 @@ function createSearchBody(fields, bbox, intersects, andQuery)
   end
   if fields then
     local selectFields, includeTable = fieldsExtension.buildFieldsObject(fields, query)
-    body["selectfields"] = selectFields
     body["include"] = includeTable
+    searchArgs["select"] = selectFields
   else
-    body["selectfields"] = defaultSelect
+    searchArgs["select"] = defaultSelect
   end
   if bbox then
     body["bbox"] = bbox
