@@ -1,4 +1,5 @@
 module("pg_constants", package.seeall)
 local pg_constants = {}
-pg_constants.datetime = "c.datetime"
+local collectionitems = "c"
+pg_constants.datetime = collectionitems .. "." .. "datetime"
 return pg_constants
