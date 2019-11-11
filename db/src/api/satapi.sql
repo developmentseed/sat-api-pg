@@ -76,6 +76,10 @@ RETURN QUERY EXECUTE
 COALESCE(andQuery, '')
 ||
 ' ' || sort
+||
+' LIMIT ' || lim
+||
+' OFFSET ' || next
 || ';'
 USING bbox, intersects, include;
 END;

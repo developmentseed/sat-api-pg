@@ -26,10 +26,12 @@ function processSearchQuery(query, datetime)
   return updatedAndQuery
 end
 
-function createSearch(fields, bbox, intersects, andQuery, sort)
+function createSearch(fields, bbox, intersects, next, limit, andQuery, sort)
   local body = {}
   local searchArgs = {}
   if next and limit then
+    print(next)
+    print(limit)
     body["next"] = next
     body["lim"] = limit
   else
@@ -38,7 +40,6 @@ function createSearch(fields, bbox, intersects, andQuery, sort)
   end
   if fields then
     local selectFields, includeTable = fieldsExtension.buildFieldsObject(fields, query)
-    print(selectFields)
     body["include"] = includeTable
     searchArgs["select"] = selectFields
   else
@@ -62,6 +63,6 @@ function buildSearch(json) local andQuery = processSearchQuery(json.query, json.
   -- andQuery = filters.processListFilter(andQuery, json.collections, "collection")
   -- local searchArgs = createSearchArgs(andQuery, json.sort, json.next, json.limit, json.fields)
   local sort = sortExtension.buildSortSQL(json.sort)
-  local searchBody, searchArgs = createSearch(json.fields, json.bbox, json.intersects, andQuery, sort)
+  local searchBody, searchArgs = createSearch(json.fields, json.bbox, json.intersects, json.next, json.limit, andQuery, sort)
   return searchBody, searchArgs
 end
