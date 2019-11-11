@@ -18,7 +18,7 @@ CREATE OR REPLACE VIEW collectionitems AS
 ALTER VIEW collectionitems owner to api;
 
 CREATE OR REPLACE FUNCTION search(
-  andQuery text default NULL,
+  andquery text default NULL,
   bbox numeric[] default NULL,
   intersects json default NULL,
   include text[] default NULL,
@@ -45,8 +45,9 @@ RETURN QUERY EXECUTE
     ELSE 
       NULL
     END AS geom
-)
-SELECT
+)'
+|| 
+' SELECT
     collectionproperties,
     collection,
     id,
@@ -69,8 +70,11 @@ SELECT
     WHERE (
       g.geom IS NULL OR 
       data.ST_Intersects(g.geom, c.geom)
-    );'
-    USING bbox, intersects, include;
+    )'
+||
+COALESCE(andQuery, '')
+|| ';'
+USING bbox, intersects, include;
 END;
 $$ LANGUAGE PLPGSQL IMMUTABLE;
 

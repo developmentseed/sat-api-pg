@@ -24,7 +24,8 @@ function setUri(bbox, intersects, uri)
     -- If using the search endpoint there is the potential for collection queries
     -- and filters so the searchnogeom function is required.
     if uri == searchPath then
-      ngx.req.set_uri(pg_searchNoGeomPath)
+      ngx.req.set_uri(pg_searchPath)
+      -- ngx.req.set_uri(pg_searchNoGeomPath)
       ngx.req.set_method(ngx.HTTP_POST)
     else
       ngx.req.set_uri(itemsPath)

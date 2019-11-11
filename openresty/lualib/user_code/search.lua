@@ -11,6 +11,7 @@ function processSearchQuery(query, datetime)
   local updatedAndQuery
   if query then
     updatedAndQuery = queryExtension.buildQueryString(query)
+    print(updatedAndQuery)
     if datetime then
       local dateString = datetimeBuilder.buildDatetimeSQL(datetime)
       updatedAndQuery = updatedAndQuery  .. " AND " .. dateString
@@ -20,6 +21,9 @@ function processSearchQuery(query, datetime)
     if datetime then
       updatedAndQuery = datetimeBuilder.buildDatetimeSQL(datetime)
     end
+  end
+  if updatedAndQuery then
+    updatedAndQuery = " AND " .. updatedAndQuery
   end
   return updatedAndQuery
 end
@@ -55,19 +59,24 @@ function createSearchBody(fields, bbox, intersects, andQuery)
   end
   if fields then
     local selectFields, includeTable = fieldsExtension.buildFieldsObject(fields, query)
-    body["select"] = selectFields
+    body["selectfields"] = selectFields
     body["include"] = includeTable
   else
-    body["select"] = defaultSelect
+    body["selectfields"] = defaultSelect
   end
-  body["bbox"] = bbox
-  body["intersects"] = intersects
-  body["andQuery"] = andQuery
+  if bbox then
+    body["bbox"] = bbox
+  end
+  if intersects then
+    body["intersects"] = intersects
+  end
+  if andQuery then
+    body["andquery"] = andQuery
+  end
   return body
 end
 
-function buildSearch(json)
-  local andQuery = processSearchQuery(json.query, json.datetime)
+function buildSearch(json) local andQuery = processSearchQuery(json.query, json.datetime)
   -- andQuery = filters.processListFilter(andQuery, json.ids, "id")
   -- andQuery = filters.processListFilter(andQuery, json.collections, "collection")
   -- local searchArgs = createSearchArgs(andQuery, json.sort, json.next, json.limit, json.fields)
