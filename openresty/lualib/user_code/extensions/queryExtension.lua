@@ -1,4 +1,6 @@
 module("queryExtension", package.seeall)
+require "string_utils"
+wrapSingleQuote = string_utils.wrapSingleQuote
 local stacOperators = {}
 stacOperators["eq"] = "="
 stacOperators["gt"] = ">"
@@ -12,18 +14,18 @@ function buildQueryString(query)
   local logicalAndTable = {}
   local propertiesAccessor = "properties->>"
   local collectionPropertiesAccessor = "collectionproperties->>"
-  local filter = ''
+  local filter = ""
   for key, keyValue in pairs(query) do
     for operator, operatorValue in pairs(keyValue) do
       local castType = ""
       if type(keyValue[operator]) ~= "string" then
         castType = "::numeric"
       end
-      if (operator == 'in') then
-        local invalues = '('
+      if (operator == "in") then
+        local invalues = "("
         local containsStrings
         for _, initem in ipairs(keyValue[operator]) do
-          invalues = invalues .. initem .. ','
+          invalues = invalues .. initem .. ","
           if type(initem) == "string" then
             containsStrings = true
           end
@@ -31,10 +33,12 @@ function buildQueryString(query)
         if string.sub(invalues, -1) == "," then
           invalues = string.sub(invalues, 1, string.len(invalues) - 1)
         end
-        invalues = invalues .. ')'
-        filter = "'" .. key .. "'" .. ')' .. castType .. " " .. stacOperators[operator] .. " " .. invalues
+        invalues = invalues .. ")"
+        filter = wrapSingleQuote(key) .. ")" .. castType .. " " ..
+         stacOperators[operator] .. " " .. invalues
       else
-        filter = "'" .. key .. "'" .. ')' .. castType .. " " .. stacOperators[operator] .. " " .. keyValue[operator]
+        filter = wrapSingleQuote(key) .. ")" .. castType .. " " ..
+        stacOperators[operator] .. " " .. keyValue[operator]
       end
       local propertyFilter = "(" .. propertiesAccessor .. filter
       local collectionPropertyFilter = "(" .. collectionPropertiesAccessor .. filter
