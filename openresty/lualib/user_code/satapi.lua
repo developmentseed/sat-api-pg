@@ -52,8 +52,9 @@ function handleRequest()
         body = "{}"
       end
       local bodyJson = cjson.decode(body)
-      local searchBody = search.buildSearch(bodyJson)
+      local searchBody, searchArgs = search.buildSearch(bodyJson)
       ngx.req.set_body_data(cjson.encode(searchBody))
+      ngx.req.set_uri_args(searchArgs)
       setUri(bodyJson.bbox, bodyJson.intersects, uri)
     end
   elseif method == 'GET' then
