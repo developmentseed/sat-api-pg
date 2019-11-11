@@ -10,3 +10,14 @@ function buildDatetime(datetime)
   end
   return dateString
 end
+
+function buildDatetimeSQL(datetime)
+  local dateString
+  local startdate, enddate = string.match(datetime, "(.*)/(.*)")
+  if startdate and enddate then
+    dateString = "datetime >= " .. startdate .. " AND " .. "datetime <= " .. enddate
+  else
+    dateString = "datetime = " .. datetime
+  end
+  return dateString
+end

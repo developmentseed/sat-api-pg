@@ -18,23 +18,28 @@ CREATE OR REPLACE VIEW collectionitems AS
 ALTER VIEW collectionitems owner to api;
 
 CREATE OR REPLACE FUNCTION search(
-  bbox numeric[] = NULL,
-  intersects json = NULL,
-  include text[] = NULL
+  andQuery text default NULL,
+  bbox numeric[] default NULL,
+  intersects json default NULL,
+  include text[] default NULL,
+  next text default '0',
+  lim int default 50
 ) RETURNS setof api.collectionitems AS $$
-WITH g AS (
+BEGIN
+RETURN QUERY EXECUTE
+'WITH g AS (
   SELECT CASE
-  WHEN bbox IS NOT NULL THEN
+  WHEN $1 IS NOT NULL THEN
       data.ST_MakeEnvelope(
-        bbox[1],
-        bbox[2],
-        bbox[3],
-        bbox[4],
+        $1[1],
+        $1[2],
+        $1[3],
+        $1[4],
         4326
       )
-    WHEN intersects IS NOT NULL THEN
+    WHEN $2 IS NOT NULL THEN
       data.st_SetSRID(
-        data.ST_GeomFromGeoJSON(intersects),
+        data.ST_GeomFromGeoJSON($2),
         4326
       )
     ELSE 
@@ -50,11 +55,11 @@ SELECT
     type,
     assets,
     geometry,
-    CASE WHEN include IS NULL THEN properties
+    CASE WHEN $3 IS NULL THEN properties
     ELSE (
       SELECT jsonb_object_agg(e.key, e.value)
       FROM jsonb_each(properties) e
-      WHERE e.key = ANY (include)
+      WHERE e.key = ANY ($3)
     )
     END as properties,
     datetime,
@@ -64,16 +69,10 @@ SELECT
     WHERE (
       g.geom IS NULL OR 
       data.ST_Intersects(g.geom, c.geom)
-    );
-$$ LANGUAGE SQL IMMUTABLE;
-
-CREATE FUNCTION searchnogeom(
-  include TEXT[] = NULL
-)
-RETURNS setof api.collectionitems
-AS $$
-SELECT * FROM search(NULL, NULL, include);
-$$ LANGUAGE SQL IMMUTABLE;
+    );'
+    USING bbox, intersects, include;
+END;
+$$ LANGUAGE PLPGSQL IMMUTABLE;
 
 CREATE OR REPLACE VIEW items AS
   SELECT * FROM data.items_string_geometry;

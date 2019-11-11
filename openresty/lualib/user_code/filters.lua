@@ -1,5 +1,4 @@
 module("filters", package.seeall)
-require "extensions.queryExtension"
 require "extensions.sortExtension"
 require "datetimeBuilder"
 local defaultFields = require "defaultFields"
