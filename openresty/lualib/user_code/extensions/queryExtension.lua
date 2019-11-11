@@ -18,16 +18,20 @@ function buildQueryString(query)
   for key, keyValue in pairs(query) do
     for operator, operatorValue in pairs(keyValue) do
       local castType = ""
+      local sqlValue
       if type(keyValue[operator]) ~= "string" then
         castType = "::numeric"
+        sqlValue = keyValue[operator]
+      else
+        sqlValue = wrapSingleQuote(keyValue[operator])
       end
       if (operator == "in") then
         local invalues = "("
-        local containsStrings
         for _, initem in ipairs(keyValue[operator]) do
-          invalues = invalues .. initem .. ","
           if type(initem) == "string" then
-            containsStrings = true
+            invalues = invalues .. wrapSingleQuote(initem) .. ","
+          else
+            invalues = invalues .. initem .. ","
           end
         end
         if string.sub(invalues, -1) == "," then
@@ -38,7 +42,7 @@ function buildQueryString(query)
          stacOperators[operator] .. " " .. invalues
       else
         filter = wrapSingleQuote(key) .. ")" .. castType .. " " ..
-        stacOperators[operator] .. " " .. keyValue[operator]
+        stacOperators[operator] .. " " .. sqlValue
       end
       local propertyFilter = "(" .. propertiesAccessor .. filter
       local collectionPropertyFilter = "(" .. collectionPropertiesAccessor .. filter
