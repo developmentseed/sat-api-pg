@@ -29,8 +29,7 @@ end
 function createSearch(fields, bbox, intersects, next, limit, andQuery, sort)
   local body = {}
   local searchArgs = {}
-  -- local defaultSelect = table.concat(defaultFields.items, ",")
-  local defaultSelect = nil
+  local defaultSelect = table.concat(defaultFields.items, ",")
   if next and limit then
     body["next"] = next
     body["lim"] = limit
@@ -46,10 +45,21 @@ function createSearch(fields, bbox, intersects, next, limit, andQuery, sort)
     searchArgs["select"] = defaultSelect
   end
   if bbox then
-    body["bbox"] = bbox
+    if type(bbox) == 'string' then
+      modifiedBbox = "{" .. bbox .. "}"
+      body["bbox"] = modifiedBbox
+    else
+      body["bbox"] = bbox
+    end
   end
   if intersects then
-    body["intersects"] = intersects
+    if type(intersects) == 'string' then
+      print(intersects)
+      local intersectsTable = cjson.decode(intersects)
+      body["intersects"] = intersectsTable
+    else
+      body["intersects"] = intersects
+    end
   end
   if andQuery then
     body["andquery"] = andQuery
@@ -58,7 +68,8 @@ function createSearch(fields, bbox, intersects, next, limit, andQuery, sort)
   return body, searchArgs
 end
 
-function buildSearch(json) local andQuery = processSearchQuery(json.query, json.datetime)
+function buildSearch(json)
+  local andQuery = processSearchQuery(json.query, json.datetime)
   -- andQuery = filters.processListFilter(andQuery, json.ids, "id")
   -- andQuery = filters.processListFilter(andQuery, json.collections, "collection")
   -- local searchArgs = createSearchArgs(andQuery, json.sort, json.next, json.limit, json.fields)

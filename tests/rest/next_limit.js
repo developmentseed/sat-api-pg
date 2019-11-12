@@ -57,6 +57,11 @@ describe('next and limit filters', function () {
       restService()
         .post(searchPath)
         .send({
+          query: {
+            'eo:cloud_cover': {
+              lt: 100
+            }
+          },
           next: 0,
           limit: 2
         })

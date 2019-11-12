@@ -15,22 +15,32 @@ local pg_searchNoGeomPath = path_constants.pg_searchNoGeomPath
 local pg_root = path_constants.pg_root
 local pg_rootcollections = path_constants.pg_rootcollections
 
-function setUri(bbox, intersects, uri)
-  -- Must use the search function for spatial search.
-  if bbox or intersects then
+function setUri(bodyJson, args, andQuery)
+  -- The search function is needed for these operations
+  if bodyJson and (bodyJson.bbox or bodyJson.intersects or bodyJson.fields or bodyJson.query) then
+    local searchBody, searchArgs = search.buildSearch(bodyJson)
+    ngx.req.set_body_data(cjson.encode(searchBody))
+    ngx.req.set_uri_args(searchArgs)
     ngx.req.set_uri(pg_searchPath)
     ngx.req.set_method(ngx.HTTP_POST)
+  -- The search function is needed for spatial operations
+  elseif args and (args.bbox or args.intersects) then
+    local searchBody, searchArgs = search.buildSearch(args)
+    ngx.req.set_body_data(cjson.encode(searchBody))
+    ngx.req.set_uri_args(searchArgs)
+    ngx.req.set_uri(pg_searchPath)
+    ngx.req.set_method(ngx.HTTP_POST)
+  -- If not we can pass all the traffic down to the raw PostgREST items endpoint.
   else
-    -- If using the search endpoint there is the potential for collection queries
-    -- and filters so the searchnogeom function is required.
-    if uri == searchPath then
-      ngx.req.set_uri(pg_searchPath)
-      -- ngx.req.set_uri(pg_searchNoGeomPath)
-      ngx.req.set_method(ngx.HTTP_POST)
-    else
-      ngx.req.set_uri(itemsPath)
+    -- Use the POST body as the args table
+    if args == nil and bodyJson then
+      args = bodyJson
     end
-    -- If not we can pass all the traffic down to the raw PostgREST items endpoint.
+    local filterArgs, filterBody = filters.buildFilters(andQuery, args)
+    ngx.req.set_body_data(cjson.encode(filterBody))
+    ngx.req.set_uri_args(filterArgs)
+    ngx.req.set_uri(itemsPath)
+    ngx.req.set_method(ngx.HTTP_GET)
   end
 end
 
@@ -52,10 +62,7 @@ function handleRequest()
         body = "{}"
       end
       local bodyJson = cjson.decode(body)
-      local searchBody, searchArgs = search.buildSearch(bodyJson)
-      ngx.req.set_body_data(cjson.encode(searchBody))
-      ngx.req.set_uri_args(searchArgs)
-      setUri(bodyJson.bbox, bodyJson.intersects, uri)
+      setUri(bodyJson)
     end
   elseif method == 'GET' then
     local collections = string.find(uri, collectionsPath)
@@ -68,10 +75,7 @@ function handleRequest()
         ngx.req.set_uri(pg_root)
       elseif uri == itemsPath then
         ngx.req.set_header("Accept", "application/json")
-        local filterArgs, filterBody = filters.buildFilters(nil, args)
-        ngx.req.set_body_data(cjson.encode(filterBody))
-        ngx.req.set_uri_args(filterArgs)
-        setUri(args.bbox, args.intersects, uri)
+        setUri(nil, args)
       -- This uses the root path for conformance to have a valid response
       elseif uri == conformancePath then
         ngx.req.set_uri(pg_root)
@@ -101,10 +105,7 @@ function handleWFS(args, uri)
       else
         ngx.req.set_header("Accept", "application/json")
       end
-      local filterArgs, filterBody = filters.buildFilters(andQuery, args)
-      ngx.req.set_body_data(cjson.encode(filterBody))
-      ngx.req.set_uri_args(filterArgs)
-      setUri(args.bbox, args.intersects, uri)
+      setUri(nil, args, andQuery)
     else
       idQuery = "eq." .. collectionId
       local defaultCollectionSelect = table.concat(defaultFields.collections, ",")
