@@ -70,9 +70,6 @@ end
 
 function buildSearch(json)
   local andQuery = processSearchQuery(json.query, json.datetime)
-  -- andQuery = filters.processListFilter(andQuery, json.ids, "id")
-  -- andQuery = filters.processListFilter(andQuery, json.collections, "collection")
-  -- local searchArgs = createSearchArgs(andQuery, json.sort, json.next, json.limit, json.fields)
   local sort = sortExtension.buildSortSQL(json.sort)
   local searchBody, searchArgs = createSearch(json.fields, json.bbox, json.intersects, json.next, json.limit, andQuery, sort)
   return searchBody, searchArgs
