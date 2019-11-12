@@ -36,7 +36,7 @@ function setUri(bodyJson, args, andQuery)
     if args == nil and bodyJson then
       args = bodyJson
     end
-    local filterArgs, filterBody = filters.buildFilters(andQuery, args)
+    local filterArgs = filters.buildFilters(andQuery, args)
     ngx.req.set_body_data(cjson.encode(filterBody))
     ngx.req.set_uri_args(filterArgs)
     ngx.req.set_uri(itemsPath)
