@@ -8,6 +8,11 @@ if type(hooks.before_rest_response) == 'function' then
     if (uri == searchPath or uri == itemsPath) then
       ngx.header.content_type = "application/geo+json"
     end
+    local headers = ngx.resp.get_headers()
+    if headers["Func-Range"] then
+      ngx.header.content_range = headers["Func-Range"]
+      ngx.header["Func-Range"] = nil
+    end
   end
 	hooks.before_rest_response()
 end

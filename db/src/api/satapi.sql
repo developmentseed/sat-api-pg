@@ -18,15 +18,20 @@ CREATE OR REPLACE VIEW collectionitems AS
 ALTER VIEW collectionitems owner to api;
 
 CREATE OR REPLACE FUNCTION search(
-  andquery text default NULL,
   bbox numeric[] default NULL,
   intersects json default NULL,
   include text[] default NULL,
+  header text default '',
+  andquery text default NULL,
   sort text default 'ORDER BY c.datetime',
-  next text default '0',
-  lim int default 50
+  lim int default 50,
+  next text default '0'
 ) RETURNS setof api.collectionitems AS $$
+DECLARE
+  res_headers text;
+  prefer text;
 BEGIN
+ --  prefer := current_setting('request.header.prefer');
 RETURN QUERY EXECUTE
 'WITH g AS (
   SELECT CASE
@@ -46,7 +51,8 @@ RETURN QUERY EXECUTE
     ELSE 
       NULL
     END AS geom
-)'
+)
+'
 || 
 ' SELECT
     collectionproperties,
@@ -82,6 +88,8 @@ COALESCE(andQuery, '')
 ' OFFSET ' || next
 || ';'
 USING bbox, intersects, include;
+res_headers := format('[{"Func-Range": "%s-%s/*"}]', next, lim::int - 1);
+PERFORM set_config('response.headers', res_headers, true);
 END;
 $$ LANGUAGE PLPGSQL IMMUTABLE;
 

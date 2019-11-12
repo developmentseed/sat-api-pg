@@ -62,7 +62,7 @@ describe('next and limit filters', function () {
         })
         .set('Prefer', 'count=exact')
         .expect('Content-Type', /json/)
-        .expect(206, done)
+        .expect(200, done)
         .expect(r => {
           const range = r.headers['content-range'].split('/')[0];
           range.should.equal('0-1');

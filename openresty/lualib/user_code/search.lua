@@ -29,9 +29,9 @@ end
 function createSearch(fields, bbox, intersects, next, limit, andQuery, sort)
   local body = {}
   local searchArgs = {}
+  -- local defaultSelect = table.concat(defaultFields.items, ",")
+  local defaultSelect = nil
   if next and limit then
-    print(next)
-    print(limit)
     body["next"] = next
     body["lim"] = limit
   else
