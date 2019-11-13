@@ -1,5 +1,5 @@
 -- Revert sat-api-pg:20191107093406-stacendpoint from pg
 
 BEGIN;
-DROP VIEW data.stacLinks;
+DROP VIEW data.stacLinks CASCADE;
 COMMIT;
