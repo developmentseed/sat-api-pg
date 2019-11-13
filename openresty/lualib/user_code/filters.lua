@@ -1,5 +1,4 @@
 module("filters", package.seeall)
-require "extensions.queryExtension"
 require "extensions.sortExtension"
 require "datetimeBuilder"
 local defaultFields = require "defaultFields"
@@ -62,24 +61,10 @@ function createFilterArgs(andQuery, sort, next, limit)
   return filterArgs
 end
 
-function createFilterBody(bbox, intersects)
-  local body = {}
-  if type(bbox) == 'string' then
-    modifiedBbox = "{" .. bbox .. "}"
-    body["bbox"] = modifiedBbox
-  end
-  if type(intersects) == 'string' then
-    local intersectsTable = cjson.decode(intersects)
-    body["intersects"] = intersectsTable
-  end
-  return body
-end
-
 function buildFilters(existingAndQuery, args)
   local andQuery = processDatetimeFilter(existingAndQuery, args.datetime)
   andQuery = filters.processListFilter(andQuery, args.ids, "id")
   andQuery = filters.processListFilter(andQuery, args.collections, "collection")
   local filterArgs = filters.createFilterArgs(andQuery, args.sort, args.next, args.limit)
-  local filterBody = filters.createFilterBody(args.bbox, args.intersects)
-  return filterArgs, filterBody
+  return filterArgs
 end

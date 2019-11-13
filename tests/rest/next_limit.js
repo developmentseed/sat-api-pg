@@ -57,12 +57,17 @@ describe('next and limit filters', function () {
       restService()
         .post(searchPath)
         .send({
+          query: {
+            'eo:cloud_cover': {
+              lt: 100
+            }
+          },
           next: 0,
           limit: 2
         })
         .set('Prefer', 'count=exact')
         .expect('Content-Type', /json/)
-        .expect(206, done)
+        .expect(200, done)
         .expect(r => {
           const range = r.headers['content-range'].split('/')[0];
           range.should.equal('0-1');

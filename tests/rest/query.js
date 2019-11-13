@@ -81,6 +81,23 @@ describe('query extension', function () {
       .post(searchPath)
       .send({
         query: {
+          'eo:cloud_cover': {
+            in: [0]
+          }
+        }
+      })
+      .expect('Content-Type', /json/)
+      .expect(200, done)
+      .expect(r => {
+        r.body.features.length.should.equal(1);
+      });
+  });
+
+  it('in operator with numbers', function (done) {
+    restService()
+      .post(searchPath)
+      .send({
+        query: {
           'eo:epsg': {
             in: [32610, 32613]
           }
