@@ -21,7 +21,6 @@ CREATE OR REPLACE FUNCTION search(
   bbox numeric[] default NULL,
   intersects json default NULL,
   include text[] default NULL,
-  header text default '',
   andquery text default NULL,
   sort text default 'ORDER BY c.datetime',
   lim int default 50,
