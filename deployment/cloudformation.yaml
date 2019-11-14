@@ -240,6 +240,7 @@ Resources:
       MasterUsername: !Ref 'DBSuperUser'
       MasterUserPassword: !Ref 'DBSuperPassword'
       AllocatedStorage: '5'
+      StorageType: 'gp2'
       DBInstanceClass: db.t3.small
       Engine: Postgres
       EngineVersion: '11'
