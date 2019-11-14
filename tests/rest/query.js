@@ -154,6 +154,9 @@ describe('query extension', function () {
           },
           'eo:sun_azimuth': {
             lt: 50
+          },
+          'landsat:row': {
+            eq: '216'
           }
         }
       })
@@ -161,6 +164,29 @@ describe('query extension', function () {
       .expect(200, done)
       .expect(r => {
         r.body.features.length.should.equal(1);
+      });
+  });
+
+  it('Handles false in multiple query properties', function (done) {
+    restService()
+      .post(searchPath)
+      .send({
+        query: {
+          'eo:cloud_cover': {
+            lt: 6
+          },
+          'eo:sun_azimuth': {
+            lt: 50
+          },
+          'landsat:row': {
+            eq: '0'
+          }
+        }
+      })
+      .expect('Content-Type', /json/)
+      .expect(200, done)
+      .expect(r => {
+        r.body.features.length.should.equal(0);
       });
   });
 });
