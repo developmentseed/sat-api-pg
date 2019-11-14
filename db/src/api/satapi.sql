@@ -48,7 +48,7 @@ FORMAT(
       data.ST_GeomFromGeoJSON($2),
       4326
     )
-  ELSE 
+  ELSE
     NULL
   END AS geom
 )
@@ -73,14 +73,15 @@ SELECT
   stac_version
   FROM api.collectionitems c, g
   WHERE (
-    g.geom IS NULL OR 
+    g.geom IS NULL OR
     data.ST_Intersects(g.geom, c.geom)
   ) %1s %2s LIMIT %3s OFFSET %4s;
 ', COALESCE(andQuery, ''), sort, lim, next)
 USING bbox, intersects, include;
 
-res_headers := format('[{"Func-Range": "%s-%s/*"}]', next, lim::int - 1);
+res_headers := format('[{"Func-Range": "%s-%s/*"}]', next, (next::int + lim::int) - 1);
 PERFORM set_config('response.headers', res_headers, true);
+
 END;
 $$ LANGUAGE PLPGSQL IMMUTABLE;
 
