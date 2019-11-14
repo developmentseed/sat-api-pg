@@ -47,7 +47,7 @@ function buildQueryString(query)
       local propertyFilter = "(" .. propertiesAccessor .. filter
       local collectionPropertyFilter = "(" .. collectionPropertiesAccessor .. filter
       local logicalOr =
-        propertyFilter .. " OR " .. collectionPropertyFilter
+        "(" .. propertyFilter .. " OR " .. collectionPropertyFilter .. ")"
       table.insert(logicalAndTable, logicalOr)
     end
   end
