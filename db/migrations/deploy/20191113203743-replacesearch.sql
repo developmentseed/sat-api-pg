@@ -74,7 +74,7 @@ SELECT
 ', COALESCE(andQuery, ''), sort, lim, next)
 USING bbox, intersects, include;
 
-res_headers := format('[{"Func-Range": "%s-%s/*"}]', next, lim::int - 1);
+res_headers := format('[{"Func-Range": "%s-%s/*"}]', next, (next::int + lim::int) - 1);
 PERFORM set_config('response.headers', res_headers, true);
 END;
 $$ LANGUAGE PLPGSQL IMMUTABLE;
