@@ -28,6 +28,19 @@ describe('wfs endpoints', function () {
       });
   });
 
+  it('Uses collection id in search function and query', function (done) {
+    restService()
+      .get(`${collectionsPath}/nocollection/items`)
+      .query({
+        bbox: '-180,-90,180,90'
+      })
+      .expect('Content-Type', /json/)
+      .expect(200, done)
+      .expect(r => {
+        r.body.features.length.should.equal(0);
+      });
+  });
+
   it('Returns the specified item id', function (done) {
     restService()
       .get(`${collectionsPath}/landsat-8-l1/items/LC80320392019263`)

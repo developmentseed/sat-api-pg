@@ -15,23 +15,30 @@ local pg_searchNoGeomPath = path_constants.pg_searchNoGeomPath
 local pg_root = path_constants.pg_root
 local pg_rootcollections = path_constants.pg_rootcollections
 
-function setUri(bodyJson, args, andQuery)
+function setUri(bodyJson, args, collectionId, itemId)
   -- The search function is needed for these operations
   if bodyJson and (bodyJson.bbox or bodyJson.intersects or bodyJson.fields or bodyJson.query) then
-    local searchBody, searchArgs = search.buildSearch(bodyJson)
+    local searchBody, searchArgs = search.buildSearch(bodyJson, collectionId, itemId)
     ngx.req.set_body_data(cjson.encode(searchBody))
     ngx.req.set_uri_args(searchArgs)
     ngx.req.set_uri(pg_searchPath)
     ngx.req.set_method(ngx.HTTP_POST)
   -- The search function is needed for spatial operations
   elseif args and (args.bbox or args.intersects) then
-    local searchBody, searchArgs = search.buildSearch(args)
+    local searchBody, searchArgs = search.buildSearch(args, collectionId, itemId)
     ngx.req.set_body_data(cjson.encode(searchBody))
     ngx.req.set_uri_args(searchArgs)
     ngx.req.set_uri(pg_searchPath)
     ngx.req.set_method(ngx.HTTP_POST)
   -- If not we can pass all the traffic down to the raw PostgREST items endpoint.
   else
+    local andQuery
+    if collectionId and collectionId ~= '' then
+      andQuery = "(collection.eq." .. collectionId .. ")"
+    end
+    if itemId and itemId ~= '' then
+      andQuery = "(id.eq." .. itemId .. ")"
+    end
     -- Use the POST body as the args table
     if args == nil and bodyJson then
       args = bodyJson
@@ -96,18 +103,15 @@ function handleWFS(args, uri)
 
   if collectionId then
     if items and items ~= '' then
-      local andQuery
-      andQuery = "(collection.eq." .. collectionId .. ")"
       if itemId and itemId ~= '' then
         -- Return object rather than array
         ngx.req.set_header("Accept", "application/vnd.pgrst.object+json")
-        andQuery = "(id.eq." .. itemId .. ")"
       else
         ngx.req.set_header("Accept", "application/json")
       end
-      setUri(nil, args, andQuery)
+      setUri(nil, args, collectionId, itemId)
     else
-      idQuery = "eq." .. collectionId
+      local idQuery = "eq." .. collectionId
       local defaultCollectionSelect = table.concat(defaultFields.collections, ",")
       local uriArgs = {}
       uriArgs["id"] = idQuery
