@@ -19,6 +19,18 @@ describe('datetime filter', function () {
       });
   });
 
+  it('Handles dates not in range', function (done) {
+    restService()
+      .post(searchPath)
+      .send({
+        datetime: '2018-04-01T12:00/2018-08-21T14:02'
+      })
+      .expect('Content-Type', /json/)
+      .expect(200, done)
+      .expect(r => {
+        r.body.features.length.should.equal(0);
+      });
+  });
   it('Datetime can be passed as query parameter in GET', function (done) {
     restService()
       .get(itemsPath)

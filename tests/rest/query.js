@@ -189,4 +189,28 @@ describe('query extension', function () {
         r.body.features.length.should.equal(0);
       });
   });
+
+  it('Includes datetime as part of posted query clause', function (done) {
+    restService()
+      .post(searchPath)
+      .send({
+        query: {
+          'eo:cloud_cover': {
+            lt: 6
+          },
+          'eo:sun_azimuth': {
+            lt: 50
+          },
+          'landsat:row': {
+            eq: '0'
+          }
+        },
+        datetime: '2019-04-01T12:00/2019-08-21T14:02'
+      })
+      .expect('Content-Type', /json/)
+      .expect(200, done)
+      .expect(r => {
+        r.body.features.length.should.equal(0);
+      });
+  });
 });

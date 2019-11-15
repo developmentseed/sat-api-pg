@@ -13,7 +13,6 @@ function processSearchQuery(query, datetime)
     if datetime then
       local dateString = datetimeBuilder.buildDatetimeSQL(datetime)
       updatedAndQuery = updatedAndQuery  .. " AND " .. dateString
-      updatedAndQuery = dateString
     end
   else
     if datetime then

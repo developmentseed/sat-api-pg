@@ -16,7 +16,7 @@ end
 
 function buildDatetimeSQL(datetime)
   local dateString
-  local unknown = "::unknown"
+  local unknown = "::timestamp"
   local startdate, enddate = string.match(datetime, "(.*)/(.*)")
   if startdate and enddate then
     dateString = pg_constants.datetime .. " > " .. wrapSingleQuote(startdate) .. unknown .. 
