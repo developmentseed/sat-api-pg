@@ -5,3 +5,4 @@
 20191107093406-stacendpoint 2019-11-07T09:34:07Z root <root@linuxkit-025000000001> # Add stac endpoint
 20191107214618-rootcollection 2019-11-07T21:46:19Z root <root@linuxkit-025000000001> # Add root level collections shape
 20191113203743-replacesearch 2019-11-13T20:37:44Z root <root@linuxkit-025000000001> # Replace search function
+20191211011147-fixindexperf 2019-12-11T01:11:48Z root <root@linuxkit-025000000001> # fix index perf
