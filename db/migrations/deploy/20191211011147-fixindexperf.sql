@@ -1,21 +1,6 @@
-CREATE OR REPLACE VIEW collectionitems AS
-  SELECT
-    c.properties as collectionproperties,
-    i.collection as collection,
-    i.id as id,
-    i.geometry as geom,
-    i.bbox as bbox,
-    i.type,
-    i.assets,
-    data.ST_AsGeoJSON(i.geometry) :: json as geometry,
-    i.properties as properties,
-    i.datetime as datetime,
-    i.links,
-    i.stac_version
-  FROM data.itemsLinks i
-  RIGHT JOIN
-    data.collections c ON i.collection = c.id;
-ALTER VIEW collectionitems owner to api;
+-- Deploy sat-api-pg:20191211011147-fixindexperf to pg
+
+BEGIN;
 
 CREATE OR REPLACE FUNCTION api.search(
   bbox numeric[] default NULL,
@@ -77,23 +62,4 @@ PERFORM set_config('response.headers', res_headers, true);
 
 END;
 $$ LANGUAGE PLPGSQL IMMUTABLE;
-
-CREATE OR REPLACE VIEW items AS
-  SELECT * FROM data.items_string_geometry;
-ALTER VIEW items owner to api;
-
-CREATE OR REPLACE VIEW collections AS
-  SELECT * FROM data.collectionsLinks;
-ALTER VIEW collections owner to api;
-
-CREATE OR REPLACE VIEW rootcollections AS
-  SELECT * FROM data.collectionsobject;
-ALTER VIEW rootcollections owner to api;
-
-CREATE OR REPLACE VIEW root AS
-  SELECT * FROM data.rootLinks;
-ALTER VIEW root owner to api;
-
-CREATE OR REPLACE VIEW stac AS
-  SELECT * FROM data.stacLinks;
-ALTER VIEW stac owner to api;
+COMMIT;
