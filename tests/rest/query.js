@@ -76,6 +76,23 @@ describe('query extension', function () {
       });
   });
 
+  it('in operator with strings', function (done) {
+    restService()
+      .post(searchPath)
+      .send({
+        query: {
+          'landsat:processing_level': {
+            in: ['L1TP']
+          }
+        }
+      })
+      .expect('Content-Type', /json/)
+      .expect(200, done)
+      .expect(r => {
+        r.body.features.length.should.equal(2);
+      });
+  });
+
   it('in operator with numbers', function (done) {
     restService()
       .post(searchPath)
@@ -132,15 +149,15 @@ describe('query extension', function () {
       .post(searchPath)
       .send({
         query: {
-          'landsat:row': {
-            eq: '039'
+          'landsat:processing_level': {
+            eq: 'L1TP'
           }
         }
       })
       .expect('Content-Type', /json/)
       .expect(200, done)
       .expect(r => {
-        r.body.features.length.should.equal(1);
+        r.body.features.length.should.equal(2);
       });
   });
 
