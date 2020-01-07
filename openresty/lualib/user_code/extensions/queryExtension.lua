@@ -19,19 +19,20 @@ function buildQueryString(query)
     for operator, operatorValue in pairs(keyValue) do
       local castType = ""
       local sqlValue
-      if type(keyValue[operator]) ~= "string" then
+      if type(keyValue[operator]) == "number" then
         castType = "::numeric"
         sqlValue = keyValue[operator]
-      else
+      elseif type(keyValue[operator]) == "string" then
         sqlValue = wrapSingleQuote(keyValue[operator])
       end
       if (operator == "in") then
         local invalues = "("
         for _, initem in ipairs(keyValue[operator]) do
-          if type(initem) == "string" then
-            invalues = invalues .. wrapSingleQuote(initem) .. ","
-          else
+          if type(initem) == "number" then
+            castType = "::numeric"
             invalues = invalues .. initem .. ","
+          elseif type(initem) == "string" then
+            invalues = invalues .. wrapSingleQuote(initem) .. ","
           end
         end
         if string.sub(invalues, -1) == "," then
