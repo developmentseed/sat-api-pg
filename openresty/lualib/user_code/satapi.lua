@@ -17,7 +17,7 @@ local pg_rootcollections = path_constants.pg_rootcollections
 
 function setUri(bodyJson, args, collectionId, itemId)
   -- The search function is needed for these operations
-  if bodyJson and (bodyJson.bbox or bodyJson.intersects or bodyJson.fields or bodyJson.query) then
+  if bodyJson and (bodyJson.bbox or bodyJson.intersects or bodyJson.fields or bodyJson.query or bodyJson.sort) then
     local searchBody, searchArgs = search.buildSearch(bodyJson, collectionId, itemId)
     ngx.req.set_body_data(cjson.encode(searchBody))
     ngx.req.set_uri_args(searchArgs)

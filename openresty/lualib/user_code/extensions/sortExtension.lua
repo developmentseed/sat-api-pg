@@ -3,26 +3,33 @@ require "string_utils"
 local pg_constants = require "pg_constants"
 wrapSingleQuote = string_utils.wrapSingleQuote
 
-function buildSortString(sort)
-  local order = ""
-  if sort then
-    local orderTable = {}
-    for _, rule in ipairs(sort) do
-      local pgField = "properties->" .. "\"" .. rule.field .. "\""
-      -- local prefix, key = string.match(rule.field, "(.*)%.(.*)")
-      -- if key then
-        -- pgField = "properties->" .. "\"" .. key .. "\""
-      -- else
-        -- pgField = key
-      -- end
-      local orderValue = pgField .. "." .. rule.direction
-      table.insert(orderTable, orderValue)
-    end
-    order = table.concat(orderTable, ",")
+function setPropertiesPrefix(field)
+  local prefix, key = string.match(field, "(.*)%.(.*)")
+  local pgField = ""
+  if key then
+    pgField = "properties->" .. "'" .. key .. "'"
   else
-    -- Defaut sort by datetime
-    order = 'datetime.desc'
+    pgField = field
   end
+  return pgField
+end
+
+function buildSortString(sort)
+  -- Defaut sort by datetime
+  order = 'datetime.desc'
+  -- local order = ""
+  -- if sort then
+    -- local orderTable = {}
+    -- for _, rule in ipairs(sort) do
+      -- local pgField = setPropertiesPrefix(rule.field)
+      -- local orderValue = pgField .. "." .. rule.direction
+      -- table.insert(orderTable, orderValue)
+    -- end
+    -- order = table.concat(orderTable, ",")
+  -- else
+    -- -- Defaut sort by datetime
+    -- order = 'datetime.desc'
+  -- end
   return order
 end
 
@@ -31,7 +38,14 @@ function buildSortSQL(sort)
   if sort then
     local orderTable = {}
     for _, rule in ipairs(sort) do
-      local pgField = "properties->" .. wrapSingleQuote(rule.field)
+      local pgField
+      if rule.field == "properties.datetime" then
+        pgField = pg_constants.datetime
+      elseif rule.field == "properties.eo:cloud_cover" then
+        pgField = "CAST((" .. setPropertiesPrefix(rule.field) .. ") as integer)"
+      else
+        local pgField = setPropertiesPrefix(rule.field)
+      end
       local orderValue = pgField .. " " .. rule.direction
       table.insert(orderTable, orderValue)
     end
@@ -43,6 +57,6 @@ function buildSortSQL(sort)
   if string.sub(order, -1) == "," then
     order = string.sub(order, 1, string.len(order) - 1)
   end
-  local orderby = "ORDER BY " .. order 
+  local orderby = "ORDER BY " .. order
   return orderby
 end
