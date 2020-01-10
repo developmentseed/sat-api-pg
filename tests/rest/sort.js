@@ -93,4 +93,24 @@ describe('sort extension', function () {
         secondcc.should.be.above(thirdcc);
       });
   });
+
+  it('Search sorts desc by nested numeric property', function (done) {
+    restService()
+      .post(searchPath)
+      .send({
+        sort: [{
+          field: 'properties.eo:sun_azimuth',
+          direction: 'desc'
+        }]
+      })
+      .expect('Content-Type', /json/)
+      .expect(200, done)
+      .expect(r => {
+        const firstaz = r.body.features[0].properties['eo:sun_azimuth'];
+        const secondaz = r.body.features[1].properties['eo:sun_azimuth'];
+        const thirdaz = r.body.features[2].properties['eo:sun_azimuth'];
+        firstaz.should.be.above(secondaz);
+        secondaz.should.be.above(thirdaz);
+      });
+  });
 });

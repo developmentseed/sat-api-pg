@@ -17,19 +17,6 @@ end
 function buildSortString(sort)
   -- Defaut sort by datetime
   order = 'datetime.desc'
-  -- local order = ""
-  -- if sort then
-    -- local orderTable = {}
-    -- for _, rule in ipairs(sort) do
-      -- local pgField = setPropertiesPrefix(rule.field)
-      -- local orderValue = pgField .. "." .. rule.direction
-      -- table.insert(orderTable, orderValue)
-    -- end
-    -- order = table.concat(orderTable, ",")
-  -- else
-    -- -- Defaut sort by datetime
-    -- order = 'datetime.desc'
-  -- end
   return order
 end
 
@@ -41,10 +28,8 @@ function buildSortSQL(sort)
       local pgField
       if rule.field == "properties.datetime" then
         pgField = pg_constants.datetime
-      elseif rule.field == "properties.eo:cloud_cover" then
-        pgField = "CAST((" .. setPropertiesPrefix(rule.field) .. ") as integer)"
       else
-        local pgField = setPropertiesPrefix(rule.field)
+        pgField = setPropertiesPrefix(rule.field)
       end
       local orderValue = pgField .. " " .. rule.direction
       table.insert(orderTable, orderValue)
