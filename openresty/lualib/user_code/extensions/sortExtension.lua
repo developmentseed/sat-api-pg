@@ -45,6 +45,5 @@ function buildSortSQL(sort)
     order = string.sub(order, 1, string.len(order) - 1)
   end
   local orderby = "ORDER BY " .. order
-  print(orderby)
   return orderby
 end

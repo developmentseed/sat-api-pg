@@ -44,11 +44,8 @@ function buildQueryString(query)
         end
         sqlValue = invalues .. ")"
       else
-        filter = wrapSingleQuote(key) .. ")" .. castType .. " " ..
         stacOperators[operator] .. " " .. sqlValue
       end
-      local propertyFilter = "(" .. propertiesAccessor .. filter
-      local collectionPropertyFilter = "(" .. collectionPropertiesAccessor .. filter
       local logicalCoalesce = "COALESCE(" .. propertiesAccessor ..
         wrapSingleQuote(key) .. "," .. collectionPropertiesAccessor ..
         wrapSingleQuote(key) .. ")" .. castType .. " " .. stacOperators[operator]
