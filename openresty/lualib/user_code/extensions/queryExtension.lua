@@ -14,7 +14,6 @@ function buildQueryString(query)
   local logicalAndTable = {}
   local propertiesAccessor = "properties->"
   local collectionPropertiesAccessor = "collectionproperties->"
-  local filter = ""
   for key, keyValue in pairs(query) do
     for operator, operatorValue in pairs(keyValue) do
       local castType = ""
@@ -43,19 +42,18 @@ function buildQueryString(query)
           invalues = string.sub(invalues, 1, string.len(invalues) - 1)
         end
         sqlValue = invalues .. ")"
-      else
-        filter = wrapSingleQuote(key) .. ")" .. castType .. " " ..
-        stacOperators[operator] .. " " .. sqlValue
       end
-      local propertyFilter = "(" .. propertiesAccessor .. filter
-      local collectionPropertyFilter = "(" .. collectionPropertiesAccessor .. filter
-      local logicalCoalesce = "COALESCE(" .. propertiesAccessor ..
-        wrapSingleQuote(key) .. "," .. collectionPropertiesAccessor ..
-        wrapSingleQuote(key) .. ")" .. castType .. " " .. stacOperators[operator]
-        .. " " .. sqlValue
-      table.insert(logicalAndTable, logicalCoalesce)
+      -- local logicalCoalesce = "COALESCE(" .. propertiesAccessor ..
+        -- wrapSingleQuote(key) .. "," .. collectionPropertiesAccessor ..
+        -- wrapSingleQuote(key) .. ")" .. castType .. " " .. stacOperators[operator]
+        -- .. " " .. sqlValue
+      local andClause =  "(" .. propertiesAccessor ..
+        wrapSingleQuote(key) .. ")" .. castType .. " " ..
+        stacOperators[operator] ..  " " .. sqlValue
+      table.insert(logicalAndTable, andClause)
     end
   end
   local logicalAndString = table.concat(logicalAndTable, " AND ")
+  print(logicalAndString)
   return logicalAndString
 end
