@@ -28,6 +28,8 @@ function buildSortSQL(sort)
       local pgField
       if rule.field == "properties.datetime" then
         pgField = pg_constants.datetime
+      elseif rule.field == "properties.eo:cloud_cover" then
+        pgField = "(" .. setPropertiesPrefix(rule.field) .. ")" .. "::numeric"
       else
         pgField = setPropertiesPrefix(rule.field)
       end
@@ -43,5 +45,6 @@ function buildSortSQL(sort)
     order = string.sub(order, 1, string.len(order) - 1)
   end
   local orderby = "ORDER BY " .. order
+  print(orderby)
   return orderby
 end

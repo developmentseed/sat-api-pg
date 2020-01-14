@@ -42,21 +42,20 @@ function buildQueryString(query)
         if string.sub(invalues, -1) == "," then
           invalues = string.sub(invalues, 1, string.len(invalues) - 1)
         end
-        invalues = invalues .. ")"
-        filter = wrapSingleQuote(key) .. ")" .. castType .. " " ..
-         stacOperators[operator] .. " " .. invalues
+        sqlValue = invalues .. ")"
       else
         filter = wrapSingleQuote(key) .. ")" .. castType .. " " ..
         stacOperators[operator] .. " " .. sqlValue
       end
       local propertyFilter = "(" .. propertiesAccessor .. filter
       local collectionPropertyFilter = "(" .. collectionPropertiesAccessor .. filter
-      local logicalOr =
-        "(" .. propertyFilter .. " OR " .. collectionPropertyFilter .. ")"
-      table.insert(logicalAndTable, logicalOr)
+      local logicalCoalesce = "COALESCE(" .. propertiesAccessor ..
+        wrapSingleQuote(key) .. "," .. collectionPropertiesAccessor ..
+        wrapSingleQuote(key) .. ")" .. castType .. " " .. stacOperators[operator]
+        .. " " .. sqlValue
+      table.insert(logicalAndTable, logicalCoalesce)
     end
   end
   local logicalAndString = table.concat(logicalAndTable, " AND ")
-  print(logicalAndString)
   return logicalAndString
 end
