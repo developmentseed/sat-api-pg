@@ -14,7 +14,6 @@ function buildQueryString(query)
   local logicalAndTable = {}
   local propertiesAccessor = "properties->"
   local collectionPropertiesAccessor = "collectionproperties->"
-  local filter = ""
   for key, keyValue in pairs(query) do
     for operator, operatorValue in pairs(keyValue) do
       local castType = ""
