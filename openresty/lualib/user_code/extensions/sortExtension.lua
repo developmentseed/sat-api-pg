@@ -24,6 +24,9 @@ function buildSortSQL(sort)
   local order = ""
   if sort then
     local orderTable = {}
+    -- This rule.direction is a temporary fix until tokenized paging is
+    -- implemented
+    direction = "asc"
     for _, rule in ipairs(sort) do
       local pgField
       if rule.field == "properties.datetime" then
@@ -34,14 +37,15 @@ function buildSortSQL(sort)
         pgField = setPropertiesPrefix(rule.field)
       end
       local orderValue = pgField .. " " .. rule.direction
+      direction = rule.direction
       table.insert(orderTable, orderValue)
     end
     order = table.concat(orderTable, ",")
-    order = order .. "," .. pg_constants.tiebreak .. " " .. "asc"
+    order = order .. "," .. pg_constants.tiebreak .. " " .. direction
   else
     -- Defaut sort by datetime
     order = pg_constants.datetime .. " " .. "desc" ..  "," ..
-      pg_constants.tiebreak .. " " .. "asc" 
+      pg_constants.tiebreak .. " " .. "desc" 
   end
   -- if string.sub(order, -1) == "," then
     -- -- order = string.sub(order, 1, string.len(order) - 1) 
