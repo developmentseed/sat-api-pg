@@ -37,4 +37,4 @@ grant select, insert, update on data.itemsLinks to application;
 grant select, insert, update on data.items to application;
 grant select, insert, update on api.items to application;
 grant select, insert, update on data.items_string_geometry to application;
---  GRANT usage ON sequence data.items_item_id_seq TO application;
+GRANT usage ON sequence data.items_tiebreak_seq TO application;

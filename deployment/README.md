@@ -37,3 +37,9 @@ $ ./createStack.sh 1
 ```
 (The 1 indicates a single instance of your service).
 
+To create a new Sqitch migration run 
+```bash
+$ yarn subzero migrations add --no-diff --note "yournote" yourmigrationname
+```
+This will create the appropriate files in the `migrations` directory which you
+can then modify with your desired changes.

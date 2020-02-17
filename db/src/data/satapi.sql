@@ -31,6 +31,7 @@ CREATE TABLE items(
   collection varchar(1024),
   datetime timestamp with time zone NOT NULL,
   links linkobject[],
+  tiebreak serial,
   CONSTRAINT fk_collection FOREIGN KEY (collection) REFERENCES collections(id)
 );
 CREATE VIEW collectionsLinks AS
@@ -114,6 +115,7 @@ CREATE VIEW itemsLinks AS
   collection,
   datetime,
   '0.8.0' AS stac_version,
+  tiebreak,
   (SELECT array_cat(ARRAY[
     ROW((
         SELECT url || '/collections/' || collection || '/' || id
@@ -247,7 +249,7 @@ CREATE OR REPLACE VIEW collectionsobject AS
       FROM data.collectionsLinks)
   ) as links,
   (SELECT ARRAY(
-    SELECT row_to_json(collection) 
+    SELECT row_to_json(collection)
     FROM (SELECT * FROM data.collectionsLinks) collection
   )) as collections;
 

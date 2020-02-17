@@ -16,7 +16,7 @@ end
 
 function buildSortString(sort)
   -- Defaut sort by datetime
-  order = 'datetime.desc,id.desc'
+  order = 'datetime.desc'
   return order
 end
 
@@ -37,10 +37,11 @@ function buildSortSQL(sort)
       table.insert(orderTable, orderValue)
     end
     order = table.concat(orderTable, ",")
-    order = order .. "," .. pg_constants.id .. " " .. "desc"
+    order = order .. "," .. pg_constants.tiebreak .. " " .. "asc"
   else
     -- Defaut sort by datetime
-    order = pg_constants.datetime .. " " .. "," .. pg_constants.id .. " " .. "desc"
+    order = pg_constants.datetime .. " " .. "desc" ..  "," ..
+      pg_constants.tiebreak .. " " .. "asc" 
   end
   -- if string.sub(order, -1) == "," then
     -- -- order = string.sub(order, 1, string.len(order) - 1) 
@@ -49,6 +50,5 @@ function buildSortSQL(sort)
     -- -- order = order .. "," .. pg_constants.id .. " " .. "desc"
   -- end
   local orderby = "ORDER BY " .. order
-  print(orderby)
   return orderby
 end
