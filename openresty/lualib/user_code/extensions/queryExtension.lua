@@ -12,19 +12,21 @@ stacOperators["in"] = "in"
 
 function buildQueryString(query)
   local logicalAndTable = {}
-  local propertiesAccessor = "properties->"
-  local collectionPropertiesAccessor = "collectionproperties->"
   for key, keyValue in pairs(query) do
     for operator, operatorValue in pairs(keyValue) do
+      local propertiesAccessor
+      local collectionPropertiesAccessor
       local castType = ""
       local sqlValue
       if type(keyValue[operator]) == "number" then
         castType = "::numeric"
         sqlValue = keyValue[operator]
+        propertiesAccessor =  "properties->"
+        collectionPropertiesAccessor = "collectionproperties->"
       elseif type(keyValue[operator]) == "string" then
+        sqlValue = wrapSingleQuote(keyValue[operator])
         propertiesAccessor =  "properties->>"
         collectionPropertiesAccessor = "collectionproperties->>"
-        sqlValue = wrapSingleQuote(keyValue[operator])
       end
       if (operator == "in") then
         local invalues = "("
@@ -32,10 +34,12 @@ function buildQueryString(query)
           if type(initem) == "number" then
             castType = "::numeric"
             invalues = invalues .. initem .. ","
+            propertiesAccessor =  "properties->"
+            collectionPropertiesAccessor = "collectionproperties->"
           elseif type(initem) == "string" then
+            invalues = invalues .. wrapSingleQuote(initem) .. ","
             propertiesAccessor =  "properties->>"
             collectionPropertiesAccessor = "collectionproperties->>"
-            invalues = invalues .. wrapSingleQuote(initem) .. ","
           end
         end
         if string.sub(invalues, -1) == "," then
@@ -54,6 +58,5 @@ function buildQueryString(query)
     end
   end
   local logicalAndString = table.concat(logicalAndTable, " AND ")
-  print(logicalAndString)
   return logicalAndString
 end
