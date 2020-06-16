@@ -10,7 +10,7 @@ wrapSingleQuote = string_utils.wrapSingleQuote
 
 function processSearchQuery(query, datetime, collectionId, ids)
   local andComponents = {}
-  if query then 
+  if query and not ids then 
     andComponents[#andComponents + 1] = queryExtension.buildQueryString(query)
   end
   if datetime then
