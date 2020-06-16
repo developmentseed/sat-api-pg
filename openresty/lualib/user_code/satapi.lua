@@ -9,7 +9,6 @@ local searchPath = path_constants.searchPath
 local itemsPath = path_constants.itemsPath
 local collectionsPath = path_constants.collectionsPath
 local conformancePath = path_constants.conformancePath
-local stacPah = path_constants.stacPath
 local pg_searchPath = path_constants.pg_searchPath
 local pg_searchNoGeomPath = path_constants.pg_searchNoGeomPath
 local pg_root = path_constants.pg_root
