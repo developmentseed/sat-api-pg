@@ -205,16 +205,22 @@ CREATE OR REPLACE FUNCTION convert_collection_links()
   RETURNS trigger AS
   $BODY$
   DECLARE
-    newlinks data.linkobject;
+    newlinks data.linkobject[];
     filteredlinks data.linkobject[];
+    link data.linkobject;
   BEGIN
-  SELECT * INTO newlinks FROM unnest(new.links) as linkObj
-  WHERE linkObj.rel = 'derived_from';
-  IF newlinks.href IS NOT NULL THEN
-    filteredlinks = ARRAY[newlinks];
-  ELSE
-    filteredlinks = NULL;
+ 
+  newlinks := new.links;
+  IF newlinks IS NOT NULL THEN
+    FOREACH link IN ARRAY newlinks LOOP
+      IF link.rel='derived_from' AND link.href IS NOT NULL THEN
+        filteredlinks := ARRAY_APPEND(filteredlinks, link);
+      ELSE
+        filteredlinks := NULL;
+      END IF;
+    END LOOP;
   END IF;
+
   INSERT INTO data.collections(
     id,
     title,
