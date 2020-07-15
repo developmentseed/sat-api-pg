@@ -5,6 +5,12 @@
       "href": "derived",
       "type": null,
       "title": null
+    },
+    {
+      "rel": "derived_from",
+      "href": "derived",
+      "type": null,
+      "title": null
     }],
     "geometry": {
         "coordinates": [

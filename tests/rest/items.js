@@ -1,4 +1,5 @@
 import { restService, resetdb } from './common';
+import should from 'should'; // eslint-disable-line no-unused-vars
 import landsatItem from './landsatItem.json';
 import landsatItems from './landsatItems.json';
 import { itemsPath } from './constants';
@@ -79,7 +80,7 @@ describe('items', function () {
           .expect('Content-Type', /json/)
           .expect(200, done)
           .expect(r => {
-            r.body.features[2].links.length.should.equal(3);
+            r.body.features[2].links.length.should.equal(4);
             r.body.features[2].links.should.containDeep([
               {
                 rel: 'self',
@@ -96,8 +97,8 @@ describe('items', function () {
               {
                 rel: 'derived_from',
                 href: 'derived',
-                type: null,
-                title: null
+                title: null,
+                type: null
               }]);
           });
       });
