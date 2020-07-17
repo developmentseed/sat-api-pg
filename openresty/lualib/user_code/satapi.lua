@@ -24,7 +24,12 @@ function setUri(bodyJson, args, collectionId, itemId)
     else
       ids = nil
     end
-    local searchBody, searchArgs = search.buildSearch(bodyJson, collectionId, ids)
+    if bodyJson.collections and table.getn(bodyJson.collections) then
+      collections = bodyJson.collections
+    else
+      collections = nil
+    end
+    local searchBody, searchArgs = search.buildSearch(bodyJson, collectionId, ids, collections)
     ngx.req.set_body_data(cjson.encode(searchBody))
     ngx.req.set_uri_args(searchArgs)
     ngx.req.set_uri(pg_searchPath)
@@ -38,7 +43,12 @@ function setUri(bodyJson, args, collectionId, itemId)
     else
       ids = nil
     end
-    local searchBody, searchArgs = search.buildSearch(args, collectionId, ids)
+    if args.collections and table.getn(args.collections) then
+      collections = args.collections
+    else
+      collections = nil
+    end
+    local searchBody, searchArgs = search.buildSearch(args, collectionId, ids, collections)
     ngx.req.set_body_data(cjson.encode(searchBody))
     ngx.req.set_uri_args(searchArgs)
     ngx.req.set_uri(pg_searchPath)

@@ -8,7 +8,7 @@ local defaultFields = require "defaultFields"
 local limit_constants = require "limit_constants"
 wrapSingleQuote = string_utils.wrapSingleQuote
 
-function processSearchQuery(query, datetime, collectionId, ids)
+function processSearchQuery(query, datetime, collectionId, ids, collections)
   local andComponents = {}
   if query and not ids then 
     andComponents[#andComponents + 1] = queryExtension.buildQueryString(query)
@@ -21,6 +21,9 @@ function processSearchQuery(query, datetime, collectionId, ids)
   end
   if ids then
     andComponents[#andComponents + 1] = wfsBuilder.buildInQuery(ids, "id")
+  end
+  if collections then
+    andComponents[#andComponents + 1] = wfsBuilder.buildInQuery(collections, "collection")
   end
   local andQuery
   if #andComponents ~= 0 then
@@ -75,8 +78,8 @@ function createSearch(fields, bbox, intersects, next, limit, andQuery, sort)
   return body, searchArgs
 end
 
-function buildSearch(json, collectionId, ids)
-  local andQuery = processSearchQuery(json.query, json.datetime, collectionId, ids)
+function buildSearch(json, collectionId, ids, collections)
+  local andQuery = processSearchQuery(json.query, json.datetime, collectionId, ids, collections)
   local sort = sortExtension.buildSortSQL(json.sort)
   local searchBody, searchArgs = createSearch(json.fields, json.bbox, json.intersects, json.next, json.limit, andQuery, sort)
   return searchBody, searchArgs
