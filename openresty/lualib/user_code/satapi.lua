@@ -9,7 +9,6 @@ local searchPath = path_constants.searchPath
 local itemsPath = path_constants.itemsPath
 local collectionsPath = path_constants.collectionsPath
 local conformancePath = path_constants.conformancePath
-local stacPath = path_constants.stacPath
 local pg_searchPath = path_constants.pg_searchPath
 local pg_searchNoGeomPath = path_constants.pg_searchNoGeomPath
 local pg_root = path_constants.pg_root
@@ -17,15 +16,39 @@ local pg_rootcollections = path_constants.pg_rootcollections
 
 function setUri(bodyJson, args, collectionId, itemId)
   -- The search function is needed for these operations
-  if bodyJson and (bodyJson.bbox or bodyJson.intersects or bodyJson.fields or bodyJson.query) then
-    local searchBody, searchArgs = search.buildSearch(bodyJson, collectionId, itemId)
+  if bodyJson and (bodyJson.bbox or bodyJson.intersects or bodyJson.fields or bodyJson.query or bodyJson.sort) then
+    if bodyJson.ids and table.getn(bodyJson.ids) then
+      ids = bodyJson.ids
+    elseif itemId then
+      ids = { itemId }
+    else
+      ids = nil
+    end
+    if bodyJson.collections and table.getn(bodyJson.collections) then
+      collections = bodyJson.collections
+    else
+      collections = nil
+    end
+    local searchBody, searchArgs = search.buildSearch(bodyJson, collectionId, ids, collections)
     ngx.req.set_body_data(cjson.encode(searchBody))
     ngx.req.set_uri_args(searchArgs)
     ngx.req.set_uri(pg_searchPath)
     ngx.req.set_method(ngx.HTTP_POST)
   -- The search function is needed for spatial operations
   elseif args and (args.bbox or args.intersects) then
-    local searchBody, searchArgs = search.buildSearch(args, collectionId, itemId)
+    if args.ids and table.getn(args.ids) then
+      ids = args.ids
+    elseif itemId then
+      ids = { itemId }
+    else
+      ids = nil
+    end
+    if args.collections and table.getn(args.collections) then
+      collections = args.collections
+    else
+      collections = nil
+    end
+    local searchBody, searchArgs = search.buildSearch(args, collectionId, ids, collections)
     ngx.req.set_body_data(cjson.encode(searchBody))
     ngx.req.set_uri_args(searchArgs)
     ngx.req.set_uri(pg_searchPath)

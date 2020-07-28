@@ -11,7 +11,14 @@
       "href": "derived",
       "type": null,
       "title": null
-    }],
+    },
+    {
+      "rel": "derived_from",
+      "href": "derived",
+      "type": null,
+      "title": null
+    }
+    ],
     "properties": {
         "eo:gsd": 15,
         "eo:platform": "landsat-8",

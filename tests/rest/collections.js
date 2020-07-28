@@ -80,7 +80,7 @@ describe('collections', function () {
           .expect('Content-Type', /json/)
           .expect(200, done)
           .expect(r => {
-            r.body.collections[1].links.length.should.equal(3);
+            r.body.collections[1].links.length.should.equal(4);
             r.body.collections[1].links.should.containDeep([{
               href: `${proxy}collections/landsat-8-l2`,
               rel: 'self',

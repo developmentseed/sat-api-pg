@@ -1,8 +1,8 @@
 module("pg_constants", package.seeall)
 local pg_constants = {}
-local collectionitems = "c"
-pg_constants.datetime = collectionitems .. "." .. "datetime"
-pg_constants.id = collectionitems .. "." .. "id"
-pg_constants.collection = collectionitems .. "." .. "collection"
+pg_constants.datetime = "datetime"
+pg_constants.id = "id"
+pg_constants.collection = "collection"
+pg_constants.tiebreak = "tiebreak"
 
 return pg_constants

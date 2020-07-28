@@ -31,6 +31,7 @@ CREATE TABLE items(
   collection varchar(1024),
   datetime timestamp with time zone NOT NULL,
   links linkobject[],
+  tiebreak serial,
   CONSTRAINT fk_collection FOREIGN KEY (collection) REFERENCES collections(id)
 );
 CREATE VIEW collectionsLinks AS
@@ -114,6 +115,7 @@ CREATE VIEW itemsLinks AS
   collection,
   datetime,
   '0.8.0' AS stac_version,
+  tiebreak,
   (SELECT array_cat(ARRAY[
     ROW((
         SELECT url || '/collections/' || collection || '/' || id
@@ -150,8 +152,9 @@ CREATE OR REPLACE FUNCTION convert_values()
   DECLARE
     converted_geometry data.geometry;
     converted_datetime timestamp with time zone;
-    newlinks data.linkobject;
+    newlinks data.linkobject[];
     filteredlinks data.linkobject[];
+    link data.linkobject;
   BEGIN
     --  IF TG_OP = 'INSERT' AND (NEW.geometry ISNULL) THEN
       --  RAISE EXCEPTION 'geometry is required';
@@ -161,13 +164,18 @@ CREATE OR REPLACE FUNCTION convert_values()
     --  RAISE WARNING 'geometry not updated: %', SQLERRM;
   converted_geometry = data.st_setsrid(data.ST_GeomFromGeoJSON(NEW.geometry), 4326);
   converted_datetime = (new.properties)->'datetime';
-  SELECT * INTO newlinks FROM unnest(new.links) as linkObj
-  WHERE linkObj.rel = 'derived_from';
-  IF newlinks.href IS NOT NULL THEN
-    filteredlinks = ARRAY[newlinks];
-  ELSE
-    filteredlinks = NULL;
+
+  newlinks := new.links;
+  IF newlinks IS NOT NULL THEN
+    FOREACH link IN ARRAY newlinks LOOP
+      IF link.rel='derived_from' AND link.href IS NOT NULL THEN
+        filteredlinks := ARRAY_APPEND(filteredlinks, link);
+      ELSE
+        filteredlinks := NULL;
+      END IF;
+    END LOOP;
   END IF;
+
   INSERT INTO data.items(
     id,
     type,
@@ -197,16 +205,22 @@ CREATE OR REPLACE FUNCTION convert_collection_links()
   RETURNS trigger AS
   $BODY$
   DECLARE
-    newlinks data.linkobject;
+    newlinks data.linkobject[];
     filteredlinks data.linkobject[];
+    link data.linkobject;
   BEGIN
-  SELECT * INTO newlinks FROM unnest(new.links) as linkObj
-  WHERE linkObj.rel = 'derived_from';
-  IF newlinks.href IS NOT NULL THEN
-    filteredlinks = ARRAY[newlinks];
-  ELSE
-    filteredlinks = NULL;
+ 
+  newlinks := new.links;
+  IF newlinks IS NOT NULL THEN
+    FOREACH link IN ARRAY newlinks LOOP
+      IF link.rel='derived_from' AND link.href IS NOT NULL THEN
+        filteredlinks := ARRAY_APPEND(filteredlinks, link);
+      ELSE
+        filteredlinks := NULL;
+      END IF;
+    END LOOP;
   END IF;
+
   INSERT INTO data.collections(
     id,
     title,
@@ -247,7 +261,7 @@ CREATE OR REPLACE VIEW collectionsobject AS
       FROM data.collectionsLinks)
   ) as links,
   (SELECT ARRAY(
-    SELECT row_to_json(collection) 
+    SELECT row_to_json(collection)
     FROM (SELECT * FROM data.collectionsLinks) collection
   )) as collections;
 

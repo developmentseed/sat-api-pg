@@ -1,4 +1,57 @@
-CREATE OR REPLACE VIEW collectionitems AS
+-- Deploy sat-api-pg:20200217192155-tiebreak to pg
+
+BEGIN;
+ALTER TABLE data.items ADD COLUMN tiebreak SERIAL;
+
+
+DROP VIEW data.itemsLinks CASCADE;
+CREATE OR REPLACE VIEW data.itemsLinks AS
+  SELECT
+  id,
+  type,
+  geometry,
+  bbox,
+  properties,
+  assets,
+  collection,
+  datetime,
+  '0.8.0' AS stac_version,
+  (SELECT array_cat(ARRAY[
+    ROW((
+        SELECT url || '/collections/' || collection || '/' || id
+        FROM data.apiUrls LIMIT 1),
+        'self',
+        'application/geo+json',
+        null)::data.linkobject,
+    ROW((
+        SELECT url || '/collections/' || collection
+        FROM data.apiUrls LIMIT 1),
+        'parent',
+        'application/json',
+        null)::data.linkobject
+  ], links)) as links,
+  tiebreak
+  FROM data.items i;
+
+CREATE VIEW data.items_string_geometry AS
+  SELECT
+  id,
+  type,
+  data.ST_AsGeoJSON(geometry) :: json as geometry,
+  bbox,
+  properties,
+  assets,
+  collection,
+  datetime,
+  links,
+  stac_version
+  FROM data.itemsLinks;
+
+CREATE TRIGGER convert_geometry_tg INSTEAD OF INSERT
+   ON data.items_string_geometry FOR EACH ROW
+   EXECUTE PROCEDURE data.convert_values();
+
+CREATE OR REPLACE VIEW api.collectionitems AS
   SELECT
     c.properties as collectionproperties,
     i.collection as collection,
@@ -16,7 +69,7 @@ CREATE OR REPLACE VIEW collectionitems AS
   FROM data.itemsLinks i
   RIGHT JOIN
     data.collections c ON i.collection = c.id;
-ALTER VIEW collectionitems owner to api;
+
 
 CREATE OR REPLACE FUNCTION api.search(
   bbox numeric[] default NULL,
@@ -80,22 +133,17 @@ PERFORM set_config('response.headers', res_headers, true);
 END;
 $$ LANGUAGE PLPGSQL IMMUTABLE;
 
-CREATE OR REPLACE VIEW items AS
-  SELECT * FROM data.items_string_geometry;
-ALTER VIEW items owner to api;
+CREATE OR REPLACE VIEW api.items AS SELECT * FROM data.items_string_geometry;
 
-CREATE OR REPLACE VIEW collections AS
-  SELECT * FROM data.collectionsLinks;
-ALTER VIEW collections owner to api;
+GRANT select, insert, update on data.items_string_geometry to api;
+GRANT select, insert, update on data.itemsLinks to api;
 
-CREATE OR REPLACE VIEW rootcollections AS
-  SELECT * FROM data.collectionsobject;
-ALTER VIEW rootcollections owner to api;
+GRANT select, insert, update on data.itemsLinks to application;
+GRANT select, insert, update on api.items to application;
+GRANT select, insert, update on data.items_string_geometry to application;
+GRANT usage ON sequence data.items_tiebreak_seq TO application;
 
-CREATE OR REPLACE VIEW root AS
-  SELECT * FROM data.rootLinks;
-ALTER VIEW root owner to api;
+GRANT select on api.collectionitems to anonymous;
+GRANT select on api.items to anonymous;
 
-CREATE OR REPLACE VIEW stac AS
-  SELECT * FROM data.stacLinks;
-ALTER VIEW stac owner to api;
+COMMIT;

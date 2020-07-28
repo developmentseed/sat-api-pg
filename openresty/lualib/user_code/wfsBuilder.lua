@@ -10,3 +10,15 @@ function buildQuery(id, wfsType)
   end
   return wfsQuery
 end
+
+function buildInQuery(ids, wfsType)
+  local wfsQuery
+  if ids and wfsType then
+    wrappedIds = {}
+    for index, value in ipairs(ids) do
+      table.insert(wrappedIds, wrapSingleQuote(value))
+    end
+    wfsQuery = pg_constants[wfsType] .. " IN " .. "(" .. table.concat(wrappedIds, ",") .. ")"
+  end
+  return wfsQuery
+end

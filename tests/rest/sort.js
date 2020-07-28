@@ -39,7 +39,7 @@ describe('sort extension', function () {
       .post(searchPath)
       .send({
         sort: [{
-          field: 'eo:cloud_cover',
+          field: 'properties.eo:cloud_cover',
           direction: 'desc'
         }]
       })
@@ -59,7 +59,7 @@ describe('sort extension', function () {
       .post(searchPath)
       .send({
         sort: [{
-          field: 'eo:cloud_cover',
+          field: 'properties.eo:cloud_cover',
           direction: 'asc'
         }]
       })
@@ -71,6 +71,46 @@ describe('sort extension', function () {
         const thirdcc = r.body.features[2].properties['eo:cloud_cover'];
         firstcc.should.be.below(secondcc);
         secondcc.should.be.below(thirdcc);
+      });
+  });
+
+  it('Search sorts desc by nested property', function (done) {
+    restService()
+      .post(searchPath)
+      .send({
+        sort: [{
+          field: 'properties.eo:cloud_cover',
+          direction: 'desc'
+        }]
+      })
+      .expect('Content-Type', /json/)
+      .expect(200, done)
+      .expect(r => {
+        const firstcc = r.body.features[0].properties['eo:cloud_cover'];
+        const secondcc = r.body.features[1].properties['eo:cloud_cover'];
+        const thirdcc = r.body.features[2].properties['eo:cloud_cover'];
+        firstcc.should.be.above(secondcc);
+        secondcc.should.be.above(thirdcc);
+      });
+  });
+
+  it('Search sorts desc by nested numeric property', function (done) {
+    restService()
+      .post(searchPath)
+      .send({
+        sort: [{
+          field: 'properties.eo:sun_azimuth',
+          direction: 'desc'
+        }]
+      })
+      .expect('Content-Type', /json/)
+      .expect(200, done)
+      .expect(r => {
+        const firstaz = r.body.features[0].properties['eo:sun_azimuth'];
+        const secondaz = r.body.features[1].properties['eo:sun_azimuth'];
+        const thirdaz = r.body.features[2].properties['eo:sun_azimuth'];
+        firstaz.should.be.above(secondaz);
+        secondaz.should.be.above(thirdaz);
       });
   });
 });

@@ -44,4 +44,18 @@ describe('collections filter', function () {
         r.body.features.length.should.be.above(1);
       });
   });
+
+  it('Collections filter works correctly with filters using stored procedure', function (done) {
+    restService()
+      .post(searchPath)
+      .send({
+        collections: ['nocollection'],
+        bbox: [-180, -90, 180, 90]
+      })
+      .expect('Content-Type', /json/)
+      .expect(200, done)
+      .expect(r => {
+        r.body.features.length.should.equal(0);
+      });
+  });
 });
