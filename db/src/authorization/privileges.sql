@@ -12,7 +12,7 @@ grant usage on schema api to anonymous, application;
 grant usage on schema data to anonymous, application;
 
 grant select on data.items to api;
-grant select, insert, update on data.items_string_geometry to api;
+grant select, insert, update, delete on data.items_string_geometry to api;
 grant select, insert, update on data.collections to api;
 grant select, insert, update on data.collectionsLinks to api;
 grant select, insert, update on data.itemsLinks to api;
@@ -35,6 +35,6 @@ grant select, insert, update on data.collectionsLinks to application;
 grant select, insert, update on api.collections to application;
 grant select, insert, update on data.itemsLinks to application;
 grant select, insert, update on data.items to application;
-grant select, insert, update on api.items to application;
+grant select, insert, update, delete on api.items to application;
 grant select, insert, update on data.items_string_geometry to application;
 GRANT usage ON sequence data.items_tiebreak_seq TO application;
