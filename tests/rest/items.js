@@ -2,7 +2,7 @@ import { restService, resetdb } from './common';
 import should from 'should'; // eslint-disable-line no-unused-vars
 import landsatItem from './landsatItem.json';
 import landsatItems from './landsatItems.json';
-import { itemsPath } from './constants';
+import { itemsPath, itemsDeleteSpecificItemPath } from './constants';
 
 const proxy = process.env.SERVER_PROXY_URI;
 describe('items', function () {
@@ -122,13 +122,22 @@ describe('items', function () {
       });
   });
 
-  it('Delete is carried out successfully', function (done) {
+  it('Delete is carried out successfully on specific item', function (done) {
+    restService()
+      .delete(itemsDeleteSpecificItemPath)
+      .set('Prefer', 'return=representation')
+      .set('Content-Type', 'application/json')
+      .withRole('application')
+      .expect(200, done);
+  });
+
+  it('Delete fails on non specific item path', function (done) {
     restService()
       .delete(itemsPath)
       .set('Prefer', 'return=representation')
       .set('Content-Type', 'application/json')
       .withRole('application')
-      .expect(200, done);
+      .expect(405, done);
   });
 
   it('Patch is restricted for items', function (done) {
