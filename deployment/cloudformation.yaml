@@ -239,11 +239,12 @@ Resources:
       DBSubnetGroupName: !Ref 'DBSubnetGroup'
       MasterUsername: !Ref 'DBSuperUser'
       MasterUserPassword: !Ref 'DBSuperPassword'
-      AllocatedStorage: '5'
+      AllocatedStorage: '207'
       StorageType: 'gp2'
-      DBInstanceClass: db.t3.small
+      DBInstanceClass: db.t3.large
       Engine: Postgres
-      EngineVersion: '11'
+      EngineVersion: '13'
+      AllowMajorVersionUpgrade: true
       PubliclyAccessible: true
       VPCSecurityGroups:
         - !Ref ECSSecurityGroup

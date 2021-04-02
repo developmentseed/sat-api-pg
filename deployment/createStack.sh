@@ -17,5 +17,6 @@ aws cloudformation deploy \
     JwtSecret=$JWT_SECRET \
     DesiredCount=$Count \
     OpenRestyImage=$OPEN_RESTY_IMAGE \
+    ECSAMI=$ECSAMI \
   --region $REGION \
   --capabilities CAPABILITY_IAM \

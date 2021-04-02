@@ -46,3 +46,5 @@ OPENRESTY_REPO_URI=552819999234.dkr.ecr.us-east-1.amazonaws.com/sat-api-pg/openr
 OPEN_RESTY_IMAGE=552819999234.dkr.ecr.us-east-1.amazonaws.com/sat-api-pg/openresty
 # psql  postgres://superuser:superuserpass@localhost:5432/app
 # @localhost:5432/app
+
+ECSAMI=
